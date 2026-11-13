@@ -97,3 +97,26 @@ describe('MiniStat', () => {
     expect(container.firstElementChild!.className).toMatch(/warning/);
   });
 });
+
+describe('SelectFilter control', () => {
+  it('is a single bordered select with the label beside it, so there is no box inside a box', () => {
+    render(
+      <SelectFilter
+        label="Sort by"
+        value="a"
+        onChange={() => {}}
+        options={[{ value: 'a', label: 'Name' }]}
+      />,
+    );
+    const select = screen.getByLabelText('Sort by');
+    expect(select.className).toMatch(/\bborder\b/);
+    expect(select.className).toMatch(/\brounded-md\b/);
+    // The label is outside the bordered element, and nothing around the select has a border too.
+    const wrapper = select.parentElement!;
+    expect(wrapper.className).not.toMatch(/\bborder\b/);
+    expect(wrapper.parentElement!.className).not.toMatch(/\bborder\b/);
+    expect(screen.getByText('Sort by').parentElement).toBe(
+      wrapper.parentElement,
+    );
+  });
+});

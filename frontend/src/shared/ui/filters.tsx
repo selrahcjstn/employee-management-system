@@ -79,29 +79,32 @@ export function SelectFilter<T extends string>({
 }: SelectFilterProps<T>) {
   const id = useId();
   return (
-    <div className="relative flex h-10 shrink-0 items-center gap-2 rounded-md border border-field bg-neutral-0 pr-8 pl-3 focus-within:border-primary-600">
+    <div className="flex shrink-0 items-center gap-2">
       <label
         htmlFor={id}
         className="text-sm whitespace-nowrap text-neutral-600"
       >
         {label}
       </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value as T)}
-        className="h-full appearance-none bg-transparent pr-2 text-sm text-neutral-900"
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDownIcon
-        size={16}
-        className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-neutral-500"
-      />
+      {/* The select itself is the bordered control, so its focus ring fits it exactly. */}
+      <div className="relative">
+        <select
+          id={id}
+          value={value}
+          onChange={(event) => onChange(event.target.value as T)}
+          className="h-10 appearance-none rounded-md border border-field bg-neutral-0 pr-8 pl-3 text-sm text-neutral-900 focus:border-primary-600"
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDownIcon
+          size={16}
+          className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-neutral-500"
+        />
+      </div>
     </div>
   );
 }
