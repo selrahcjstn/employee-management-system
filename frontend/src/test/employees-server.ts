@@ -1,5 +1,10 @@
 import type { Employee, EmployeeInput } from '../features/employees/types';
-import { apiError, delay, type FakeReply } from './fake-server';
+import {
+  apiError,
+  delay,
+  type FakeReply,
+  type RecordedCall,
+} from './fake-server';
 import { authServer } from './render-app';
 
 let counter = 0;
@@ -26,6 +31,11 @@ interface Options {
   /** How long the list takes to answer, to see the loading state. */
   listDelayMs?: number;
   saveDelayMs?: number;
+  /** Answers other endpoints (the salary ones) before the employee endpoints do. */
+  extend?: (
+    call: RecordedCall,
+    employees: Employee[],
+  ) => FakeReply | undefined | Promise<FakeReply | undefined>;
 }
 
 /**
@@ -46,6 +56,8 @@ export function employeesServer(
   const server = authServer({
     signedIn: true,
     handle: async (call) => {
+      const extended = await options.extend?.(call, employees);
+      if (extended) return extended;
       if (call.url === '/employees' && call.method === 'GET') {
         await delay(options.listDelayMs ?? 0);
         if (fail.list)

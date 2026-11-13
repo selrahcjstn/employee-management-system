@@ -305,10 +305,12 @@ Split screen from `lg` (1024px) up, form only below it.
 - States: loading is a skeleton table; no employees is an empty state with an "Add employee" action; a search with no match says so and offers "Clear search"; a load error shows a plain message (never the raw server text) with Retry.
 
 ### 7.3 Salary (`/salary`)
-- Employee picker at top (searchable select).
-- Card "Current basic salary": large figure (`text-3xl`, tabular), assigned date, or empty state.
-- Form: monthly basic salary (money field), "Save salary" button. The helper text says an adjustment keeps the previous salary in history.
-- Card "Salary history": table of previous salaries (amount, replaced on), newest first.
+- Header: title "Salary" and a one-line description. Below it the employee picker (`max-w-sm`), a searchable combobox (type to filter by name or Employee ID, arrow keys, Enter to choose, Escape to close). The chosen employee is kept in the address (`/salary?employee=<id>`), so a refresh or a shared link keeps it. Until one is chosen, an empty state says "Choose an employee".
+- Two cards side by side from `lg` (stacked below it): "Current basic salary" (large figure, `text-3xl`, tabular, with "per month, since {date}"; "No salary assigned yet" when none) and the form.
+- Form: titled "Assign salary" or "Adjust salary". One money field with a fixed peso sign (label "Monthly basic salary", or "New monthly basic salary" when adjusting), checked as text: greater than 0, at most 2 decimals, at most ₱99,999,999.99. Button "Assign salary" or "Save salary". The hint says the current salary is kept in the history. The same amount as the current salary is refused inline ("This is already the current salary").
+- A save shows a toast ("Salary assigned" or "Salary updated"; an info toast "Salary is already ₱X. Nothing changed." if the server sees no change), clears the field, and refreshes the Employees list and the computation.
+- Card "Salary history": table of previous salaries (amount, assigned, replaced), newest first; a short note when there are none. Dates are shown as the Manila date.
+- States: loading skeletons, a plain error with Retry, a field-level API error under the field, any other save failure as an alert inside the form that keeps the typed amount.
 
 ### 7.4 Salary Components (`/components`)
 - Employee picker.

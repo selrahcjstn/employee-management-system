@@ -12,7 +12,7 @@ import { ToastContext, type ToastApi } from './toast-context';
 
 const SUCCESS_MS = 4000;
 
-type Kind = 'success' | 'error';
+type Kind = 'success' | 'info' | 'error';
 
 interface ToastItem {
   id: number;
@@ -22,6 +22,7 @@ interface ToastItem {
 
 const STYLES: Record<Kind, string> = {
   success: 'border-success-border bg-success-bg text-success',
+  info: 'border-info-border bg-info-bg text-info',
   error: 'border-danger-border bg-danger-bg text-danger',
 };
 
@@ -35,7 +36,7 @@ function Toast({
   const { id, kind } = item;
   // `onDismiss` is stable, so a toast's timer is not restarted when another toast arrives.
   useEffect(() => {
-    if (kind !== 'success') return;
+    if (kind === 'error') return;
     const timer = setTimeout(() => onDismiss(id), SUCCESS_MS);
     return () => clearTimeout(timer);
   }, [id, kind, onDismiss]);
@@ -43,7 +44,7 @@ function Toast({
   const Icon = item.kind === 'success' ? CheckCircleIcon : AlertCircleIcon;
   return (
     <div
-      role={item.kind === 'success' ? 'status' : 'alert'}
+      role={item.kind === 'error' ? 'alert' : 'status'}
       className={cx(
         'pointer-events-auto flex w-80 max-w-full animate-toast-in items-start gap-2 rounded-lg border p-4 text-sm shadow-md',
         STYLES[item.kind],
@@ -64,7 +65,7 @@ function Toast({
 }
 
 /**
- * Toasts in the top right, 16px from the edges and 8px apart (DESIGN.md 6.7). A success toast
+ * Toasts in the top right, 16px from the edges and 8px apart (DESIGN.md 6.7). A success or info toast
  * (role="status") goes away after 4 seconds; an error toast (role="alert") stays until dismissed.
  */
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -83,6 +84,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const api = useMemo<ToastApi>(
     () => ({
       success: (message) => add('success', message),
+      info: (message) => add('info', message),
       error: (message) => add('error', message),
     }),
     [add],

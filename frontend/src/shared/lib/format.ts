@@ -9,6 +9,13 @@ const DATE = new Intl.DateTimeFormat('en-US', {
   timeZone: 'UTC',
 });
 
+const DATE_MANILA = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'Asia/Manila',
+});
+
 /**
  * "33500.00" -> "₱33,500.00". The API sends money as a decimal string; the string goes straight to
  * Intl, which formats decimal strings exactly, so no amount ever passes through a float.
@@ -22,4 +29,9 @@ export function formatPeso(amount: string): string {
 export function formatDate(isoDate: string): string {
   const [year, month, day] = isoDate.split('-').map(Number);
   return DATE.format(new Date(Date.UTC(year!, month! - 1, day)));
+}
+
+/** "2026-11-13T17:00:00.000Z" -> "Nov 14, 2026". A moment in time, shown as the date in Manila, where the business works. */
+export function formatTimestamp(isoDateTime: string): string {
+  return DATE_MANILA.format(new Date(isoDateTime));
 }

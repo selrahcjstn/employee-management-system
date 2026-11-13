@@ -31,7 +31,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Pay',
     items: [
-      { to: '/salary', label: 'Salary', icon: WalletIcon, enabled: false },
+      { to: '/salary', label: 'Salary', icon: WalletIcon, enabled: true },
       {
         to: '/components',
         label: 'Components',
