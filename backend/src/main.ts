@@ -11,7 +11,7 @@ async function bootstrap() {
   app.enableShutdownHooks();
   if (env.swaggerEnabled) {
     const swagger = new DocumentBuilder()
-      .setTitle('Salary Management API')
+      .setTitle('Employee & Salary Management API')
       .addBearerAuth()
       .build();
     SwaggerModule.setup(

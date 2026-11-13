@@ -1,4 +1,4 @@
-# Employee Onboarding and Salary Management System
+# Employee & Salary Management
 
 A small HR/payroll-style web app with four integrated modules: onboard employees, assign each a monthly basic salary, manage dynamic salary components per employee, and compute salary rates (annual, daily, hourly, per-minute) in Philippine Peso. The API is protected by JWT authentication (short-lived access token plus a rotating refresh token).
 
