@@ -6,10 +6,11 @@ const components = Object.entries(icons).filter(([name]) =>
 ) as [string, (props: icons.IconProps) => React.JSX.Element][];
 
 describe('icons', () => {
-  it('has all thirteen icons from src/assets/icons', () => {
+  it('has all seventeen icons from src/assets/icons', () => {
     expect(components.map(([name]) => name).sort()).toEqual([
       'AlertCircleIcon',
       'CalculatorIcon',
+      'CheckCircleIcon',
       'ChevronDownIcon',
       'ChevronRightIcon',
       'CloseIcon',
@@ -19,6 +20,9 @@ describe('icons', () => {
       'LogOutIcon',
       'MenuIcon',
       'PanelLeftIcon',
+      'PencilIcon',
+      'PlusIcon',
+      'SearchIcon',
       'UsersIcon',
       'WalletIcon',
     ]);
@@ -35,12 +39,14 @@ describe('icons', () => {
   );
 
   it.each(components)(
-    '%s is 20px by default and 16px when asked',
+    '%s is 20px by default, and 16px or 48px when asked',
     (_name, Icon) => {
       const { container: normal } = render(<Icon />);
       expect(normal.firstElementChild!.className).toMatch(/\bsize-5\b/);
       const { container: small } = render(<Icon size={16} />);
       expect(small.firstElementChild!.className).toMatch(/\bsize-4\b/);
+      const { container: large } = render(<Icon size={48} />);
+      expect(large.firstElementChild!.className).toMatch(/\bsize-12\b/);
     },
   );
 

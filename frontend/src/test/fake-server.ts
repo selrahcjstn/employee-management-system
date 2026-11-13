@@ -15,6 +15,8 @@ export interface FakeReply {
 export interface RecordedCall {
   method: string;
   url: string;
+  /** Query-string parameters, for example `{ search: 'cruz' }`. */
+  params: Record<string, string> | undefined;
   authorization: string | undefined;
   body: unknown;
 }
@@ -36,6 +38,7 @@ export function installFakeServer(handler: Handler): RecordedCall[] {
     const call: RecordedCall = {
       method: (config.method ?? 'get').toUpperCase(),
       url: config.url ?? '',
+      params: config.params as Record<string, string> | undefined,
       authorization: authorization ? String(authorization) : undefined,
       body:
         typeof config.data === 'string' ? JSON.parse(config.data) : config.data,

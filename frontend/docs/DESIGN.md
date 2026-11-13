@@ -296,9 +296,13 @@ Split screen from `lg` (1024px) up, form only below it.
 - **Motion (this page only):** the heading, fields and button fade up in a stagger (500ms ease-out, 80ms steps); the cards bob (6 to 8s loops), the coin wobbles, the circles drift and the pay bars grow in once. The primary button lifts 1px with `shadow-md` on hover and drops back when pressed. The password eye icon cross-fades. These are decorative, so they may run longer than the 150ms of section 5. With `prefers-reduced-motion: reduce` every animation and transition completes at once with no delay, so nothing waits to appear.
 
 ### 7.2 Employees (`/employees`)
-- Page title "Employees", search field, primary "Add employee" button.
-- Table: Employee ID, Full name, Date hired, Monthly basic salary (right aligned money or "Not assigned" badge), actions (Edit).
-- Add/Edit in a dialog or side panel: Employee ID (locked when editing), First name, Middle name (optional), Last name, Date hired. Inline errors and `409` on Employee ID.
+- Header: title "Employees", a one-line description, and the primary "Add employee" button (plus icon) on the right. They wrap on narrow screens.
+- One card (`rounded-lg`, border neutral-200, `shadow-sm`) holds the search field and the table. The search field is 40px, max `max-w-sm`, with a search icon, a visually hidden label "Search employees" and the placeholder "Search by name or Employee ID". It searches on the server 300ms after typing stops.
+- Table: Employee ID (mono, weight 500), Full name, Date hired ("MMM d, yyyy"), Monthly basic salary (right aligned money, or a neutral "Not assigned" badge), and an Actions column with an icon-only Edit button (`aria-label` "Edit {full name}", tooltip "Edit"). No delete: employees are not deleted. Rows are 48px, the header 40px. The table scrolls sideways inside the card on small screens.
+- Pagination below the table, 10 rows per page: "Showing 11–20 of 42" with Previous and Next. A new search returns to page 1.
+- Add and Edit use one 480px dialog (6.6): Employee ID, First name, Middle name (optional), Last name, Date hired (not after today in Manila). Add starts on Employee ID; Edit starts on First name and the Employee ID is read-only with the hint "The Employee ID can't be changed." Buttons: Cancel, and "Add employee" or "Save changes" (loading while saving). A `409` shows "Employee ID already exists" under the Employee ID field; other `400` field errors show under their fields; anything else shows an alert at the top of the dialog and keeps what was typed.
+- A saved change closes the dialog, shows a success toast ("Employee added" or "Employee updated"), and returns focus to the button that opened it. The list refreshes.
+- States: loading is a skeleton table; no employees is an empty state with an "Add employee" action; a search with no match says so and offers "Clear search"; a load error shows a plain message (never the raw server text) with Retry.
 
 ### 7.3 Salary (`/salary`)
 - Employee picker at top (searchable select).

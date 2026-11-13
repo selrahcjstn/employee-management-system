@@ -1,5 +1,6 @@
 import alertCircle from '../../assets/icons/alert-circle.svg?raw';
 import calculator from '../../assets/icons/calculator.svg?raw';
+import checkCircle from '../../assets/icons/check-circle.svg?raw';
 import chevronDown from '../../assets/icons/chevron-down.svg?raw';
 import chevronRight from '../../assets/icons/chevron-right.svg?raw';
 import eyeOff from '../../assets/icons/eye-off.svg?raw';
@@ -8,16 +9,21 @@ import list from '../../assets/icons/list.svg?raw';
 import logOut from '../../assets/icons/log-out.svg?raw';
 import menu from '../../assets/icons/menu.svg?raw';
 import panelLeft from '../../assets/icons/panel-left.svg?raw';
+import pencil from '../../assets/icons/pencil.svg?raw';
+import plus from '../../assets/icons/plus.svg?raw';
+import search from '../../assets/icons/search.svg?raw';
 import users from '../../assets/icons/users.svg?raw';
 import wallet from '../../assets/icons/wallet.svg?raw';
 import x from '../../assets/icons/x.svg?raw';
 import { cx } from '../lib/cx';
 
 export interface IconProps {
-  /** 20px in buttons and navigation, 16px in table cells and inline messages. */
-  size?: 16 | 20;
+  /** 20px in buttons and navigation, 16px in table cells and inline messages, 48px in empty states. */
+  size?: 16 | 20 | 48;
   className?: string;
 }
+
+const SIZE_CLASS = { 16: 'size-4', 20: 'size-5', 48: 'size-12' } as const;
 
 interface SvgIconProps extends IconProps {
   /** The text of an SVG file from src/assets/icons, imported with `?raw`. */
@@ -33,11 +39,7 @@ function SvgIcon({ source, size = 20, className }: SvgIconProps) {
   return (
     <span
       aria-hidden="true"
-      className={cx(
-        'icon inline-block shrink-0',
-        size === 16 ? 'size-4' : 'size-5',
-        className,
-      )}
+      className={cx('icon inline-block shrink-0', SIZE_CLASS[size], className)}
       dangerouslySetInnerHTML={{ __html: source }}
     />
   );
@@ -48,6 +50,9 @@ export const AlertCircleIcon = (props: IconProps) => (
 );
 export const CalculatorIcon = (props: IconProps) => (
   <SvgIcon source={calculator} {...props} />
+);
+export const CheckCircleIcon = (props: IconProps) => (
+  <SvgIcon source={checkCircle} {...props} />
 );
 export const ChevronDownIcon = (props: IconProps) => (
   <SvgIcon source={chevronDown} {...props} />
@@ -75,6 +80,15 @@ export const MenuIcon = (props: IconProps) => (
 );
 export const PanelLeftIcon = (props: IconProps) => (
   <SvgIcon source={panelLeft} {...props} />
+);
+export const PencilIcon = (props: IconProps) => (
+  <SvgIcon source={pencil} {...props} />
+);
+export const PlusIcon = (props: IconProps) => (
+  <SvgIcon source={plus} {...props} />
+);
+export const SearchIcon = (props: IconProps) => (
+  <SvgIcon source={search} {...props} />
 );
 export const UsersIcon = (props: IconProps) => (
   <SvgIcon source={users} {...props} />

@@ -5,6 +5,8 @@ type Variant = 'primary' | 'secondary' | 'ghost';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
+  /** `md` is 40px high, `sm` is 32px (DESIGN.md 4.2). */
+  size?: 'md' | 'sm';
   /** Replaces the label with a spinner at the same width and disables the button. */
   loading?: boolean;
   fullWidth?: boolean;
@@ -22,6 +24,7 @@ const VARIANTS: Record<Variant, string> = {
 
 export function Button({
   variant = 'primary',
+  size = 'md',
   loading = false,
   fullWidth = false,
   icon,
@@ -37,7 +40,8 @@ export function Button({
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cx(
-        'relative inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition disabled:cursor-not-allowed',
+        'relative inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition disabled:cursor-not-allowed',
+        size === 'sm' ? 'h-8 px-2' : 'h-10 px-4',
         VARIANTS[variant],
         // A loading button keeps its colors; only a button that is disabled for another reason greys out.
         !loading &&

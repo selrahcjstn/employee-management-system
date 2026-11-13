@@ -17,6 +17,7 @@ describe('SVG assets (inlined into the page, so they must be safe and consistent
     expect(files.map((f) => f.name).sort()).toEqual([
       'icons/alert-circle.svg',
       'icons/calculator.svg',
+      'icons/check-circle.svg',
       'icons/chevron-down.svg',
       'icons/chevron-right.svg',
       'icons/eye-off.svg',
@@ -25,6 +26,9 @@ describe('SVG assets (inlined into the page, so they must be safe and consistent
       'icons/log-out.svg',
       'icons/menu.svg',
       'icons/panel-left.svg',
+      'icons/pencil.svg',
+      'icons/plus.svg',
+      'icons/search.svg',
       'icons/users.svg',
       'icons/wallet.svg',
       'icons/x.svg',

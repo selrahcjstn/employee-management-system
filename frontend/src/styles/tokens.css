@@ -64,6 +64,9 @@
   --text-3xl: 32px;
   --text-3xl--line-height: 40px;
 
+  /* Table header letter spacing (3.3: the one place all caps is allowed) */
+  --tracking-header: 0.04em;
+
   /* Shape and elevation (5) */
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -94,8 +97,44 @@
   --animate-wobble: wobble 5s ease-in-out infinite alternate;
   --animate-drift: drift 16s ease-in-out infinite alternate;
 
+  /* Dialogs open in 200ms, toasts in 150ms (DESIGN.md 5). They answer an action, so they are not decorative. */
+  --animate-dialog-in: dialog-in 200ms ease-out both;
+  --animate-overlay-in: overlay-in 200ms ease-out both;
+  --animate-toast-in: toast-in 150ms ease-out both;
+
   /* A menu opening (DESIGN.md 5): 150ms. It answers a click, so it is not decorative. */
   --animate-menu-in: menu-in 150ms ease-out both;
+
+  @keyframes dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes overlay-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateX(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 
   @keyframes menu-in {
     from {
