@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { JwtAuthGuard } from './common/jwt-auth.guard.js';
+import { RejectInvalidTextMiddleware } from './common/reject-invalid-text.middleware.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { ComputationModule } from './modules/computation/computation.module.js';
 import { EmployeesModule } from './modules/employees/employees.module.js';
@@ -25,4 +26,8 @@ import { PrismaModule } from './prisma/prisma.module.js';
   ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RejectInvalidTextMiddleware).forRoutes('*');
+  }
+}

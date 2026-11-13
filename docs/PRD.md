@@ -459,7 +459,7 @@ All endpoints below require `Authorization: Bearer <access token>`.
 - CORS: explicit frontend origin with `credentials: true` (no wildcard). Cookie `Secure` in production, `SameSite=Strict`, `Path=/api/auth` so it is not sent on normal API calls.
 - `@nestjs/throttler` on `/auth/login` and `/auth/refresh`; Helmet for security headers.
 
-**Conventions:** DTOs with `class-validator` and a global `ValidationPipe` (whitelist, transform); consistent error shape `{ statusCode, message, errors[] }`; `400` validation, `404` not found, `409` duplicate; Prisma migrations (`prisma migrate`), never `db push` in the final version.
+**Conventions:** DTOs with `class-validator` and a global `ValidationPipe` (whitelist, transform); consistent error shape `{ statusCode, message, errors[] }`; `400` validation, `404` not found, `409` duplicate, `413` body too large; a global exception filter is the single exit for every error: known database errors (unique, foreign key, check, not-null, data-exception, connection) are mapped to 409/400/503 with generic messages, and only truly unexpected errors return a generic `500` (details go to the server log, never to the client); a global middleware rejects text with NUL characters or lone surrogates (invalid Unicode) in the body or query with `400` before it reaches validation or the database; Prisma migrations (`prisma migrate`), never `db push` in the final version.
 
 **Computation response (shape)**
 ```json
