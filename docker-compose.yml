@@ -1,0 +1,25 @@
+# Local PostgreSQL for development. Prisma 8 needs PostgreSQL 15 or newer.
+#   docker compose up -d
+# Then set DATABASE_URL in backend/.env to match (see backend/.env.example).
+services:
+  db:
+    image: postgres:17
+    container_name: salary-management-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-salary_management_system_db}
+    ports:
+      # Change the host port if a local PostgreSQL already uses 5432.
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - salary-management-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-salary_management_system_db}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  salary-management-data:
