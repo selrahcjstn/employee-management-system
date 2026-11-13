@@ -2,7 +2,6 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { NavLink } from 'react-router';
 import { Logo } from '../../features/auth/components/Logo';
 import { cx } from '../../shared/lib/cx';
-import { Badge } from '../../shared/ui/Badge';
 import { CloseIcon } from '../../shared/ui/icons';
 import { IconButton } from '../../shared/ui/IconButton';
 import { NAV_GROUPS, type NavItem } from './nav-items';
@@ -48,24 +47,6 @@ function SidebarItem({ item, collapsed, onNavigate }: SidebarItemProps) {
   const label = (
     <span className={cx(LABEL, collapsed && RAIL_HIDDEN)}>{item.label}</span>
   );
-
-  if (!item.enabled) {
-    return (
-      <span
-        aria-disabled="true"
-        className={cx(
-          ITEM,
-          'cursor-not-allowed text-neutral-400',
-          collapsed && RAIL_CENTER,
-        )}
-      >
-        <Icon />
-        {label}
-        <Badge className={cx('ml-auto', collapsed && 'lg:hidden')}>Soon</Badge>
-        {collapsed && <Tooltip>{item.label} (coming soon)</Tooltip>}
-      </span>
-    );
-  }
 
   return (
     <NavLink

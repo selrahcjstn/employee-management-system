@@ -86,6 +86,8 @@ export function SalaryForm({ employeeId, current }: SalaryFormProps) {
         <TextField
           label={current ? 'New monthly basic salary' : 'Monthly basic salary'}
           required
+          // With no salary yet, the one thing to do is type it.
+          autoFocus={current === null}
           inputMode="decimal"
           autoComplete="off"
           startAdornment={<span aria-hidden="true">₱</span>}

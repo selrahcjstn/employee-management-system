@@ -16,6 +16,7 @@ describe('SVG assets (inlined into the page, so they must be safe and consistent
   it('finds the icons, the login illustration set and the logo', () => {
     expect(files.map((f) => f.name).sort()).toEqual([
       'icons/alert-circle.svg',
+      'icons/arrow-left.svg',
       'icons/calculator.svg',
       'icons/check-circle.svg',
       'icons/chevron-down.svg',
@@ -26,6 +27,7 @@ describe('SVG assets (inlined into the page, so they must be safe and consistent
       'icons/list.svg',
       'icons/log-out.svg',
       'icons/menu.svg',
+      'icons/more-horizontal.svg',
       'icons/panel-left.svg',
       'icons/pencil.svg',
       'icons/plus.svg',

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { parseApiError } from '../../../shared/api/errors';
 import { cx } from '../../../shared/lib/cx';
+import { usePageTitle } from '../../../shared/lib/use-page-title';
 import { useDebouncedValue } from '../../../shared/lib/use-debounced-value';
 import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
@@ -34,14 +35,20 @@ export function EmployeesPage() {
   const toast = useToast();
   const [search, setSearch] = useState('');
   const query = useDebouncedValue(search.trim(), SEARCH_DELAY_MS);
-  // The page belongs to the search it was chosen in, so a new search starts on page 1 without an effect.
-  const [pageState, setPageState] = useState({ query: '', page: 1 });
-  const page = pageState.query === query ? pageState.page : 1;
-  const setPage = (next: number) => setPageState({ query, page: next });
+  const [unassignedOnly, setUnassignedOnly] = useState(false);
+  // The page belongs to the search and filter it was chosen in, so changing either starts on page 1 without an effect.
+  const view = `${query}|${unassignedOnly}`;
+  const [pageState, setPageState] = useState({ view: '|false', page: 1 });
+  const page = pageState.view === view ? pageState.page : 1;
+  const setPage = (next: number) => setPageState({ view, page: next });
+  usePageTitle('Employees');
   const [dialog, setDialog] = useState<DialogState>({ open: false });
   const employees = useEmployees(query);
 
-  const rows = employees.data ?? [];
+  const found = employees.data ?? [];
+  const rows = unassignedOnly
+    ? found.filter((employee) => employee.currentBasicSalary === null)
+    : found;
   const lastPage = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const currentPage = Math.min(page, lastPage);
   const visible = rows.slice(
@@ -70,7 +77,7 @@ export function EmployeesPage() {
         </Alert>
       </div>
     );
-  } else if (rows.length === 0 && query === '') {
+  } else if (found.length === 0 && query === '') {
     content = (
       <EmptyState
         icon={<UsersIcon size={48} />}
@@ -87,11 +94,25 @@ export function EmployeesPage() {
     content = (
       <EmptyState
         icon={<SearchIcon size={48} />}
-        title={`No employees match “${query}”`}
-        description="Check the spelling, or search by Employee ID."
+        title={
+          query
+            ? `No employees match “${query}”`
+            : 'Everyone has a basic salary'
+        }
+        description={
+          query
+            ? 'Check the spelling, or search by Employee ID.'
+            : 'No employee is waiting for a salary right now.'
+        }
         action={
-          <Button variant="secondary" onClick={() => setSearch('')}>
-            Clear search
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setSearch('');
+              setUnassignedOnly(false);
+            }}
+          >
+            {unassignedOnly ? 'Clear filters' : 'Clear search'}
           </Button>
         }
       />
@@ -126,8 +147,8 @@ export function EmployeesPage() {
         <div>
           <h1 className="text-2xl font-semibold text-neutral-900">Employees</h1>
           <p className="mt-2 text-sm text-neutral-600">
-            The people you have onboarded. Their basic salary is set on the
-            Salary page.
+            The people you have onboarded. Open one to manage their salary,
+            components and computation.
           </p>
         </div>
         <Button icon={<PlusIcon />} onClick={openAdd}>
@@ -136,7 +157,7 @@ export function EmployeesPage() {
       </div>
 
       <section className="mt-6 rounded-lg border border-neutral-200 bg-neutral-0 shadow-sm">
-        <div className="border-b border-neutral-200 p-4">
+        <div className="flex flex-wrap items-center gap-4 border-b border-neutral-200 p-4">
           <TextField
             type="search"
             label="Search employees"
@@ -144,10 +165,19 @@ export function EmployeesPage() {
             placeholder="Search by name or Employee ID"
             autoComplete="off"
             startAdornment={<SearchIcon />}
-            className="max-w-sm"
+            className="w-full max-w-sm"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
+          <label className="flex h-10 items-center gap-2 text-sm text-neutral-700">
+            <input
+              type="checkbox"
+              checked={unassignedOnly}
+              onChange={(event) => setUnassignedOnly(event.target.checked)}
+              className="size-4 accent-primary-600"
+            />
+            Not assigned only
+          </label>
         </div>
         {content}
       </section>

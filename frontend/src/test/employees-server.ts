@@ -108,6 +108,15 @@ export function employeesServer(
       }
 
       const patch = /^\/employees\/([^/]+)$/.exec(call.url);
+      if (patch && call.method === 'GET') {
+        if (!/^[0-9a-f-]{36}$/.test(patch[1]!)) {
+          return apiError(400, 'Validation failed (uuid is expected)');
+        }
+        const employee = employees.find((e) => e.id === patch[1]);
+        if (!employee) return apiError(404, 'Employee not found');
+        const { currentBasicSalary: _salary, ...saved } = employee;
+        return { status: 200, data: saved };
+      }
       if (patch && call.method === 'PATCH') {
         await delay(options.saveDelayMs ?? 0);
         if (fail.save) return fail.save;

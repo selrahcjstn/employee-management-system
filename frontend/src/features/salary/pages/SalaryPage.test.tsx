@@ -11,64 +11,45 @@ const ana = makeEmployee({
   firstName: 'Ana',
   lastName: 'Reyes',
 });
-const ben = makeEmployee({
-  employeeNo: 'EMP-002',
-  firstName: 'Ben',
-  lastName: 'Lim',
-});
 
 const puts = (calls: RecordedCall[]) => calls.filter((c) => c.method === 'PUT');
 const amountField = () => screen.getByLabelText(/monthly basic salary/i);
 
+/** The workspace header repeats the pay figures, so look for the current salary inside its own card. */
+const inCurrent = async (text: string) =>
+  within(
+    await screen.findByRole('region', { name: 'Current basic salary' }),
+  ).findByText(text);
+
 describe('Salary page', () => {
-  it('asks for an employee first', async () => {
-    salaryServer([ana, ben]);
-    renderApp('/salary');
-    expect(
-      await screen.findByRole('heading', { name: 'Choose an employee' }),
-    ).toBeInTheDocument();
-    expect(screen.queryByRole('form')).not.toBeInTheDocument();
-  });
-
-  it('lists employees by name with their Employee ID, and puts the choice in the address', async () => {
-    salaryServer([ana, ben]);
-    const user = userEvent.setup();
-    const { router } = renderApp('/salary');
-    await screen.findByRole('heading', { name: 'Choose an employee' });
-
-    await user.click(screen.getByRole('combobox', { name: 'Employee' }));
-    expect(
-      await screen.findByRole('option', { name: 'Ana ReyesEMP-001' }),
-    ).toBeInTheDocument();
-    await user.click(screen.getByRole('option', { name: /Ben Lim/ }));
-
-    expect(router.state.location.search).toBe(`?employee=${ben.id}`);
-    expect(screen.getByRole('combobox', { name: 'Employee' })).toHaveValue(
-      'Ben Lim',
-    );
-  });
-
-  it('opens straight to the employee in the address', async () => {
+  it('opens the salary tab of the employee in the address, showing their current salary', async () => {
     salaryServer([ana], {
       [ana.id]: {
         current: makeSalary(ana.id, '33500.00', '2025-03-01T00:00:00.000Z'),
       },
     });
-    renderApp(`/salary?employee=${ana.id}`);
+    renderApp(`/employees/${ana.id}/salary`);
 
-    expect(await screen.findByText('₱33,500.00')).toBeInTheDocument();
     expect(
-      screen.getByText('per month, since Mar 1, 2025'),
+      await screen.findByText('per month, since Mar 1, 2025'),
     ).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: 'Employee' })).toHaveValue(
-      'Ana Reyes',
-    );
+    expect(
+      screen.getByRole('heading', { name: 'Ana Reyes' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+  });
+
+  it('focuses the amount field when there is no salary yet, so the next thing is to type it', async () => {
+    salaryServer([ana]);
+    renderApp(`/employees/${ana.id}/salary`);
+    await screen.findByText('No salary assigned yet');
+    expect(amountField()).toHaveFocus();
   });
 
   describe('an employee with no salary', () => {
     it('says so and offers to assign one, with an empty history', async () => {
       salaryServer([ana]);
-      renderApp(`/salary?employee=${ana.id}`);
+      renderApp(`/employees/${ana.id}/salary`);
 
       expect(
         await screen.findByText('No salary assigned yet'),
@@ -82,14 +63,14 @@ describe('Salary page', () => {
     it('assigns the first salary, shows it, and sends it as a two-decimal string', async () => {
       const { calls } = salaryServer([ana]);
       const user = userEvent.setup();
-      renderApp(`/salary?employee=${ana.id}`);
+      renderApp(`/employees/${ana.id}/salary`);
       await screen.findByText('No salary assigned yet');
 
       await user.type(amountField(), '30000.5');
       await user.click(screen.getByRole('button', { name: 'Assign salary' }));
 
       expect(await screen.findByText('Salary assigned')).toBeInTheDocument();
-      expect(await screen.findByText('₱30,000.50')).toBeInTheDocument();
+      expect(await inCurrent('₱30,000.50')).toBeInTheDocument();
       expect(puts(calls).map((c) => [c.url, c.body])).toEqual([
         [`/employees/${ana.id}/salary`, { monthlyBasicSalary: '30000.50' }],
       ]);
@@ -113,7 +94,7 @@ describe('Salary page', () => {
       async (input, message) => {
         const { calls } = salaryServer([ana]);
         const user = userEvent.setup();
-        renderApp(`/salary?employee=${ana.id}`);
+        renderApp(`/employees/${ana.id}/salary`);
         await screen.findByText('No salary assigned yet');
 
         if (input) await user.type(amountField(), input);
@@ -145,9 +126,9 @@ describe('Salary page', () => {
 
     it('shows the current salary and the history, newest first', async () => {
       seeded();
-      renderApp(`/salary?employee=${ana.id}`);
+      renderApp(`/employees/${ana.id}/salary`);
 
-      expect(await screen.findByText('₱30,000.00')).toBeInTheDocument();
+      expect(await inCurrent('₱30,000.00')).toBeInTheDocument();
       const rows = within(
         await screen.findByRole('table', { name: 'Salary history' }),
       )
@@ -162,14 +143,14 @@ describe('Salary page', () => {
     it('adjusts the salary: the old amount moves to the history and the Employees list follows', async () => {
       seeded();
       const user = userEvent.setup();
-      const { router } = renderApp(`/salary?employee=${ana.id}`);
-      await screen.findByText('₱30,000.00');
+      const { router } = renderApp(`/employees/${ana.id}/salary`);
+      await inCurrent('₱30,000.00');
 
       await user.type(amountField(), '35000');
       await user.click(screen.getByRole('button', { name: 'Save salary' }));
 
       expect(await screen.findByText('Salary updated')).toBeInTheDocument();
-      expect(await screen.findByText('₱35,000.00')).toBeInTheDocument();
+      expect(await inCurrent('₱35,000.00')).toBeInTheDocument();
       const history = await screen.findByRole('table', {
         name: 'Salary history',
       });
@@ -186,8 +167,8 @@ describe('Salary page', () => {
     it('refuses the same amount in any spelling, without calling the API', async () => {
       const { calls } = seeded();
       const user = userEvent.setup();
-      renderApp(`/salary?employee=${ana.id}`);
-      await screen.findByText('₱30,000.00');
+      renderApp(`/employees/${ana.id}/salary`);
+      await inCurrent('₱30,000.00');
 
       await user.type(amountField(), '30000.0');
       await user.click(screen.getByRole('button', { name: 'Save salary' }));
@@ -203,8 +184,8 @@ describe('Salary page', () => {
       // Another window already saved 30,000.00 while this form was open.
       const server = seeded();
       const user = userEvent.setup();
-      renderApp(`/salary?employee=${ana.id}`);
-      await screen.findByText('₱30,000.00');
+      renderApp(`/employees/${ana.id}/salary`);
+      await inCurrent('₱30,000.00');
       const row = server.rows.get(ana.id)!;
       // A new object: the page still holds the old one it fetched.
       row.current = { ...row.current!, monthlyBasicSalary: '31000.00' };
@@ -227,7 +208,7 @@ describe('Salary page', () => {
         'monthlyBasicSalary must be a valid amount',
       ]);
       const user = userEvent.setup();
-      renderApp(`/salary?employee=${ana.id}`);
+      renderApp(`/employees/${ana.id}/salary`);
       await screen.findByText('No salary assigned yet');
 
       await user.type(amountField(), '30000');
@@ -242,7 +223,7 @@ describe('Salary page', () => {
       const server = salaryServer([ana]);
       server.fail.save = apiError(500, 'insert into salary_assignments failed');
       const user = userEvent.setup();
-      renderApp(`/salary?employee=${ana.id}`);
+      renderApp(`/employees/${ana.id}/salary`);
       await screen.findByText('No salary assigned yet');
 
       await user.type(amountField(), '30000');
@@ -257,7 +238,7 @@ describe('Salary page', () => {
       const server = salaryServer([ana]);
       server.fail.current = true;
       const user = userEvent.setup();
-      renderApp(`/salary?employee=${ana.id}`);
+      renderApp(`/employees/${ana.id}/salary`);
 
       const alert = await screen.findByRole('alert');
       expect(alert).not.toHaveTextContent(/select failed/i);

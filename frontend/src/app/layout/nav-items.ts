@@ -1,10 +1,7 @@
 import type { ComponentType } from 'react';
 import {
-  CalculatorIcon,
   DashboardIcon,
-  ListIcon,
   UsersIcon,
-  WalletIcon,
   type IconProps,
 } from '../../shared/ui/icons';
 
@@ -12,8 +9,6 @@ export interface NavItem {
   to: string;
   label: string;
   icon: ComponentType<IconProps>;
-  /** Pages that are not built yet show as disabled. */
-  enabled: boolean;
 }
 
 export interface NavGroup {
@@ -21,7 +16,10 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-/** The four modules, grouped by what they are about. The breadcrumb in the header repeats the group. */
+/**
+ * The sidebar: the dashboard, and the employee hub. Salary, Components and Computation are tabs in an
+ * employee's workspace, not pages of their own. The breadcrumb in the header repeats the group.
+ */
 export const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Overview',
@@ -30,33 +28,12 @@ export const NAV_GROUPS: NavGroup[] = [
         to: '/dashboard',
         label: 'Dashboard',
         icon: DashboardIcon,
-        enabled: true,
       },
     ],
   },
   {
     label: 'People',
-    items: [
-      { to: '/employees', label: 'Employees', icon: UsersIcon, enabled: true },
-    ],
-  },
-  {
-    label: 'Pay',
-    items: [
-      { to: '/salary', label: 'Salary', icon: WalletIcon, enabled: true },
-      {
-        to: '/components',
-        label: 'Components',
-        icon: ListIcon,
-        enabled: true,
-      },
-      {
-        to: '/computation',
-        label: 'Computation',
-        icon: CalculatorIcon,
-        enabled: false,
-      },
-    ],
+    items: [{ to: '/employees', label: 'Employees', icon: UsersIcon }],
   },
 ];
 

@@ -1,13 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { computationKey } from '../../computation/api/queries';
 import { employeesKey } from '../../employees/api/queries';
 import { assignSalary, getCurrentSalary, getSalaryHistory } from './salary-api';
 
 /** Everything about one employee's salary starts with this, so one invalidation refreshes the current salary and the history. */
 export const salaryKey = (employeeId: string) =>
   ['salary', employeeId] as const;
-
-/** The salary computation reads the same salary, so it is refreshed when the salary changes. */
-const computationKey = ['computation'] as const;
 
 export function useCurrentSalary(employeeId: string) {
   return useQuery({

@@ -312,6 +312,13 @@ Split screen from `lg` (1024px) up, form only below it.
 - A saved change closes the dialog, shows a success toast ("Employee added" or "Employee updated"), and returns focus to the button that opened it. The list refreshes.
 - States: loading is a skeleton table; no employees is an empty state with an "Add employee" action; a search with no match says so and offers "Clear search"; a load error shows a plain message (never the raw server text) with Retry.
 
+### 7.2b Employee workspace (`/employees/:id/...`)
+- The employee table is the hub. An employee opens in a workspace with three tabs, each its own route: Salary (`/employees/:id/salary`), Components (`/components`) and Computation (`/computation`). `/employees/:id` redirects to the Salary tab. An unknown or malformed id shows "Employee not found" with a link back.
+- One header card, loaded once for all tabs: a back link to Employees, a 32px initials avatar, the full name (h1), the Employee ID in mono and the date hired, then a pay summary (Basic salary, Components total, Monthly total) in tabular peso. The summary comes from the computation endpoint, so it never does its own sums and it updates when a salary or component is saved. "Not assigned" is a badge, not just a color.
+- Tabs sit at the bottom edge of the card as real links (`aria-current="page"`): 48px high, the active one has a primary-600 underline and primary-700 text. Below `md` they scroll sideways and the summary wraps to two columns.
+- Tab content is the salary form and history, the components table and form, and the computation breakdown and rates. None has an employee picker.
+- Browser tab title: "<Tab> | <Employee name> | Employee & Salary Management". Breadcrumb: Employees > Employee name > Tab.
+
 ### 7.3 Salary (`/salary`)
 - Header: title "Salary" and a one-line description. Below it the employee picker (`max-w-sm`), a searchable combobox (type to filter by name or Employee ID, arrow keys, Enter to choose, Escape to close). The chosen employee is kept in the address (`/salary?employee=<id>`), so a refresh or a shared link keeps it. Until one is chosen, an empty state says "Choose an employee".
 - Two cards side by side from `lg` (stacked below it): "Current basic salary" (large figure, `text-3xl`, tabular, with "per month, since {date}"; "No salary assigned yet" when none) and the form.

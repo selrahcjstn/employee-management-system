@@ -1,3 +1,4 @@
+import { usePageTitle } from '../../../shared/lib/use-page-title';
 import { useAuth } from '../../auth/context/useAuth';
 import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
@@ -13,6 +14,7 @@ function greeting(): string {
 }
 
 export function DashboardPage() {
+  usePageTitle('Dashboard');
   const auth = useAuth();
   const firstName =
     auth.status === 'authenticated'

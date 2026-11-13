@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { MouseEventHandler, ReactNode } from 'react';
 import { cx } from '../lib/cx';
 
 type Align = 'left' | 'right';
@@ -59,9 +59,21 @@ export function Td({ align = 'left', className, children }: CellProps) {
   );
 }
 
-export function Tr({ children }: { children: ReactNode }) {
+interface TrProps {
+  children: ReactNode;
+  /** Makes the whole row clickable for mouse users. Keep a real link or button inside for everyone else. */
+  onClick?: MouseEventHandler<HTMLTableRowElement>;
+}
+
+export function Tr({ children, onClick }: TrProps) {
   return (
-    <tr className="bg-neutral-0 transition-colors hover:bg-neutral-50">
+    <tr
+      onClick={onClick}
+      className={cx(
+        'bg-neutral-0 transition-colors hover:bg-neutral-50',
+        onClick && 'cursor-pointer',
+      )}
+    >
       {children}
     </tr>
   );

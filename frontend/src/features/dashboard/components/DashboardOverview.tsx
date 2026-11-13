@@ -137,7 +137,7 @@ function Cards({ stats }: { stats: EmployeeStats }) {
             )
           ) : (
             <Link
-              to="/salary"
+              to="/employees"
               className="font-medium text-warning underline-offset-2 hover:underline"
             >
               {missing} still {missing === 1 ? 'needs' : 'need'} a salary

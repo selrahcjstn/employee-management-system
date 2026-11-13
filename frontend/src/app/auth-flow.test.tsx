@@ -166,7 +166,9 @@ describe('authentication flow', () => {
       await screen.findByRole('heading', { name: 'Employees' });
 
       // The one thing saved is the sidebar's display preference. Nothing else, and never a token.
-      expect(Object.keys(localStorage)).toEqual(['sidebar-collapsed']);
+      await waitFor(() =>
+        expect(Object.keys(localStorage)).toEqual(['sidebar-collapsed']),
+      );
       expect(Object.values(localStorage).join('')).not.toMatch(
         /logged-in|refreshed|token/i,
       );

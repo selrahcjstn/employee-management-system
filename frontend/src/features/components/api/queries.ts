@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { computationKey } from '../../computation/api/queries';
 import type { AddComponentInput } from '../types';
 import {
   addEmployeeComponent,
@@ -11,9 +12,6 @@ import {
 
 /** Every component query starts with this, so one invalidation refreshes the catalog and every employee's list. */
 export const componentsKey = ['components'] as const;
-
-/** The salary computation adds the components up, so it is refreshed when any of them change. */
-const computationKey = ['computation'] as const;
 
 export function useCatalog() {
   return useQuery({

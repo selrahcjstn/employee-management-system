@@ -1,4 +1,5 @@
 import alertCircle from '../../assets/icons/alert-circle.svg?raw';
+import arrowLeft from '../../assets/icons/arrow-left.svg?raw';
 import calculator from '../../assets/icons/calculator.svg?raw';
 import checkCircle from '../../assets/icons/check-circle.svg?raw';
 import chevronDown from '../../assets/icons/chevron-down.svg?raw';
@@ -9,6 +10,7 @@ import layoutDashboard from '../../assets/icons/layout-dashboard.svg?raw';
 import list from '../../assets/icons/list.svg?raw';
 import logOut from '../../assets/icons/log-out.svg?raw';
 import menu from '../../assets/icons/menu.svg?raw';
+import moreHorizontal from '../../assets/icons/more-horizontal.svg?raw';
 import panelLeft from '../../assets/icons/panel-left.svg?raw';
 import pencil from '../../assets/icons/pencil.svg?raw';
 import plus from '../../assets/icons/plus.svg?raw';
@@ -51,6 +53,9 @@ function SvgIcon({ source, size = 20, className }: SvgIconProps) {
 export const AlertCircleIcon = (props: IconProps) => (
   <SvgIcon source={alertCircle} {...props} />
 );
+export const ArrowLeftIcon = (props: IconProps) => (
+  <SvgIcon source={arrowLeft} {...props} />
+);
 export const CalculatorIcon = (props: IconProps) => (
   <SvgIcon source={calculator} {...props} />
 );
@@ -83,6 +88,9 @@ export const LogOutIcon = (props: IconProps) => (
 );
 export const MenuIcon = (props: IconProps) => (
   <SvgIcon source={menu} {...props} />
+);
+export const MoreIcon = (props: IconProps) => (
+  <SvgIcon source={moreHorizontal} {...props} />
 );
 export const PanelLeftIcon = (props: IconProps) => (
   <SvgIcon source={panelLeft} {...props} />

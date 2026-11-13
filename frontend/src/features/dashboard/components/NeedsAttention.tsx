@@ -95,7 +95,7 @@ export function NeedsAttention({
                   </p>
                 </div>
                 <Link
-                  to={`/salary?employee=${employee.id}`}
+                  to={`/employees/${employee.id}/salary`}
                   aria-label={`Set salary for ${fullName(employee)}`}
                   className="inline-flex h-8 shrink-0 items-center rounded-md border border-field bg-neutral-0 px-2 text-sm font-medium text-neutral-900 transition-colors hover:bg-neutral-100"
                 >
@@ -106,10 +106,10 @@ export function NeedsAttention({
           </ul>
           {hidden > 0 && (
             <Link
-              to="/salary"
+              to="/employees"
               className="mt-2 inline-block text-sm font-medium text-primary-600 hover:underline"
             >
-              and {hidden} more, open Salary
+              and {hidden} more, see Employees
             </Link>
           )}
         </>

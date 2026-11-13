@@ -44,23 +44,9 @@ async function submitAdd(user: User, amount: string) {
 }
 
 const open = (employeeId = ana.id) =>
-  renderApp(`/components?employee=${employeeId}`);
+  renderApp(`/employees/${employeeId}/components`);
 
 describe('Components page', () => {
-  it('asks for an employee first, and puts the choice in the address', async () => {
-    componentsServer([ana, ben]);
-    const user = userEvent.setup();
-    const { router } = renderApp('/components');
-    expect(
-      await screen.findByRole('heading', { name: 'Choose an employee' }),
-    ).toBeInTheDocument();
-
-    await user.click(screen.getByRole('combobox', { name: 'Employee' }));
-    await user.click(await screen.findByRole('option', { name: /Ben Lim/ }));
-    expect(router.state.location.search).toBe(`?employee=${ben.id}`);
-    expect(await screen.findByText('No components yet')).toBeInTheDocument();
-  });
-
   describe('the list', () => {
     it('shows the components with their amounts and a total', async () => {
       componentsServer([ana], {
@@ -79,7 +65,9 @@ describe('Components page', () => {
         expect.stringContaining('Transportation₱1,500.50'),
       ]);
       expect(
-        screen.getByText('Components total').closest('tr'),
+        within(screen.getByRole('table', { name: 'Salary components' }))
+          .getByText('Components total')
+          .closest('tr'),
       ).toHaveTextContent('₱3,500.50');
     });
 
@@ -331,7 +319,9 @@ describe('Components page', () => {
       expect(await screen.findByText('Amount updated')).toBeInTheDocument();
       await waitFor(() => expect(rowTexts()[0]).toContain('₱2,500.50'));
       expect(
-        screen.getByText('Components total').closest('tr'),
+        within(screen.getByRole('table', { name: 'Salary components' }))
+          .getByText('Components total')
+          .closest('tr'),
       ).toHaveTextContent('₱2,500.50');
       const [patch] = writes(calls);
       expect(patch).toMatchObject({ method: 'PATCH' });
@@ -429,7 +419,9 @@ describe('Components page', () => {
       expect(writes(calls)[0]).toMatchObject({ method: 'PATCH' });
       expect(writes(calls)[0]!.body).toEqual({ name: 'Rice Subsidy' });
 
-      await router.navigate(`/components?employee=${ben.id}`);
+      await router.navigate(`/employees/${ben.id}/components`);
+      // Wait for Ben's workspace first: until then the old page is still showing Ana's row.
+      await screen.findByRole('heading', { name: 'Ben Lim' });
       expect(await screen.findByText('Rice Subsidy')).toBeInTheDocument();
     });
 

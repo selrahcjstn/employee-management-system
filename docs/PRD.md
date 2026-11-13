@@ -493,10 +493,10 @@ Compute on the server (single source of truth) and return amounts as strings to 
 | Route | Module |
 |---|---|
 | `/login` | Login form (public) |
-| `/employees` | Onboarding (list + add/edit form) |
-| `/salary` | Salary assignment |
-| `/components` | Salary components management |
-| `/computation` | Rate computation |
+| `/employees` | Onboarding (list + add/edit form); the hub for the employee workspace |
+| `/employees/:id/salary` | Salary assignment (tab of the employee workspace) |
+| `/employees/:id/components` | Salary components of the employee (tab) |
+| `/employees/:id/computation` | Rate computation (tab) |
 
 **Auth handling**
 - `AuthProvider` holds the access token in memory and the current user. On app load it calls `POST /auth/refresh`; success restores the session, failure redirects to `/login`.

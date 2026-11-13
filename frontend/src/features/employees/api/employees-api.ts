@@ -12,6 +12,12 @@ export async function listEmployees(search: string): Promise<Employee[]> {
   return data;
 }
 
+/** One employee. A malformed or unknown id is a 400 or 404, which the workspace shows as "not found". */
+export async function getEmployee(id: string): Promise<SavedEmployee> {
+  const { data } = await api.get<SavedEmployee>(`/employees/${id}`);
+  return data;
+}
+
 export async function createEmployee(
   input: EmployeeInput,
 ): Promise<SavedEmployee> {

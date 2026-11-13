@@ -127,8 +127,9 @@ describe('Dashboard page', () => {
           name: 'Set salary for Cara Santos',
         }),
       );
-      expect(router.state.location.pathname).toBe('/salary');
-      expect(router.state.location.search).toBe(`?employee=${waiting.id}`);
+      expect(router.state.location.pathname).toBe(
+        `/employees/${waiting.id}/salary`,
+      );
     });
 
     it('shows the first five and says how many more', async () => {
@@ -144,7 +145,7 @@ describe('Dashboard page', () => {
       });
       expect(within(attention).getAllByRole('listitem')).toHaveLength(5);
       expect(
-        within(attention).getByText('and 2 more, open Salary'),
+        within(attention).getByText('and 2 more, see Employees'),
       ).toBeInTheDocument();
     });
 
