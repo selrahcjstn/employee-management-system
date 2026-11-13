@@ -269,7 +269,17 @@ Max width 480px, `radius-lg`, `shadow-lg`, 24px padding, overlay `rgba(15,23,42,
 
 ### 6.9 Navigation
 
-Sidebar (240px, white, right border neutral-200): app name at top (64px), then links: Employees, Salary, Components, Computation. Each link 40px tall, 16px padding, 20px icon, 8px gap. Active link: primary-50 background, primary-700 text, weight 500. Header (64px): page area left, user menu (name, Logout) right.
+**Sidebar** (240px, white, right border neutral-200; a 72px icon rail when collapsed; a drawer below `lg`).
+- **Top (64px):** the logo mark and the app name on two lines ("Employee & Salary" over "Management"), with a close button in the drawer.
+- **Groups:** People (Employees) and Pay (Salary, Components, Computation). The group name is a `text-xs`, weight 600, neutral-500 label in sentence case, never all caps. The header breadcrumb repeats the group.
+- **Links:** 40px tall, 16px padding, 20px icon, 8px gap, 4px between links. Active: primary-50 background, primary-700 text, weight 500, plus a 3px by 24px primary-600 marker on the sidebar's left edge. Hover: neutral-100. A page that is not built yet is disabled (neutral-400, `aria-disabled`, no link) with a neutral "Soon" badge.
+- **Rail (collapsed, `lg` and up only):** icons only, centered, the group names replaced by a divider, the text kept in the page for screen readers (not removed), and a dark tooltip beside the icon on hover and keyboard focus. The width change takes 200ms. The choice is saved in `localStorage` as `sidebar-collapsed` (a display preference, never a token); if storage is blocked the sidebar simply starts expanded.
+- **Drawer (below `lg`):** opens from the menu button over a dimmed overlay. Focus moves to the close button; the page behind is `inert`; Escape, the overlay and the close button close it and return focus to the menu button; following a link closes it and moves focus to the page content; it closes by itself if the window grows to `lg`. The rail does not apply to the drawer, which always shows full labels.
+
+**Header** (64px, sticky, translucent white with a light blur, bottom border neutral-200).
+- **Left:** a 40px icon button (opens the drawer below `lg`; collapses or expands the sidebar from `lg`), a divider, and a breadcrumb: group, then the current page (`aria-current="page"`). Below `sm` only the page name shows.
+- **Right:** the account menu. A button with a 32px avatar (initials), the name (from `sm`) and a chevron. It opens a 256px panel with the avatar, name, email, a role badge ("Administrator") and Logout. It is a real menu: focus goes to the first item, arrow keys, Home and End move between items, Escape closes and returns focus to the button, Tab and a click outside close it. It opens in 150ms.
+- **Not included on purpose:** a search box or a notification bell. They would do nothing yet, and a control that does nothing is misleading. Add them with the feature that gives them a job.
 
 ---
 

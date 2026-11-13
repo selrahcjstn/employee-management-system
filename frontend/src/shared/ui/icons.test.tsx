@@ -1,0 +1,53 @@
+import { render } from '@testing-library/react';
+import * as icons from './icons';
+
+const components = Object.entries(icons).filter(([name]) =>
+  name.endsWith('Icon'),
+) as [string, (props: icons.IconProps) => React.JSX.Element][];
+
+describe('icons', () => {
+  it('has all thirteen icons from src/assets/icons', () => {
+    expect(components.map(([name]) => name).sort()).toEqual([
+      'AlertCircleIcon',
+      'CalculatorIcon',
+      'ChevronDownIcon',
+      'ChevronRightIcon',
+      'CloseIcon',
+      'EyeIcon',
+      'EyeOffIcon',
+      'ListIcon',
+      'LogOutIcon',
+      'MenuIcon',
+      'PanelLeftIcon',
+      'UsersIcon',
+      'WalletIcon',
+    ]);
+  });
+
+  it.each(components)(
+    '%s draws an SVG that is hidden from assistive technology',
+    (_name, Icon) => {
+      const { container } = render(<Icon />);
+      const wrapper = container.firstElementChild!;
+      expect(wrapper).toHaveAttribute('aria-hidden', 'true');
+      expect(wrapper.querySelector('svg')).not.toBeNull();
+    },
+  );
+
+  it.each(components)(
+    '%s is 20px by default and 16px when asked',
+    (_name, Icon) => {
+      const { container: normal } = render(<Icon />);
+      expect(normal.firstElementChild!.className).toMatch(/\bsize-5\b/);
+      const { container: small } = render(<Icon size={16} />);
+      expect(small.firstElementChild!.className).toMatch(/\bsize-4\b/);
+    },
+  );
+
+  it('passes a class name through, for positioning', () => {
+    const { container } = render(
+      <icons.UsersIcon className="shrink-0 text-danger" />,
+    );
+    expect(container.firstElementChild!.className).toMatch(/text-danger/);
+  });
+});

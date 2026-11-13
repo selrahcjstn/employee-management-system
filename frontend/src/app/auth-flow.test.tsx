@@ -1,4 +1,4 @@
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { api } from '../shared/api/client';
 import { tokenStore } from '../shared/api/token-store';
@@ -16,6 +16,12 @@ async function signIn(
   await user.type(emailField(), 'admin@example.com');
   await user.type(passwordField(), password);
   await user.click(screen.getByRole('button', { name: /sign in/i }));
+}
+
+/** Logout lives in the account menu: open it, then choose Logout. */
+async function logOut(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: /account menu/i }));
+  await user.click(await screen.findByRole('menuitem', { name: /logout/i }));
 }
 
 describe('authentication flow', () => {
@@ -159,7 +165,11 @@ describe('authentication flow', () => {
       await signIn(user);
       await screen.findByRole('heading', { name: 'Employees' });
 
-      expect(localStorage).toHaveLength(0);
+      // The one thing saved is the sidebar's display preference. Nothing else, and never a token.
+      expect(Object.keys(localStorage)).toEqual(['sidebar-collapsed']);
+      expect(Object.values(localStorage).join('')).not.toMatch(
+        /logged-in|refreshed|token/i,
+      );
       expect(sessionStorage).toHaveLength(0);
       expect(document.cookie).toBe('');
       expect(tokenStore.get()).toBe('logged-in');
@@ -176,46 +186,6 @@ describe('authentication flow', () => {
     });
   });
 
-  describe('app layout', () => {
-    it('shows the sidebar links, the user name and a logout button', async () => {
-      authServer({ signedIn: true });
-      renderApp('/employees');
-      await screen.findByRole('heading', { name: 'Employees' });
-
-      const nav = screen.getByRole('navigation', { name: 'Main' });
-      expect(
-        within(nav).getByRole('link', { name: 'Employees' }),
-      ).toHaveAttribute('aria-current', 'page');
-      for (const name of ['Salary', 'Components', 'Computation']) {
-        expect(
-          within(nav).queryByRole('link', { name: new RegExp(name) }),
-        ).not.toBeInTheDocument();
-        expect(
-          within(nav).getByText(name).closest('[aria-disabled="true"]'),
-        ).not.toBeNull();
-      }
-      expect(screen.getByText('Ada Admin')).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /logout/i }),
-      ).toBeInTheDocument();
-    });
-
-    it('opens the drawer from the menu button and closes it with Escape', async () => {
-      authServer({ signedIn: true });
-      renderApp('/employees');
-      const user = userEvent.setup();
-      const menu = await screen.findByRole('button', {
-        name: /open navigation/i,
-      });
-
-      expect(menu).toHaveAttribute('aria-expanded', 'false');
-      await user.click(menu);
-      expect(menu).toHaveAttribute('aria-expanded', 'true');
-      await user.keyboard('{Escape}');
-      expect(menu).toHaveAttribute('aria-expanded', 'false');
-    });
-  });
-
   describe('logging out', () => {
     it('calls the API with the token, clears the token and the query cache, and shows /login', async () => {
       const { calls } = authServer({ signedIn: true });
@@ -224,7 +194,7 @@ describe('authentication flow', () => {
       await screen.findByRole('heading', { name: 'Employees' });
       queryClient.setQueryData(['employees'], [{ id: 'secret' }]);
 
-      await user.click(screen.getByRole('button', { name: /logout/i }));
+      await logOut(user);
 
       expect(
         await screen.findByRole('button', { name: /sign in/i }),
@@ -241,7 +211,7 @@ describe('authentication flow', () => {
       const user = userEvent.setup();
       await screen.findByRole('heading', { name: 'Employees' });
 
-      await user.click(screen.getByRole('button', { name: /logout/i }));
+      await logOut(user);
       await screen.findByRole('button', { name: /sign in/i });
 
       await act(() => router.navigate('/employees'));

@@ -13,8 +13,21 @@ const files = Object.entries(modules).map(([path, text]) => ({
 }));
 
 describe('SVG assets (inlined into the page, so they must be safe and consistent)', () => {
-  it('finds the login illustration set', () => {
+  it('finds the icons, the login illustration set and the logo', () => {
     expect(files.map((f) => f.name).sort()).toEqual([
+      'icons/alert-circle.svg',
+      'icons/calculator.svg',
+      'icons/chevron-down.svg',
+      'icons/chevron-right.svg',
+      'icons/eye-off.svg',
+      'icons/eye.svg',
+      'icons/list.svg',
+      'icons/log-out.svg',
+      'icons/menu.svg',
+      'icons/panel-left.svg',
+      'icons/users.svg',
+      'icons/wallet.svg',
+      'icons/x.svg',
       'login/hero-coin.svg',
       'login/hero-employee-card.svg',
       'login/hero-grid.svg',
@@ -22,6 +35,22 @@ describe('SVG assets (inlined into the page, so they must be safe and consistent
       'login/hero-rates-card.svg',
       'logo-mark.svg',
     ]);
+  });
+
+  describe('icons', () => {
+    const icons = files.filter((f) => f.name.startsWith('icons/'));
+
+    it.each(icons)(
+      '$name is a 24px line icon that takes its color from the text around it',
+      ({ text }) => {
+        expect(text).toContain('viewBox="0 0 24 24"');
+        expect(text).toContain('stroke="currentColor"');
+        expect(text).toContain('fill="none"');
+        expect(text).toContain('stroke-width="2"');
+        expect(text).not.toMatch(/\sstyle\s*=/);
+        expect(text).not.toMatch(/<(text|image)\b/);
+      },
+    );
   });
 
   it.each(files)('$name is a plain SVG document', ({ text }) => {

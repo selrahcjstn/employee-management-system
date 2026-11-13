@@ -13,7 +13,8 @@ React + Vite. Follow the root `AGENTS.md` too.
 - Every SVG file lives in `src/assets/` (the login illustration in `src/assets/login/`). Do not paste SVG markup into components.
 - Import it as text and draw it with `InlineSvg`: `import grid from '../assets/login/hero-grid.svg?raw'`. It is inlined, not an `<img>`, so it can use the design tokens (`var(--color-primary-600)`) and the Inter font.
 - Colors in an SVG come only from the token variables. No hex, `rgb()` or `hsl()`. `src/assets/assets.test.ts` enforces this, and also that an SVG has no script, external link or duplicate `id`.
-- Decorative drawings are `aria-hidden` (`InlineSvg` does it) and never focusable.
+- Icons are 24px line icons in `src/assets/icons/`, stroked with `currentColor` so they take the text color. Use them through the components in `src/shared/ui/icons.tsx` (`<UsersIcon />`, 20px or `size={16}`). To add one: drop the SVG in `src/assets/icons/`, export a component from `icons.tsx`, and add it to the file lists in `assets.test.ts` and `icons.test.tsx`.
+- Decorative drawings are `aria-hidden` (`InlineSvg` and the icon components do it) and never focusable. A button that holds only an icon needs a label: use `IconButton`.
 
 ## Styling
 - Tailwind CSS v4. The theme in `src/styles/tokens.css` is DESIGN.md: it resets Tailwind's own palette, type scale and breakpoints, so only the design tokens exist as utilities (`bg-primary-600`, `text-danger`, `border-field`).

@@ -1,92 +1,84 @@
-import type { ReactNode, SVGProps } from 'react';
+import alertCircle from '../../assets/icons/alert-circle.svg?raw';
+import calculator from '../../assets/icons/calculator.svg?raw';
+import chevronDown from '../../assets/icons/chevron-down.svg?raw';
+import chevronRight from '../../assets/icons/chevron-right.svg?raw';
+import eyeOff from '../../assets/icons/eye-off.svg?raw';
+import eye from '../../assets/icons/eye.svg?raw';
+import list from '../../assets/icons/list.svg?raw';
+import logOut from '../../assets/icons/log-out.svg?raw';
+import menu from '../../assets/icons/menu.svg?raw';
+import panelLeft from '../../assets/icons/panel-left.svg?raw';
+import users from '../../assets/icons/users.svg?raw';
+import wallet from '../../assets/icons/wallet.svg?raw';
+import x from '../../assets/icons/x.svg?raw';
+import { cx } from '../lib/cx';
 
-interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'children'> {
+export interface IconProps {
   /** 20px in buttons and navigation, 16px in table cells and inline messages. */
   size?: 16 | 20;
+  className?: string;
 }
 
-function Icon({
-  size = 20,
-  children,
-  ...props
-}: IconProps & { children: ReactNode }) {
+interface SvgIconProps extends IconProps {
+  /** The text of an SVG file from src/assets/icons, imported with `?raw`. */
+  source: string;
+}
+
+/**
+ * Draws one of the icon files in src/assets/icons. The files stroke with `currentColor`, so an
+ * icon takes the text color of whatever it sits in. Decorative: hidden from assistive technology,
+ * so a button that holds only an icon needs its own aria-label.
+ */
+function SvgIcon({ source, size = 20, className }: SvgIconProps) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
+    <span
       aria-hidden="true"
-      focusable="false"
-      {...props}
-    >
-      {children}
-    </svg>
+      className={cx(
+        'icon inline-block shrink-0',
+        size === 16 ? 'size-4' : 'size-5',
+        className,
+      )}
+      dangerouslySetInnerHTML={{ __html: source }}
+    />
   );
 }
 
-export const EyeIcon = (props: IconProps) => (
-  <Icon {...props}>
-    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
-    <circle cx="12" cy="12" r="3" />
-  </Icon>
-);
-
-export const EyeOffIcon = (props: IconProps) => (
-  <Icon {...props}>
-    <path d="M9.9 5.2A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6A17 17 0 0 0 2 12s3.5 7 10 7a10 10 0 0 0 5.4-1.6" />
-    <path d="M14.1 14.1a3 3 0 0 1-4.2-4.2" />
-    <path d="m3 3 18 18" />
-  </Icon>
-);
-
 export const AlertCircleIcon = (props: IconProps) => (
-  <Icon {...props}>
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 8v4M12 16h.01" />
-  </Icon>
+  <SvgIcon source={alertCircle} {...props} />
 );
-
-export const UsersIcon = (props: IconProps) => (
-  <Icon {...props}>
-    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" />
-  </Icon>
-);
-
-export const WalletIcon = (props: IconProps) => (
-  <Icon {...props}>
-    <path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3" />
-    <path d="M21 12h-6a2 2 0 0 0 0 4h6v-4Z" />
-  </Icon>
-);
-
-export const ListIcon = (props: IconProps) => (
-  <Icon {...props}>
-    <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
-  </Icon>
-);
-
 export const CalculatorIcon = (props: IconProps) => (
-  <Icon {...props}>
-    <rect x="4" y="2" width="16" height="20" rx="2" />
-    <path d="M8 6h8M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h4" />
-  </Icon>
+  <SvgIcon source={calculator} {...props} />
 );
-
+export const ChevronDownIcon = (props: IconProps) => (
+  <SvgIcon source={chevronDown} {...props} />
+);
+export const ChevronRightIcon = (props: IconProps) => (
+  <SvgIcon source={chevronRight} {...props} />
+);
+export const CloseIcon = (props: IconProps) => (
+  <SvgIcon source={x} {...props} />
+);
+export const EyeIcon = (props: IconProps) => (
+  <SvgIcon source={eye} {...props} />
+);
+export const EyeOffIcon = (props: IconProps) => (
+  <SvgIcon source={eyeOff} {...props} />
+);
+export const ListIcon = (props: IconProps) => (
+  <SvgIcon source={list} {...props} />
+);
 export const LogOutIcon = (props: IconProps) => (
-  <Icon {...props}>
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
-  </Icon>
+  <SvgIcon source={logOut} {...props} />
 );
-
 export const MenuIcon = (props: IconProps) => (
-  <Icon {...props}>
-    <path d="M4 6h16M4 12h16M4 18h16" />
-  </Icon>
+  <SvgIcon source={menu} {...props} />
+);
+export const PanelLeftIcon = (props: IconProps) => (
+  <SvgIcon source={panelLeft} {...props} />
+);
+export const UsersIcon = (props: IconProps) => (
+  <SvgIcon source={users} {...props} />
+);
+export const WalletIcon = (props: IconProps) => (
+  <SvgIcon source={wallet} {...props} />
 );

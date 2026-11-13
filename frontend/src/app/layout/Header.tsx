@@ -1,66 +1,53 @@
-import { useState } from 'react';
-import { useAuth } from '../../features/auth/context/useAuth';
-import { Button } from '../../shared/ui/Button';
-import { LogOutIcon, MenuIcon } from '../../shared/ui/icons';
-
-function initials(fullName: string): string {
-  return fullName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => Array.from(word)[0]!.toUpperCase())
-    .join('');
-}
+import type { Ref } from 'react';
+import { IconButton } from '../../shared/ui/IconButton';
+import { MenuIcon, PanelLeftIcon } from '../../shared/ui/icons';
+import { Breadcrumb } from './Breadcrumb';
+import { UserMenu } from './UserMenu';
 
 interface HeaderProps {
+  collapsed: boolean;
   drawerOpen: boolean;
-  onOpenMenu: () => void;
+  onOpenDrawer: () => void;
+  onToggleCollapsed: () => void;
+  /** The button that opens the drawer, so focus can return to it when the drawer closes. */
+  menuButtonRef: Ref<HTMLButtonElement>;
 }
 
-export function Header({ drawerOpen, onOpenMenu }: HeaderProps) {
-  const auth = useAuth();
-  const [loggingOut, setLoggingOut] = useState(false);
-  const user = auth.status === 'authenticated' ? auth.user : null;
-
-  const onLogout = async () => {
-    setLoggingOut(true);
-    await auth.logout();
-  };
-
+/** 64px bar across the top: sidebar control and breadcrumb on the left, the account menu on the right. */
+export function Header({
+  collapsed,
+  drawerOpen,
+  onOpenDrawer,
+  onToggleCollapsed,
+  menuButtonRef,
+}: HeaderProps) {
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-neutral-200 bg-neutral-0 px-4 lg:px-8">
-      <button
-        type="button"
-        onClick={onOpenMenu}
-        aria-label="Open navigation"
-        aria-expanded={drawerOpen}
-        aria-controls="app-sidebar"
-        className="flex size-10 items-center justify-center rounded-md text-neutral-700 transition-colors hover:bg-neutral-100 lg:hidden"
-      >
-        <MenuIcon />
-      </button>
-      <div className="ml-auto flex items-center gap-4">
-        {user && (
-          <div className="flex items-center gap-2">
-            <span
-              aria-hidden="true"
-              className="flex size-8 items-center justify-center rounded-full bg-primary-50 text-xs font-semibold text-primary-700"
-            >
-              {initials(user.fullName)}
-            </span>
-            <span className="hidden text-sm font-medium text-neutral-900 sm:block">
-              {user.fullName}
-            </span>
-          </div>
-        )}
-        <Button
-          variant="secondary"
-          icon={<LogOutIcon />}
-          loading={loggingOut}
-          onClick={onLogout}
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-2 border-b border-neutral-200 bg-neutral-0/80 px-4 backdrop-blur-md lg:px-8">
+      <div className="lg:hidden">
+        <IconButton
+          ref={menuButtonRef}
+          label="Open navigation"
+          aria-expanded={drawerOpen}
+          aria-controls="app-sidebar"
+          onClick={onOpenDrawer}
         >
-          Logout
-        </Button>
+          <MenuIcon />
+        </IconButton>
+      </div>
+      <div className="hidden lg:block">
+        <IconButton
+          label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-expanded={!collapsed}
+          aria-controls="app-sidebar"
+          onClick={onToggleCollapsed}
+        >
+          <PanelLeftIcon />
+        </IconButton>
+      </div>
+      <div aria-hidden="true" className="mx-1 h-6 w-px bg-neutral-200" />
+      <Breadcrumb />
+      <div className="ml-auto">
+        <UserMenu />
       </div>
     </header>
   );
