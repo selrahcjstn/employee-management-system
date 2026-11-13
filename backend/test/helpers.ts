@@ -11,7 +11,9 @@ export const TEST_PASSWORD = 'Test-password-1';
 
 export async function createApp(rateLimit = 1000): Promise<INestApplication> {
   process.env['AUTH_RATE_LIMIT'] = String(rateLimit);
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+  const moduleRef = await Test.createTestingModule({
+    imports: [AppModule],
+  }).compile();
   const app = moduleRef.createNestApplication();
   configureApp(app);
   await app.init();
@@ -42,8 +44,13 @@ export function refreshCookie(res: Response): string {
 }
 
 /** Logs in through the API and returns the Authorization header for supertest. */
-export async function authHeader(app: INestApplication, email: string): Promise<{ Authorization: string }> {
-  const res = await request(app.getHttpServer()).post('/api/auth/login').send({ email, password: TEST_PASSWORD });
+export async function authHeader(
+  app: INestApplication,
+  email: string,
+): Promise<{ Authorization: string }> {
+  const res = await request(app.getHttpServer())
+    .post('/api/auth/login')
+    .send({ email, password: TEST_PASSWORD });
   return { Authorization: `Bearer ${res.body.accessToken as string}` };
 }
 
@@ -51,6 +58,22 @@ export async function authHeader(app: INestApplication, email: string): Promise<
 export async function deleteTestEmployees(ids: string[]) {
   for (const id of ids) {
     await db.orm.public.SalaryAssignment.where({ employeeId: id }).deleteAll();
+    await db.orm.public.EmployeeSalaryComponent.where({
+      employeeId: id,
+    }).deleteAll();
     await db.orm.public.Employee.where({ id }).deleteAll();
+  }
+}
+
+/** Hard deletes the components a test created (names start with the given prefix) and their assignments. */
+export async function deleteTestComponents(namePrefix: string) {
+  const components = await db.orm.public.SalaryComponent.where((c) =>
+    c.name.ilike(`${namePrefix}%`),
+  ).all();
+  for (const { id } of components) {
+    await db.orm.public.EmployeeSalaryComponent.where({
+      salaryComponentId: id,
+    }).deleteAll();
+    await db.orm.public.SalaryComponent.where({ id }).deleteAll();
   }
 }

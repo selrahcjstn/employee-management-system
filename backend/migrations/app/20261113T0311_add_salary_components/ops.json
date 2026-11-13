@@ -1,0 +1,395 @@
+[
+  {
+    "id": "table.employee_salary_components",
+    "label": "Create table \"employee_salary_components\"",
+    "summary": "Creates table \"employee_salary_components\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "employee_salary_components"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"employee_salary_components\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"employee_salary_components\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"employee_salary_components\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"employee_salary_components\"",
+        "sql": "CREATE TABLE \"public\".\"employee_salary_components\" (\n  \"amount\" numeric(12,2) NOT NULL,\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"deleted_at\" timestamptz(3),\n  \"employee_id\" uuid NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"salary_component_id\" uuid NOT NULL,\n  \"updated_at\" timestamptz(3) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"chk_employee_salary_components_amount_nonneg_2ce36fec\" CHECK (amount >= 0)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"employee_salary_components\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"employee_salary_components\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"employee_salary_components\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.salary_components",
+    "label": "Create table \"salary_components\"",
+    "summary": "Creates table \"salary_components\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "salary_components"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"salary_components\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"salary_components\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"salary_components\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"salary_components\"",
+        "sql": "CREATE TABLE \"public\".\"salary_components\" (\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"deleted_at\" timestamptz(3),\n  \"id\" uuid NOT NULL,\n  \"name\" character varying(100) NOT NULL,\n  \"updated_at\" timestamptz(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"salary_components\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"salary_components\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"salary_components\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.employee_salary_components.employee_salary_components_employee_id_idx_a830a6c3",
+    "label": "Create index \"employee_salary_components_employee_id_idx_a830a6c3\" on \"employee_salary_components\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "employee_salary_components_employee_id_idx_a830a6c3",
+        "table": "employee_salary_components"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"employee_salary_components_employee_id_idx_a830a6c3\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"employee_salary_components_employee_id_idx_a830a6c3\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"employee_salary_components_employee_id_idx_a830a6c3\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"employee_salary_components_employee_id_idx_a830a6c3\"",
+        "sql": "CREATE INDEX \"employee_salary_components_employee_id_idx_a830a6c3\" ON \"public\".\"employee_salary_components\" (\"employee_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"employee_salary_components_employee_id_idx_a830a6c3\" exists on \"employee_salary_components\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"employee_salary_components_employee_id_idx_a830a6c3\"",
+          "i",
+          "I",
+          "\"public\".\"employee_salary_components\"",
+          "btree",
+          "[\"employee_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.employee_salary_components.employee_salary_components_salary_component_id_idx_42287854",
+    "label": "Create index \"employee_salary_components_salary_component_id_idx_42287854\" on \"employee_salary_components\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "employee_salary_components_salary_component_id_idx_42287854",
+        "table": "employee_salary_components"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"employee_salary_components_salary_component_id_idx_42287854\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"employee_salary_components_salary_component_id_idx_42287854\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"employee_salary_components_salary_component_id_idx_42287854\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"employee_salary_components_salary_component_id_idx_42287854\"",
+        "sql": "CREATE INDEX \"employee_salary_components_salary_component_id_idx_42287854\" ON \"public\".\"employee_salary_components\" (\"salary_component_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"employee_salary_components_salary_component_id_idx_42287854\" exists on \"employee_salary_components\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"employee_salary_components_salary_component_id_idx_42287854\"",
+          "i",
+          "I",
+          "\"public\".\"employee_salary_components\"",
+          "btree",
+          "[\"salary_component_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.employee_salary_components.uq_active_component_per_employee_132328ab",
+    "label": "Create index \"uq_active_component_per_employee_132328ab\" on \"employee_salary_components\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_active_component_per_employee_132328ab",
+        "table": "employee_salary_components"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_active_component_per_employee_132328ab\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_active_component_per_employee_132328ab\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_active_component_per_employee_132328ab\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_active_component_per_employee_132328ab\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_active_component_per_employee_132328ab\" ON \"public\".\"employee_salary_components\" (\"employee_id\", \"salary_component_id\") WHERE (deleted_at IS NULL)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_active_component_per_employee_132328ab\" exists on \"employee_salary_components\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_active_component_per_employee_132328ab\"",
+          "i",
+          "I",
+          "\"public\".\"employee_salary_components\"",
+          "btree",
+          "[\"employee_id\",\"salary_component_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.salary_components.uq_active_component_name_4c40aa49",
+    "label": "Create index \"uq_active_component_name_4c40aa49\" on \"salary_components\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_active_component_name_4c40aa49",
+        "table": "salary_components"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_active_component_name_4c40aa49\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_active_component_name_4c40aa49\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_active_component_name_4c40aa49\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_active_component_name_4c40aa49\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_active_component_name_4c40aa49\" ON \"public\".\"salary_components\" (lower(trim(name))) WHERE (deleted_at IS NULL)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_active_component_name_4c40aa49\" exists on \"salary_components\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_active_component_name_4c40aa49\"",
+          "i",
+          "I",
+          "\"public\".\"salary_components\"",
+          "btree"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.employee_salary_components.employee_salary_components_employee_id_fkey",
+    "label": "Add foreign key \"employee_salary_components_employee_id_fkey\" on \"employee_salary_components\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "employee_salary_components_employee_id_fkey",
+        "table": "employee_salary_components"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"employee_salary_components_employee_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "employee_salary_components_employee_id_fkey",
+          "public",
+          "\"public\".\"employee_salary_components\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"employee_salary_components_employee_id_fkey\" on \"employee_salary_components\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"employee_salary_components_employee_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"employee_salary_components\"\nADD CONSTRAINT \"employee_salary_components_employee_id_fkey\"\nFOREIGN KEY (\"employee_id\")\nREFERENCES \"public\".\"employees\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"employee_salary_components_employee_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "employee_salary_components_employee_id_fkey",
+          "public",
+          "\"public\".\"employee_salary_components\"",
+          "f",
+          "[\"employee_id\"]",
+          "\"public\".\"employees\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.employee_salary_components.employee_salary_components_salary_component_id_fkey",
+    "label": "Add foreign key \"employee_salary_components_salary_component_id_fkey\" on \"employee_salary_components\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "employee_salary_components_salary_component_id_fkey",
+        "table": "employee_salary_components"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"employee_salary_components_salary_component_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "employee_salary_components_salary_component_id_fkey",
+          "public",
+          "\"public\".\"employee_salary_components\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"employee_salary_components_salary_component_id_fkey\" on \"employee_salary_components\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"employee_salary_components_salary_component_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"employee_salary_components\"\nADD CONSTRAINT \"employee_salary_components_salary_component_id_fkey\"\nFOREIGN KEY (\"salary_component_id\")\nREFERENCES \"public\".\"salary_components\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"employee_salary_components_salary_component_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "employee_salary_components_salary_component_id_fkey",
+          "public",
+          "\"public\".\"employee_salary_components\"",
+          "f",
+          "[\"salary_component_id\"]",
+          "\"public\".\"salary_components\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

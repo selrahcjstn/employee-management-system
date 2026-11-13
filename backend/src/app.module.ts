@@ -5,12 +5,22 @@ import { JwtAuthGuard } from './common/jwt-auth.guard.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { EmployeesModule } from './modules/employees/employees.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { SalaryComponentsModule } from './modules/salary-components/salary-components.module.js';
 import { SalaryModule } from './modules/salary/salary.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), PrismaModule, HealthModule, UsersModule, AuthModule, EmployeesModule, SalaryModule],
+  imports: [
+    ScheduleModule.forRoot(),
+    PrismaModule,
+    HealthModule,
+    UsersModule,
+    AuthModule,
+    EmployeesModule,
+    SalaryModule,
+    SalaryComponentsModule,
+  ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
 export class AppModule {}

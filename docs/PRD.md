@@ -423,6 +423,8 @@ The database is the final guard, the service gives readable errors, and the fron
 
 Salary endpoints: amounts are sent and returned as decimal strings (`"30000.00"`); a JSON number is rejected with `400`. `PUT /employees/:id/salary` takes `{ monthlyBasicSalary }` and returns `{ changed, salary }` (`changed: false` when the amount equals the current salary, nothing is written). `GET /employees/:id/salary` returns `404` when no salary is assigned. Physical index and constraint names in the database carry a short hash suffix added by Prisma 8 (for example `uq_active_salary_per_employee_554132d9`).
 
+Component endpoints: an employee component is returned as `{ id, componentId, name, amount, createdAt, updatedAt }`, where `id` is the assignment id used in `PATCH`/`DELETE /employees/:id/components/:ecId`. `POST /employees/:id/components` takes `amount` plus exactly one of `componentId` or `name` (both or neither is `400`); a `name` reuses the active component with that name in any case, or creates it. A duplicate active component for the employee is `409`, an unknown or deleted `componentId` is `404`. Component amounts may be `"0"` (Q3). `DELETE` endpoints return `204`.
+
 Login and refresh return `{ accessToken, user }` in the body. Logout returns `204`. There is no user list, create or delete endpoint (Q10): the admin is created by `npm run seed`, and user management is out of scope until requested. A deactivated user (`is_active = false`) cannot log in, use an access token or refresh.
 
 All endpoints below require `Authorization: Bearer <access token>`.

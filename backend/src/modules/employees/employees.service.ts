@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { or } from '@prisma/orm-postgres/orm-client';
 import { conflictOnUnique } from '../../common/db-errors.js';
+import { escapeLike } from '../../common/sql.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import type { CreateEmployeeDto } from './dto/create-employee.dto.js';
 import type { UpdateEmployeeDto } from './dto/update-employee.dto.js';
@@ -16,9 +17,6 @@ import {
 } from './entities/employee.entity.js';
 
 const DUPLICATE_MESSAGE = 'Employee ID already exists';
-
-const escapeLike = (term: string) =>
-  term.replace(/[\\%_]/g, (char) => `\\${char}`);
 
 @Injectable()
 export class EmployeesService {
