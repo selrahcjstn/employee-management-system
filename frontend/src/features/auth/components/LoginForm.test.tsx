@@ -33,7 +33,7 @@ describe('LoginForm', () => {
     expect(passwordField()).toBeRequired();
     expect(emailField()).toHaveFocus();
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Salary Management',
+      'Employee & Salary Management',
     );
   });
 

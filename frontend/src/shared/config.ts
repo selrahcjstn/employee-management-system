@@ -1,1 +1,1 @@
-export const APP_NAME = 'Salary Management';
+export const APP_NAME = 'Employee & Salary Management';
