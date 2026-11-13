@@ -417,6 +417,11 @@ The database is the final guard, the service gives readable errors, and the fron
 | POST | `/auth/refresh` | Public (needs refresh cookie) | Rotate refresh token, issue new access token |
 | POST | `/auth/logout` | Access token | Revoke current refresh token, clear cookie |
 | GET | `/auth/me` | Access token | Current user |
+| GET | `/health` | Public | Checks the API can reach the database (`SELECT 1`) |
+| GET | `/users/me` | Access token | Signed-in user (never includes the password hash) |
+| PATCH | `/users/me` | Access token | Update own `fullName`; change password with `currentPassword` + `newPassword` (8 to 72 chars) |
+
+Login and refresh return `{ accessToken, user }` in the body. Logout returns `204`. There is no user list, create or delete endpoint (Q10): the admin is created by `npm run seed`, and user management is out of scope until requested. A deactivated user (`is_active = false`) cannot log in, use an access token or refresh.
 
 All endpoints below require `Authorization: Bearer <access token>`.
 

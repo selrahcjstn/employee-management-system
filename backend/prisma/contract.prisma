@@ -1,0 +1,34 @@
+// use prisma-8
+model User {
+  id            Uuid                                  @id @onCreate(uuid())
+  email         String(storage: varchar, length: 255)
+  passwordHash  String(storage: varchar, length: 255) @map("password_hash")
+  fullName      String(storage: varchar, length: 150) @map("full_name")
+  role          String(storage: varchar, length: 30)  @default("admin")
+  isActive      Boolean                               @default(true) @map("is_active")
+  createdAt     DateTime                              @default(now()) @map("created_at")
+  updatedAt     DateTime                              @onCreate(now()) @onUpdate(now()) @map("updated_at")
+  refreshTokens RefreshToken[]
+
+  @@index(expression: sql`lower(email)`, unique: true, name: "uq_users_email_lower")
+  @@map("users")
+}
+
+model RefreshToken {
+  id           Uuid                              @id @onCreate(uuid())
+  userId       Uuid                              @map("user_id")
+  familyId     Uuid                              @map("family_id")
+  tokenHash    String(storage: char, length: 64) @unique @map("token_hash")
+  expiresAt    DateTime                          @map("expires_at")
+  revokedAt    DateTime?                         @map("revoked_at")
+  replacedById Uuid?                             @map("replaced_by_id")
+  userAgent    String?                           @map("user_agent")
+  ipAddress    String?                           @map("ip_address")
+  createdAt    DateTime                          @default(now()) @map("created_at")
+  user         User                              @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([familyId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
