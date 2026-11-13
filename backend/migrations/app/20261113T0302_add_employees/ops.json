@@ -1,0 +1,98 @@
+[
+  {
+    "id": "table.employees",
+    "label": "Create table \"employees\"",
+    "summary": "Creates table \"employees\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"employees\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"employees\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"employees\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"employees\"",
+        "sql": "CREATE TABLE \"public\".\"employees\" (\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"date_hired\" date NOT NULL,\n  \"employee_no\" character varying(50) NOT NULL,\n  \"first_name\" character varying(100) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"last_name\" character varying(100) NOT NULL,\n  \"middle_name\" character varying(100),\n  \"updated_at\" timestamptz(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"employees\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"employees\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"employees\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.employees.uq_employees_employee_no_lower_af82291a",
+    "label": "Create index \"uq_employees_employee_no_lower_af82291a\" on \"employees\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_employees_employee_no_lower_af82291a",
+        "table": "employees"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_employees_employee_no_lower_af82291a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_employees_employee_no_lower_af82291a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_employees_employee_no_lower_af82291a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_employees_employee_no_lower_af82291a\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_employees_employee_no_lower_af82291a\" ON \"public\".\"employees\" (lower(employee_no))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_employees_employee_no_lower_af82291a\" exists on \"employees\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_employees_employee_no_lower_af82291a\"",
+          "i",
+          "I",
+          "\"public\".\"employees\"",
+          "btree"
+        ]
+      }
+    ]
+  }
+]

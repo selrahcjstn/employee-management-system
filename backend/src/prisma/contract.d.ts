@@ -23,9 +23,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'f98b5f046a45face882d70601a7c14e0723f6e68be2313f178c3513f63f14ea4'>;
+  StorageHashBase<'212761d6b29a7f34da178bc71db421866857964529617a6db9f0ca14507f1bcd'>;
 export type ExecutionHash =
-  ExecutionHashBase<'e882e42c3d1717bd7f59af3834dbe294d35d61ee7bbde990df21541f87f1639d'>;
+  ExecutionHashBase<'8fd02b06589709d0c7f0cadfd0cfd1bf8c3b639cc8aa900d91c27c784a28bdb4'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -309,6 +309,17 @@ export type StorageColumnInputTypes = ColumnTypesFromStorage<
 >;
 
 export namespace Models {
+  export type public_Employee = {
+    createdAt: FieldOutputTypes['public']['Employee']['createdAt'];
+    dateHired: FieldOutputTypes['public']['Employee']['dateHired'];
+    employeeNo: FieldOutputTypes['public']['Employee']['employeeNo'];
+    firstName: FieldOutputTypes['public']['Employee']['firstName'];
+    id: FieldOutputTypes['public']['Employee']['id'];
+    lastName: FieldOutputTypes['public']['Employee']['lastName'];
+    middleName: FieldOutputTypes['public']['Employee']['middleName'];
+    updatedAt: FieldOutputTypes['public']['Employee']['updatedAt'];
+    readonly [RelationKeys]?: never;
+  };
   export type public_RefreshToken = {
     createdAt: FieldOutputTypes['public']['RefreshToken']['createdAt'];
     expiresAt: FieldOutputTypes['public']['RefreshToken']['expiresAt'];
@@ -339,6 +350,7 @@ export namespace Models {
 
 export declare const models: {
   public: {
+    Employee: Models.public_Employee;
     RefreshToken: Models.public_RefreshToken;
     User: Models.public_User;
   };
@@ -362,6 +374,76 @@ type ContractBase = Omit<
         readonly kind: 'postgres-schema';
         readonly entries: {
           readonly table: {
+            readonly employees: {
+              columns: {
+                readonly created_at: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly date_hired: {
+                  readonly dataType: 'pg/date';
+                  readonly codecId: 'pg/date-string@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly employee_no: {
+                  readonly dataType: 'pg/varchar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 50 };
+                  readonly many: false;
+                };
+                readonly first_name: {
+                  readonly dataType: 'pg/varchar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 100 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly last_name: {
+                  readonly dataType: 'pg/varchar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 100 };
+                  readonly many: false;
+                };
+                readonly middle_name: {
+                  readonly dataType: 'pg/varchar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly length: 100 };
+                  readonly many: false;
+                };
+                readonly updated_at: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'uq_employees_employee_no_lower_af82291a';
+                  readonly prefix: 'uq_employees_employee_no_lower';
+                  readonly expression: 'lower(employee_no)';
+                  readonly unique: true;
+                },
+              ];
+              foreignKeys: readonly [];
+            };
             readonly refresh_tokens: {
               columns: {
                 readonly created_at: {
@@ -556,6 +638,7 @@ type ContractBase = Omit<
   readonly target: 'postgres';
   readonly targetFamily: 'sql';
   readonly roots: {
+    readonly employees: { readonly namespace: 'public' & NamespaceId; readonly model: 'Employee' };
     readonly refresh_tokens: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'RefreshToken';
@@ -566,6 +649,81 @@ type ContractBase = Omit<
     readonly namespaces: {
       readonly public: {
         readonly models: {
+          readonly Employee: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly dateHired: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/date-string@1' };
+              };
+              readonly employeeNo: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly typeParams: { readonly length: 50 };
+                };
+              };
+              readonly firstName: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly typeParams: { readonly length: 100 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly lastName: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly typeParams: { readonly length: 100 };
+                };
+              };
+              readonly middleName: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly typeParams: { readonly length: 100 };
+                };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'employees';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'created_at' };
+                readonly dateHired: { readonly column: 'date_hired' };
+                readonly employeeNo: { readonly column: 'employee_no' };
+                readonly firstName: { readonly column: 'first_name' };
+                readonly id: { readonly column: 'id' };
+                readonly lastName: { readonly column: 'last_name' };
+                readonly middleName: { readonly column: 'middle_name' };
+                readonly updatedAt: { readonly column: 'updated_at' };
+              };
+            };
+          };
           readonly RefreshToken: {
             readonly fields: {
               readonly createdAt: {
@@ -777,6 +935,31 @@ type ContractBase = Omit<
     readonly executionHash: ExecutionHash;
     readonly mutations: {
       readonly defaults: readonly [
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'employees';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: {
+            readonly id: 'timestampNow';
+            readonly kind: 'generator';
+            readonly params: { readonly precision: 3 };
+          };
+          readonly onUpdate: {
+            readonly id: 'timestampNow';
+            readonly kind: 'generator';
+            readonly params: { readonly precision: 3 };
+          };
+          readonly ref: {
+            readonly entry: 'employees';
+            readonly field: 'updated_at';
+            readonly namespace: 'public';
+          };
+        },
         {
           readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
           readonly ref: {

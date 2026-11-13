@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import type { Response } from 'supertest';
+import request, { type Response } from 'supertest';
 import { AppModule } from '../src/app.module.js';
 import { configureApp } from '../src/app.setup.js';
 import { hashPassword } from '../src/common/password.js';
@@ -39,4 +39,17 @@ export function refreshCookie(res: Response): string {
   const cookie = cookies?.find((value) => value.startsWith('refresh_token='));
   if (!cookie) throw new Error('No refresh_token cookie in response');
   return cookie.split(';')[0]!;
+}
+
+/** Logs in through the API and returns the Authorization header for supertest. */
+export async function authHeader(app: INestApplication, email: string): Promise<{ Authorization: string }> {
+  const res = await request(app.getHttpServer()).post('/api/auth/login').send({ email, password: TEST_PASSWORD });
+  return { Authorization: `Bearer ${res.body.accessToken as string}` };
+}
+
+/** Deletes employees created by a test, after the rows that point at them. */
+export async function deleteTestEmployees(ids: string[]) {
+  for (const id of ids) {
+    await db.orm.public.Employee.where({ id }).deleteAll();
+  }
 }

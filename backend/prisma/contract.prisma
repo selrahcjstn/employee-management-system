@@ -32,3 +32,17 @@ model RefreshToken {
   @@index([expiresAt])
   @@map("refresh_tokens")
 }
+
+model Employee {
+  id         Uuid                                   @id @onCreate(uuid())
+  employeeNo String(storage: varchar, length: 50)   @map("employee_no")
+  firstName  String(storage: varchar, length: 100)  @map("first_name")
+  middleName String(storage: varchar, length: 100)? @map("middle_name")
+  lastName   String(storage: varchar, length: 100)  @map("last_name")
+  dateHired  Date                                   @map("date_hired")
+  createdAt  DateTime                               @default(now()) @map("created_at")
+  updatedAt  DateTime                               @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  @@index(expression: sql`lower(employee_no)`, unique: true, name: "uq_employees_employee_no_lower")
+  @@map("employees")
+}

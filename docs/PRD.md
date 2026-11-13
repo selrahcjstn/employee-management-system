@@ -427,7 +427,7 @@ All endpoints below require `Authorization: Bearer <access token>`.
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/employees` | List employees (with current basic salary) |
+| GET | `/employees` | List employees (with current basic salary); optional `?search=` matches Employee ID or any name part, case-insensitive |
 | POST | `/employees` | Create employee (`409` on duplicate ID) |
 | GET | `/employees/:id` | Get one employee |
 | PATCH | `/employees/:id` | Update employee (ID immutable) |

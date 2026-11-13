@@ -23,5 +23,6 @@
       "node"
     ],
     "resolveJsonModule": true
-  }
+  },
+  "exclude": ["node_modules", "dist", "migrations"]
 }
