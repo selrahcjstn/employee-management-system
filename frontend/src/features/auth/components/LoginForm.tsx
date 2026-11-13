@@ -15,6 +15,8 @@ const FIELDS = ['email', 'password'] as const;
 export function LoginForm() {
   const { login } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
+  // Counts failed attempts so the alert is a new element each time, which replays its animation.
+  const [failedAttempts, setFailedAttempts] = useState(0);
   const {
     register,
     handleSubmit,
@@ -31,6 +33,7 @@ export function LoginForm() {
       // On success the route guard moves the user on, so there is nothing to do here.
       await login(values.email, values.password);
     } catch (error) {
+      setFailedAttempts((count) => count + 1);
       const parsed = parseApiError(error);
       if (parsed.status === 401) {
         // One generic message: never say whether the email or the password was wrong.
@@ -49,13 +52,18 @@ export function LoginForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-      {serverError && <Alert>{serverError}</Alert>}
+      {serverError && (
+        <div key={failedAttempts} className="animate-shake">
+          <Alert className="animate-slide-down">{serverError}</Alert>
+        </div>
+      )}
       <TextField
         label="Email"
         type="email"
         autoComplete="username"
         autoFocus
         required
+        className="animate-fade-up anim-delay-2"
         error={errors.email?.message}
         {...register('email')}
       />
@@ -63,10 +71,16 @@ export function LoginForm() {
         label="Password"
         autoComplete="current-password"
         required
+        className="animate-fade-up anim-delay-3"
         error={errors.password?.message}
         {...register('password')}
       />
-      <Button type="submit" fullWidth loading={isSubmitting}>
+      <Button
+        type="submit"
+        fullWidth
+        loading={isSubmitting}
+        className="animate-fade-up anim-delay-4"
+      >
         Sign in
       </Button>
     </form>

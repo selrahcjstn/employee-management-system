@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <!-- An employee (the dot) beside rising pay (the bars). Colors come from the design tokens;
+       a wrapper can override --logo-tile and --logo-glyph. -->
+  <rect width="40" height="40" rx="10" style="fill: var(--logo-tile, var(--color-primary-600))" />
+  <circle cx="11.5" cy="15" r="3.5" style="fill: var(--logo-glyph, var(--color-neutral-0))" />
+  <rect x="9" y="22" width="5" height="9" rx="1.5" style="fill: var(--logo-glyph, var(--color-neutral-0)); opacity: 0.7" />
+  <rect x="17.5" y="17" width="5" height="14" rx="1.5" style="fill: var(--logo-glyph, var(--color-neutral-0)); opacity: 0.85" />
+  <rect x="26" y="10" width="5" height="21" rx="1.5" style="fill: var(--logo-glyph, var(--color-neutral-0))" />
+</svg>

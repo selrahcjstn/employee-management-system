@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <!-- A peso coin. Decorative. -->
+  <defs>
+    <linearGradient id="hero-coin-fill" x1="14" y1="8" x2="66" y2="72" gradientUnits="userSpaceOnUse">
+      <stop offset="0" style="stop-color: var(--color-neutral-0)" />
+      <stop offset="1" style="stop-color: var(--color-primary-200)" />
+    </linearGradient>
+  </defs>
+  <circle cx="40" cy="40" r="36" style="fill: url(#hero-coin-fill); stroke: var(--color-primary-200)" stroke-width="2" />
+  <circle cx="40" cy="40" r="28" stroke-width="2" style="stroke: var(--color-primary-600); stroke-opacity: 0.3" />
+  <path d="M18 30A24 24 0 0 1 36 17" stroke-width="3" stroke-linecap="round" style="stroke: var(--color-neutral-0); stroke-opacity: 0.9" />
+  <text x="40" y="52" text-anchor="middle" style="font-family: var(--font-sans); font-size: 32px; font-weight: 700; fill: var(--color-primary-700)">₱</text>
+</svg>

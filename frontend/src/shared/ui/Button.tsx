@@ -14,7 +14,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANTS: Record<Variant, string> = {
   primary:
-    'bg-primary-600 text-neutral-0 enabled:hover:bg-primary-700 enabled:active:bg-primary-800',
+    'bg-primary-600 text-neutral-0 enabled:hover:-translate-y-px enabled:hover:bg-primary-700 enabled:hover:shadow-md enabled:active:translate-y-0 enabled:active:bg-primary-800 enabled:active:shadow-none',
   secondary:
     'border border-field bg-neutral-0 text-neutral-900 enabled:hover:bg-neutral-100',
   ghost: 'text-primary-600 enabled:hover:bg-primary-50',
@@ -37,7 +37,7 @@ export function Button({
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cx(
-        'relative inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed',
+        'relative inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition disabled:cursor-not-allowed',
         VARIANTS[variant],
         // A loading button keeps its colors; only a button that is disabled for another reason greys out.
         !loading &&

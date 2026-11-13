@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <!-- A faint grid that fades out toward the edges of the brand panel. -->
+  <defs>
+    <pattern id="hero-grid-pattern" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke-width="1" style="stroke: var(--color-neutral-0)" />
+    </pattern>
+    <radialGradient id="hero-grid-fade" cx="50%" cy="55%" r="65%">
+      <stop offset="0" style="stop-color: var(--color-neutral-0); stop-opacity: 0.16" />
+      <stop offset="1" style="stop-color: var(--color-neutral-0); stop-opacity: 0" />
+    </radialGradient>
+    <mask id="hero-grid-mask">
+      <rect width="100%" height="100%" fill="url(#hero-grid-fade)" />
+    </mask>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#hero-grid-pattern)" mask="url(#hero-grid-mask)" />
+</svg>

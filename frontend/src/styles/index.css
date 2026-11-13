@@ -12,7 +12,7 @@
     outline-offset: 2px;
   }
 
-  /* The ring color is fixed on every element. Without this, elements with `transition-colors`
+  /* The ring color is fixed on every element. Without this, elements with a color transition
      (buttons) animate the outline from currentColor to blue, so the ring is briefly invisible. */
   * {
     outline-color: var(--color-primary-600);
@@ -22,13 +22,89 @@
     @apply text-primary-600;
   }
 
+  /* Reduced motion: every animation and transition finishes at once, and nothing waits on a delay,
+     so content that fades in is simply there. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+@layer components {
+  /* SVG files from src/assets are inlined (see InlineSvg) so they use the page's fonts and tokens. */
+  .inline-svg > svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .inline-svg-fill > svg {
+    height: 100%;
+  }
+
+  /* Same values as the shadow-lg token, as a filter so it follows the shape of an SVG. */
+  .hero-shadow {
+    filter: drop-shadow(0 16px 32px rgba(15, 23, 42, 0.12));
+  }
+
+  /* The logo mark on the dark brand panel: white tile, blue glyph. */
+  .logo-on-dark {
+    --logo-tile: var(--color-neutral-0);
+    --logo-glyph: var(--color-primary-700);
+  }
+
+  /* Bars inside hero-pay-card.svg grow in from the left, one after another. */
+  .hero-bar {
+    transform-box: fill-box;
+    transform-origin: left center;
+    animation: grow-x 900ms ease-out both;
+  }
+
+  .hero-bar-1 {
+    animation-delay: 600ms;
+  }
+
+  .hero-bar-2 {
+    animation-delay: 800ms;
+  }
+
+  .hero-bar-3 {
+    animation-delay: 1000ms;
+  }
+
+  @keyframes grow-x {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+}
+
+/* Staggered entrance: add one of these next to animate-fade-up. */
+@utility anim-delay-1 {
+  animation-delay: 80ms;
+}
+
+@utility anim-delay-2 {
+  animation-delay: 160ms;
+}
+
+@utility anim-delay-3 {
+  animation-delay: 240ms;
+}
+
+@utility anim-delay-4 {
+  animation-delay: 320ms;
+}
+
+@utility anim-delay-5 {
+  animation-delay: 400ms;
 }

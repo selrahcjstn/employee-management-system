@@ -84,4 +84,78 @@
 
   /* Layout (4.3), for the few places utilities do not already cover it */
   --container-content: 1200px;
+
+  /* Login page animations (DESIGN.md 7.1). Decorative only; reduced motion turns them off in index.css. */
+  --animate-fade-up: fade-up 500ms ease-out both;
+  --animate-slide-down: slide-down 250ms ease-out both;
+  --animate-shake: shake 400ms ease-in-out both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 8s ease-in-out infinite;
+  --animate-wobble: wobble 5s ease-in-out infinite alternate;
+  --animate-drift: drift 16s ease-in-out infinite alternate;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes slide-down {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20%,
+    60% {
+      transform: translateX(-6px);
+    }
+    40%,
+    80% {
+      transform: translateX(6px);
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  @keyframes wobble {
+    from {
+      transform: translateY(0) rotate(-8deg);
+    }
+    to {
+      transform: translateY(-8px) rotate(8deg);
+    }
+  }
+
+  @keyframes drift {
+    from {
+      transform: translate(0, 0) scale(1);
+    }
+    to {
+      transform: translate(24px, 16px) scale(1.08);
+    }
+  }
 }

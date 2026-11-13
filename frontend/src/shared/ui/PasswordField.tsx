@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import { cx } from '../lib/cx';
 import { EyeIcon, EyeOffIcon } from './icons';
 import { TextField, type TextFieldProps } from './TextField';
 
@@ -24,7 +25,21 @@ export function PasswordField({ id, ...props }: PasswordFieldProps) {
           aria-controls={inputId}
           className="flex size-10 items-center justify-center rounded-md text-neutral-600 transition-colors hover:text-neutral-900"
         >
-          {visible ? <EyeOffIcon /> : <EyeIcon />}
+          {/* Both icons are drawn and cross-fade, instead of one replacing the other. */}
+          <span className="relative size-5">
+            <EyeIcon
+              className={cx(
+                'absolute inset-0 transition-opacity',
+                visible && 'opacity-0',
+              )}
+            />
+            <EyeOffIcon
+              className={cx(
+                'absolute inset-0 transition-opacity',
+                !visible && 'opacity-0',
+              )}
+            />
+          </span>
         </button>
       }
     />

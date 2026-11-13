@@ -9,6 +9,12 @@ React + Vite. Follow the root `AGENTS.md` too.
 - `src/shared/ui/`: Button, TextField, Alert and the other building blocks. `src/shared/lib/`: utilities such as `formatPeso()`. `src/shared/pages/`: pages with no feature.
 - `src/styles/`: `tokens.css` (DESIGN.md as the Tailwind theme) and `index.css`.
 
+## SVG assets
+- Every SVG file lives in `src/assets/` (the login illustration in `src/assets/login/`). Do not paste SVG markup into components.
+- Import it as text and draw it with `InlineSvg`: `import grid from '../assets/login/hero-grid.svg?raw'`. It is inlined, not an `<img>`, so it can use the design tokens (`var(--color-primary-600)`) and the Inter font.
+- Colors in an SVG come only from the token variables. No hex, `rgb()` or `hsl()`. `src/assets/assets.test.ts` enforces this, and also that an SVG has no script, external link or duplicate `id`.
+- Decorative drawings are `aria-hidden` (`InlineSvg` does it) and never focusable.
+
 ## Styling
 - Tailwind CSS v4. The theme in `src/styles/tokens.css` is DESIGN.md: it resets Tailwind's own palette, type scale and breakpoints, so only the design tokens exist as utilities (`bg-primary-600`, `text-danger`, `border-field`).
 - Spacing steps are 2, 4, 6, 8, 10, 12 and 16 (8 to 64px), and 1 only for the 4px half-step. No arbitrary values such as `p-[13px]`.

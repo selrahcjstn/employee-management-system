@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { tokenStore } from '../../../shared/api/token-store';
 import { apiError, type RecordedCall } from '../../../test/fake-server';
@@ -33,7 +33,7 @@ describe('LoginForm', () => {
     expect(passwordField()).toBeRequired();
     expect(emailField()).toHaveFocus();
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Employee & Salary Management',
+      'Welcome back',
     );
   });
 
@@ -199,5 +199,33 @@ describe('LoginForm', () => {
     expect(screen.getByRole('button', { name: 'Show password' })).toHaveFocus();
     await user.tab();
     expect(submitButton()).toHaveFocus();
+  });
+  it('shows a new alert element after every failed attempt, so its animation replays', async () => {
+    const { user } = await openLoginPage();
+    await user.type(emailField(), 'nobody@example.com');
+    await user.type(passwordField(), 'wrong-1');
+    await user.click(submitButton());
+    const first = await screen.findByRole('alert');
+
+    await user.clear(passwordField());
+    await user.type(passwordField(), 'wrong-2');
+    await user.click(submitButton());
+
+    await waitFor(() => expect(screen.getByRole('alert')).not.toBe(first));
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Invalid email or password',
+    );
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
+  });
+
+  it('gives the heading, fields and button a staggered entrance', async () => {
+    await openLoginPage();
+    for (const element of [
+      emailField().parentElement!.parentElement!,
+      submitButton(),
+    ]) {
+      expect(element.className).toMatch(/animate-fade-up/);
+      expect(element.className).toMatch(/anim-delay-[1-5]/);
+    }
   });
 });

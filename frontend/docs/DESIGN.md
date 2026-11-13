@@ -198,7 +198,7 @@ All spacing, sizing, and gaps are multiples of **8px**. A 4px half-step is allow
 | `shadow-sm` | `0 1px 2px rgba(15,23,42,0.06)` | Cards |
 | `shadow-md` | `0 4px 8px rgba(15,23,42,0.08)` | Dropdowns, popovers |
 | `shadow-lg` | `0 16px 32px rgba(15,23,42,0.12)` | Dialogs |
-| Motion | 150ms `ease-out` | Hover, focus, dropdowns. Dialogs 200ms. Respect `prefers-reduced-motion`. |
+| Motion | 150ms `ease-out` | Hover, focus, dropdowns. Dialogs 200ms. Respect `prefers-reduced-motion`. The login page's decorative animations (section 7.1) are the one exception to the durations. |
 
 Cards use a 1px `neutral-200` border plus `shadow-sm`.
 
@@ -276,7 +276,14 @@ Sidebar (240px, white, right border neutral-200): app name at top (64px), then l
 ## 7. Screen Specs
 
 ### 7.1 Login (`/login`)
-Centered card, 400px wide, on neutral-50. Logo/title, email, password (show/hide toggle), primary "Sign in" button full width. Generic error: "Invalid email or password". No signup link.
+Split screen from `lg` (1024px) up, form only below it.
+
+- **Brand panel (left half, `lg` and up):** a gradient from `primary-800` to `primary-700` (white text on it is at least 6.70:1; `primary-100` text is about 6.4:1), a faint white grid that fades toward the edges, and two soft blurred circles that drift. Top: the logo mark (white tile, blue glyph) and the app name. Then the headline "Onboard people. Assign pay. See the numbers." (`text-3xl`, weight 700) and one `text-base` line of support text. Below: an illustration of what the app does, a zigzag of three white cards (employee, monthly pay breakdown, salary rates) and a peso coin. No card may cover another card's numbers.
+- **Form (right half):** white, vertically centered, a column up to 400px wide. `h1` "Welcome back", a `text-sm` line under it, email, password (show/hide toggle), primary "Sign in" button full width, and a `text-xs` note: "Accounts are created by your administrator. There is no sign-up." No signup link, and no forgot-password link (the PRD excludes both).
+- **Below `lg`:** the brand panel is hidden. The logo mark and app name sit above the form.
+- **Errors:** generic "Invalid email or password" in an inline alert above the fields. The alert slides in and shakes on every failed attempt.
+- **Illustration rules:** the drawings are SVG files in `src/assets/login/`, inlined so they use the color tokens and Inter. They show fixed sample values from the PRD worked example (never computed on the client), and they are decorative: `aria-hidden`, not focusable. Per-minute shows 4 decimals (`₱2.6672`), as in section 8.
+- **Motion (this page only):** the heading, fields and button fade up in a stagger (500ms ease-out, 80ms steps); the cards bob (6 to 8s loops), the coin wobbles, the circles drift and the pay bars grow in once. The primary button lifts 1px with `shadow-md` on hover and drops back when pressed. The password eye icon cross-fades. These are decorative, so they may run longer than the 150ms of section 5. With `prefers-reduced-motion: reduce` every animation and transition completes at once with no delay, so nothing waits to appear.
 
 ### 7.2 Employees (`/employees`)
 - Page title "Employees", search field, primary "Add employee" button.

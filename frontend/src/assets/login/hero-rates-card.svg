@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 176" fill="none">
+  <!-- Sample rates for a monthly salary of 33,500 (divisor 314; per-minute shows 4 decimals). Decorative. -->
+  <rect x="0.5" y="0.5" width="279" height="175" rx="12" style="fill: var(--color-neutral-0); stroke: var(--color-neutral-200)" />
+  <text x="20" y="30" style="font-family: var(--font-sans); font-size: 14px; font-weight: 600; fill: var(--color-neutral-900)">Salary rates</text>
+
+  <text x="20" y="54" style="font-family: var(--font-sans); font-size: 12px; font-weight: 500; fill: var(--color-neutral-900)">Annual</text>
+  <text x="20" y="67" style="font-family: var(--font-sans); font-size: 12px; fill: var(--color-neutral-600)">Monthly × 12</text>
+  <text x="260" y="60" text-anchor="end" style="font-family: var(--font-sans); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; fill: var(--color-neutral-900)">₱402,000.00</text>
+  <line x1="20" y1="76" x2="260" y2="76" style="stroke: var(--color-neutral-100)" />
+
+  <text x="20" y="88" style="font-family: var(--font-sans); font-size: 12px; font-weight: 500; fill: var(--color-neutral-900)">Daily</text>
+  <text x="20" y="101" style="font-family: var(--font-sans); font-size: 12px; fill: var(--color-neutral-600)">Annual ÷ 314</text>
+  <text x="260" y="94" text-anchor="end" style="font-family: var(--font-sans); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; fill: var(--color-neutral-900)">₱1,280.25</text>
+  <line x1="20" y1="110" x2="260" y2="110" style="stroke: var(--color-neutral-100)" />
+
+  <text x="20" y="122" style="font-family: var(--font-sans); font-size: 12px; font-weight: 500; fill: var(--color-neutral-900)">Hourly</text>
+  <text x="20" y="135" style="font-family: var(--font-sans); font-size: 12px; fill: var(--color-neutral-600)">Daily ÷ 8</text>
+  <text x="260" y="128" text-anchor="end" style="font-family: var(--font-sans); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; fill: var(--color-neutral-900)">₱160.03</text>
+  <line x1="20" y1="144" x2="260" y2="144" style="stroke: var(--color-neutral-100)" />
+
+  <text x="20" y="156" style="font-family: var(--font-sans); font-size: 12px; font-weight: 500; fill: var(--color-neutral-900)">Per-minute</text>
+  <text x="20" y="169" style="font-family: var(--font-sans); font-size: 12px; fill: var(--color-neutral-600)">Hourly ÷ 60</text>
+  <text x="260" y="162" text-anchor="end" style="font-family: var(--font-sans); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; fill: var(--color-primary-700)">₱2.6672</text>
+</svg>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 196" fill="none">
+  <!-- Sample pay breakdown: basic 30,000 + rice 2,000 + transportation 1,500 = 33,500. Decorative.
+       The bars grow in once (class hero-bar, defined in styles/index.css). -->
+  <rect x="0.5" y="0.5" width="299" height="195" rx="12" style="fill: var(--color-neutral-0); stroke: var(--color-neutral-200)" />
+  <text x="20" y="32" style="font-family: var(--font-sans); font-size: 14px; font-weight: 600; fill: var(--color-neutral-900)">Monthly salary</text>
+
+  <text x="20" y="62" style="font-family: var(--font-sans); font-size: 12px; fill: var(--color-neutral-600)">Basic salary</text>
+  <text x="280" y="62" text-anchor="end" style="font-family: var(--font-sans); font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; fill: var(--color-neutral-900)">₱30,000.00</text>
+  <rect x="20" y="70" width="260" height="6" rx="3" style="fill: var(--color-neutral-100)" />
+  <rect class="hero-bar hero-bar-1" x="20" y="70" width="233" height="6" rx="3" style="fill: var(--color-primary-600)" />
+
+  <text x="20" y="100" style="font-family: var(--font-sans); font-size: 12px; fill: var(--color-neutral-600)">Rice Allowance</text>
+  <text x="280" y="100" text-anchor="end" style="font-family: var(--font-sans); font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; fill: var(--color-neutral-900)">₱2,000.00</text>
+  <rect x="20" y="108" width="260" height="6" rx="3" style="fill: var(--color-neutral-100)" />
+  <rect class="hero-bar hero-bar-2" x="20" y="108" width="16" height="6" rx="3" style="fill: var(--color-primary-200)" />
+
+  <text x="20" y="138" style="font-family: var(--font-sans); font-size: 12px; fill: var(--color-neutral-600)">Transportation</text>
+  <text x="280" y="138" text-anchor="end" style="font-family: var(--font-sans); font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; fill: var(--color-neutral-900)">₱1,500.00</text>
+  <rect x="20" y="146" width="260" height="6" rx="3" style="fill: var(--color-neutral-100)" />
+  <rect class="hero-bar hero-bar-3" x="20" y="146" width="12" height="6" rx="3" style="fill: var(--color-primary-200)" />
+
+  <path d="M1 160H299V183A12 12 0 0 1 287 195H13A12 12 0 0 1 1 183Z" style="fill: var(--color-primary-50)" />
+  <text x="20" y="183" style="font-family: var(--font-sans); font-size: 12px; font-weight: 600; fill: var(--color-neutral-900)">Total monthly</text>
+  <text x="280" y="184" text-anchor="end" style="font-family: var(--font-sans); font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; fill: var(--color-primary-700)">₱33,500.00</text>
+</svg>
