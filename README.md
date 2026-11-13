@@ -5,7 +5,7 @@ A small HR/payroll-style web app with four integrated modules: onboard employees
 | | |
 |---|---|
 | **Backend** | NestJS, Prisma 8 (release candidate), PostgreSQL 15+ |
-| **Frontend** | React (Vite). Not built yet. |
+| **Frontend** | React 19, Vite, TypeScript, React Router, TanStack Query, React Hook Form + Zod. The scaffold is in place; the pages are not built yet. |
 | **Source of truth** | [`docs/PRD.md`](docs/PRD.md) (requirements, data model, API, business rules) |
 | **ERD** | [`docs/ERD.pdf`](docs/ERD.pdf) and the diagram in the PRD |
 
@@ -43,6 +43,16 @@ The API listens on `http://localhost:3000/api`. Interactive docs are at `http://
 
 `npm run seed` is safe to run again. It creates the admin and four sample employees: EMP-001 is the worked example from the spec (basic ₱30,000 + Rice ₱2,000 + Transportation ₱1,500 = ₱33,500 a month), and EMP-004 has no salary assigned.
 
+**4. Frontend** (in a second terminal, with the backend running).
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`. Vite forwards `/api` to the backend on port 3000, so no CORS setup is needed in development. Change the target with `VITE_API_PROXY_TARGET` (see `frontend/.env.example`).
+
 ## Checks
 
 ```bash
@@ -51,6 +61,11 @@ npm run lint
 npm test            # unit tests
 npm run test:e2e    # end-to-end tests against a real PostgreSQL
 npm run build
+
+cd ../frontend
+npm run lint
+npm test
+npm run build       # type-checks, then bundles
 ```
 
 The e2e tests use their own database, `<your database>_test`. They create and migrate it automatically and refuse to run against your development database. Set `TEST_DATABASE_URL` to use a different one.
@@ -80,6 +95,6 @@ The e2e tests use their own database, `<your database>_test`. They create and mi
 ```
 docs/                PRD.md, ERD.pdf
 backend/             NestJS API (see backend/README.md)
-frontend/            React app (not built yet)
+frontend/            React app (scaffold only so far)
 docker-compose.yml   local PostgreSQL
 ```
