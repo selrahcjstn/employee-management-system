@@ -116,16 +116,6 @@ describe('Employee workspace', () => {
     expect(router.state.location.pathname).toBe(`/employees/${ana.id}/salary`);
   });
 
-  it.each(['/salary', '/components', '/computation'])(
-    'sends the old %s address to the Employees table',
-    async (path) => {
-      seeded();
-      const { router } = renderApp(path);
-      await screen.findByRole('heading', { name: 'Employees' });
-      expect(router.state.location.pathname).toBe('/employees');
-    },
-  );
-
   it('shows a not-found state with a way back for an employee that does not exist', async () => {
     seeded();
     const { router } = renderApp(

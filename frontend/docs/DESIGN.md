@@ -271,8 +271,8 @@ Max width 480px, `radius-lg`, `shadow-lg`, 24px padding, overlay `rgba(15,23,42,
 
 **Sidebar** (240px, white, right border neutral-200; a 72px icon rail when collapsed; a drawer below `lg`).
 - **Top (64px):** the logo mark and the app name on two lines ("Employee & Salary" over "Management"), with a close button in the drawer.
-- **Groups:** People (Employees) and Pay (Salary, Components, Computation). The group name is a `text-xs`, weight 600, neutral-500 label in sentence case, never all caps. The header breadcrumb repeats the group.
-- **Links:** 40px tall, 16px padding, 20px icon, 8px gap, 4px between links. Active: primary-50 background, primary-700 text, weight 500, plus a 3px by 24px primary-600 marker on the sidebar's left edge. Hover: neutral-100. A page that is not built yet is disabled (neutral-400, `aria-disabled`, no link) with a neutral "Soon" badge.
+- **Groups:** Overview (Dashboard), People (Employees), Pay (Salaries, Components, Computation) and Account (My profile). Every item is a real page. The group name is a `text-xs`, weight 600, neutral-500 label in sentence case, never all caps. The header breadcrumb repeats the group.
+- **Links:** 40px tall, 16px padding, 20px icon, 8px gap, 4px between links. Active: primary-50 background, primary-700 text, weight 500, plus a 3px by 24px primary-600 marker on the sidebar's left edge. Hover: neutral-100. There are no disabled items and no "Soon" badges: a page is added to the sidebar when it exists.
 - **Rail (collapsed, `lg` and up only):** icons only, centered, the group names replaced by a divider, the text kept in the page for screen readers (not removed), and a dark tooltip beside the icon on hover and keyboard focus. The width change takes 200ms. The choice is saved in `localStorage` as `sidebar-collapsed` (a display preference, never a token); if storage is blocked the sidebar simply starts expanded.
 - **Drawer (below `lg`):** opens from the menu button over a dimmed overlay. Focus moves to the close button; the page behind is `inert`; Escape, the overlay and the close button close it and return focus to the menu button; following a link closes it and moves focus to the page content; it closes by itself if the window grows to `lg`. The rail does not apply to the drawer, which always shows full labels.
 
@@ -304,13 +304,14 @@ Split screen from `lg` (1024px) up, form only below it.
 - Everything is worked out from the whole employee list, not from a search. Money is added in whole centavos, never as floats. Loading is a skeleton, an error is a plain message with Retry, and every panel has an empty state.
 
 ### 7.2 Employees (`/employees`)
-- Header: title "Employees", a one-line description, and the primary "Add employee" button (plus icon) on the right. They wrap on narrow screens.
-- One card (`rounded-lg`, border neutral-200, `shadow-sm`) holds the search field and the table. The search field is 40px, max `max-w-sm`, with a search icon, a visually hidden label "Search employees" and the placeholder "Search by name or Employee ID". It searches on the server 300ms after typing stops.
-- Table: Employee ID (mono, weight 500), Full name, Date hired ("MMM d, yyyy"), Monthly basic salary (right aligned money, or a neutral "Not assigned" badge), and an Actions column with an icon-only Edit button (`aria-label` "Edit {full name}", tooltip "Edit"). No delete: employees are not deleted. Rows are 48px, the header 40px. The table scrolls sideways inside the card on small screens.
-- Pagination below the table, 10 rows per page: "Showing 11–20 of 42" with Previous and Next. A new search returns to page 1.
-- Add and Edit use one 480px dialog (6.6): Employee ID, First name, Middle name (optional), Last name, Date hired (not after today in Manila). Add starts on Employee ID; Edit starts on First name and the Employee ID is read-only with the hint "The Employee ID can't be changed." Buttons: Cancel, and "Add employee" or "Save changes" (loading while saving). A `409` shows "Employee ID already exists" under the Employee ID field; other `400` field errors show under their fields; anything else shows an alert at the top of the dialog and keeps what was typed.
-- A saved change closes the dialog, shows a success toast ("Employee added" or "Employee updated"), and returns focus to the button that opened it. The list refreshes.
-- States: loading is a skeleton table; no employees is an empty state with an "Add employee" action; a search with no match says so and offers "Clear search"; a load error shows a plain message (never the raw server text) with Retry.
+- Header: title "Employees", a one-line description, and the one primary button, "Add employee" (plus icon).
+- One card holds the search field (40px, `max-w-sm`, hidden label "Search employees"), the "Needs salary only" checkbox, the table and the pagination. The search runs on the server 300ms after typing stops; the filter works on the result.
+- Table (it scrolls sideways inside the card on small screens): Employee ID (mono, weight 500), Full name (a real link to the Salary tab), Date hired ("MMM d, yyyy"), Basic salary (right aligned money, or a neutral "Not assigned" badge), Components (right aligned count), Monthly total (right aligned money, or a dash with an accessible name "No monthly total"), Status ("Ready" success badge with a salary, "Needs salary" warning badge without), and the actions menu. Rows are 48px, the header 40px. 10 rows per page, "Showing 11–20 of 42". A new search or filter returns to page 1.
+- **Rows:** the whole row opens `/employees/:id/salary` for mouse users; the name link is the keyboard and screen reader way in. A click on the link or the menu does not also open the row.
+- **One actions menu per row** ("⋯" icon button, `aria-label` "Actions for <name>"): Edit employee, Salary, Components, Computation. It is a real menu: focus goes to the first item, arrow keys, Home and End move, Escape closes and returns focus, Tab and a click outside close it. There is no pencil and there are no text links in the row.
+- Add and Edit use one 480px dialog (6.6): Employee ID, First name, Middle name (optional), Last name, Date hired (not after today in Manila). Add: the Employee ID has the hint "Format: EMP-001" and must match `^EMP-\d{3,}$`; it is saved in upper case, so `emp-001` becomes `EMP-001`. Edit: the Employee ID is read-only with the hint "The Employee ID can't be changed." and is not checked, so a row created before the rule (such as `EMP001`) can still be edited. A `409` shows "Employee ID already exists" under the field; other `400` field errors show under their fields; anything else is an alert at the top of the dialog that keeps what was typed.
+- A saved change closes the dialog, shows a success toast ("Employee added" or "Employee updated"), and returns focus to the button that opened it.
+- States: loading is a skeleton table; no employees is an empty state with an "Add employee" action; a search with no match offers "Clear search"; the filter with nobody to show says "Everyone has a basic salary" and offers "Clear filters"; a load error shows a plain message (never the raw server text) with Retry.
 
 ### 7.2b Employee workspace (`/employees/:id/...`)
 - The employee table is the hub. An employee opens in a workspace with three tabs, each its own route: Salary (`/employees/:id/salary`), Components (`/components`) and Computation (`/computation`). `/employees/:id` redirects to the Salary tab. An unknown or malformed id shows "Employee not found" with a link back.
@@ -319,30 +320,39 @@ Split screen from `lg` (1024px) up, form only below it.
 - Tab content is the salary form and history, the components table and form, and the computation breakdown and rates. None has an employee picker.
 - Browser tab title: "<Tab> | <Employee name> | Employee & Salary Management". Breadcrumb: Employees > Employee name > Tab.
 
-### 7.3 Salary (`/salary`)
-- Header: title "Salary" and a one-line description. Below it the employee picker (`max-w-sm`), a searchable combobox (type to filter by name or Employee ID, arrow keys, Enter to choose, Escape to close). The chosen employee is kept in the address (`/salary?employee=<id>`), so a refresh or a shared link keeps it. Until one is chosen, an empty state says "Choose an employee".
+### 7.3 Salary tab (`/employees/:id/salary`)
 - Two cards side by side from `lg` (stacked below it): "Current basic salary" (large figure, `text-3xl`, tabular, with "per month, since {date}"; "No salary assigned yet" when none) and the form.
-- Form: titled "Assign salary" or "Adjust salary". One money field with a fixed peso sign (label "Monthly basic salary", or "New monthly basic salary" when adjusting), checked as text: greater than 0, at most 2 decimals, at most ₱99,999,999.99. Button "Assign salary" or "Save salary". The hint says the current salary is kept in the history. The same amount as the current salary is refused inline ("This is already the current salary").
-- A save shows a toast ("Salary assigned" or "Salary updated"; an info toast "Salary is already ₱X. Nothing changed." if the server sees no change), clears the field, and refreshes the Employees list and the computation.
-- Card "Salary history": table of previous salaries (amount, assigned, replaced), newest first; a short note when there are none. Dates are shown as the Manila date.
-- States: loading skeletons, a plain error with Retry, a field-level API error under the field, any other save failure as an alert inside the form that keeps the typed amount.
+- Form: titled "Assign salary" or "Adjust salary". One money field with a fixed peso sign ("Monthly basic salary", or "New monthly basic salary" when adjusting), checked as text: greater than 0, at most 2 decimals, at most ₱99,999,999.99. With no salary yet the field has focus. Button "Assign salary" or "Save salary". The hint says the current salary is kept in the history. The same amount as the current salary is refused inline ("This is already the current salary").
+- A save shows a toast ("Salary assigned" or "Salary updated"; an info toast "Salary is already ₱X. Nothing changed." if the server sees no change), clears the field, and refreshes the header summary, the Employees list and the computation.
+- Card "Salary history": previous salaries (amount, assigned, replaced), newest first; a short note when there are none. Dates are shown as the Manila date.
 
-### 7.4 Salary Components (`/components`)
-- Header: title "Components" and a one-line description. Below it the employee picker (`max-w-sm`), kept in the address (`/components?employee=<id>`). Until one is chosen, an empty state says "Choose an employee".
-- Card "Add a component": a component combobox (type to search the shared names, or choose the last row `Create “name”` for a new one), an amount field with a fixed peso sign, and "Add component". On `sm` and up they sit in one row; below it they stack. Amount: zero or more, at most 2 decimals, at most ₱99,999,999.99 (checked as text); name: 1 to 100 characters.
-- Table "Salary components": Component, Amount (right aligned, tabular) and three icon buttons per row: Edit amount, Rename, Remove, each with an `aria-label` that names the component. A footer row shows "Components total". Edit amount turns the cell into a field with Save and Cancel (Enter saves, Escape cancels, an unchanged amount sends nothing).
-- Rename opens a dialog with the note "Applies to all employees using this component." A taken name shows "Component name already exists" under the field.
-- Remove asks first in a dialog ("Remove {name} from {employee}?"; others keep it; it can be added again), with a danger-colored Remove button.
+### 7.4 Components tab (`/employees/:id/components`)
+- Card "Add a component": a component combobox (type to search the shared names, or choose the last row `Create “name”` for a new one), an amount field with a fixed peso sign, and "Add component". Amount: zero or more, at most 2 decimals, at most ₱99,999,999.99 (checked as text); name: 1 to 100 characters.
+- Table: Component, Amount (right aligned, tabular) and three icon buttons per row (Edit amount, Rename, Remove), each with an `aria-label` that names the component. A footer row shows "Components total". Edit amount turns the cell into a field with Save and Cancel (Enter saves, Escape cancels, an unchanged amount sends nothing).
+- Rename opens a dialog with the note "Applies to all employees using it." Remove asks first ("Remove {name} from {employee}?"; others keep it) with a danger-colored button.
 - Duplicate error inline under the component field: "This employee already has this component." It is checked before sending (any letter case) and again from the API's `409`.
-- A change shows a toast ("Component added", "Amount updated", "Component renamed", "Component removed") and refreshes the lists, the suggestions and the computation.
 - States: skeleton while loading, an empty state ("No components yet"), a plain error with Retry, and a failed write as an alert (add) or inside the dialog (rename, remove).
 
-### 7.5 Computation (`/computation`)
-- Employee picker.
-- Breakdown card: rows for Basic salary, each component, and a **Total monthly salary** row (primary-50 background, weight 600, top border).
-- Rates card: four rows (Annual, Daily, Hourly, Per-minute), each with the formula in `text-xs` neutral 600 (for example "Annual ÷ 314") and the value right aligned. Footer note: "Daily rate uses 314 working days per year."
-- If no salary: empty state with a link to the Salary page.
-- Updates automatically when salary or components change (query invalidation).
+### 7.5 Computation tab (`/employees/:id/computation`)
+- Two cards side by side from `lg`: "Monthly breakdown" (Basic salary, each component, then **Total monthly salary** on a primary-50 row with a top border, weight 600) and "Salary rates" (Annual, Daily, Hourly, Per minute, each with its formula in `text-xs` neutral 600, such as "Annual ÷ 314", and the value right aligned). Footer note: "Daily rate uses 314 working days per year." All values come from the API.
+- With no basic salary: an empty state with a link to the Salary tab. It recalculates by itself when a salary or component is saved.
+
+### 7.6 Salaries (`/salaries`)
+- Header: title and one line. No primary button: the page is for looking and for opening an employee.
+- A strip of three small stats (`MiniStat`): Salaries assigned ("2 of 3", warning colors while anyone is missing), Total basic payroll, Average basic salary.
+- One card: the search field, then the filters on the same bar: Status (a segmented control, "All", "Ready", "Needs salary", each with its count), Last adjusted (Any time, Last 30 days, Last 90 days, Over a year ago), Sort by (Employee ID, Salary high to low, Salary low to high, Recently adjusted; employees without a salary always last) and "Clear filters" while any filter is on. Pagination below, 10 per page.
+- Table: Employee (avatar, name as a link, Employee ID in mono under it), Basic salary (right aligned, or "Not assigned"), Last adjusted, Status, and a chevron. **No actions column and no menu**: the whole row, and the name link, open that employee's Salary tab.
+
+### 7.7 Components catalog (`/components`)
+- Header with the one primary button, "New component" (creates a name only: a dialog with one field, no amount and no employee). The description says the amount is set per employee.
+- Table: Component name, Employees using it (right aligned count), Created, and the actions menu ("Actions for <name>": Rename, Delete). Rename shows "Applies to all employees using it." Delete asks first and says how many employees will also lose the component ("It will also be removed from 2 employees, and their monthly totals will change."; "No employee has this component" when it is unused), with a danger-colored button. Search by name, pagination, "No components yet" with a "New component" action.
+
+### 7.8 Computation overview (`/computation`)
+- Same frame as Salaries: a strip (Total monthly payroll, Total annual payroll, Average monthly total), a card with search and filters (Status: All, Computed, Needs salary, with counts; Monthly total: Any amount, Under ₱25,000, ₱25,000 to ₱50,000, ₱50,000 or more; Sort by Employee ID or monthly total), and pagination.
+- Table: Employee (avatar, link, Employee ID), Monthly total (weight 600), Annual, Daily, Hourly and Per-minute, all right aligned in tabular numbers; the per-minute rate shows 4 decimals. An employee without a basic salary has one "Not assigned" badge across the number columns. A chevron ends the row; **no actions column**: the row opens that employee's Computation tab.
+
+### 7.9 My profile (`/profile`)
+- One card up to 576px: avatar, name and role badge; the email, role and member-since date as read-only text; and a form with the full name (1 to 150 characters). "Save changes" stays off until the name changes. A save shows "Profile updated" and updates the account menu at once. There is no password change.
 
 ---
 

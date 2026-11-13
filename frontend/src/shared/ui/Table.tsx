@@ -1,5 +1,6 @@
 import type { MouseEventHandler, ReactNode } from 'react';
 import { cx } from '../lib/cx';
+import { Skeleton } from './Skeleton';
 
 type Align = 'left' | 'right';
 
@@ -25,6 +26,8 @@ export function Table({ label, children }: TableProps) {
 interface CellProps {
   align?: Align;
   className?: string;
+  /** How many columns the cell spans, for a message that replaces several cells. */
+  colSpan?: number;
   children?: ReactNode;
 }
 
@@ -45,9 +48,15 @@ export function Th({ align = 'left', className, children }: CellProps) {
 }
 
 /** Body cell: 48px row, 16px side padding, a divider under it. */
-export function Td({ align = 'left', className, children }: CellProps) {
+export function Td({
+  align = 'left',
+  className,
+  colSpan,
+  children,
+}: CellProps) {
   return (
     <td
+      colSpan={colSpan}
       className={cx(
         'h-12 border-b border-neutral-200 px-4 text-neutral-900',
         ALIGN[align],
@@ -76,5 +85,53 @@ export function Tr({ children, onClick }: TrProps) {
     >
       {children}
     </tr>
+  );
+}
+
+interface TableSkeletonProps {
+  /** Names the table and the status message, for example "Loading salaries". */
+  label: string;
+  headers: { text: string; align?: Align }[];
+  rows?: number;
+}
+
+/** Header and rows the same size as the real table, shown while a list loads. */
+export function TableSkeleton({
+  label,
+  headers,
+  rows = 5,
+}: TableSkeletonProps) {
+  return (
+    <div aria-busy="true">
+      <Table label={label}>
+        <thead>
+          <tr>
+            {headers.map((header) => (
+              <Th key={header.text} align={header.align}>
+                {header.text}
+              </Th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: rows }, (_, row) => (
+            <Tr key={row}>
+              {headers.map((header) => (
+                <Td key={header.text} align={header.align}>
+                  <Skeleton
+                    className={
+                      header.align === 'right' ? 'ml-auto h-4 w-24' : 'h-4 w-32'
+                    }
+                  />
+                </Td>
+              ))}
+            </Tr>
+          ))}
+        </tbody>
+      </Table>
+      <span role="status" className="sr-only">
+        {label}
+      </span>
+    </div>
   );
 }

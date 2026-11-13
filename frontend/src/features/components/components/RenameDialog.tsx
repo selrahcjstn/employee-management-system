@@ -9,10 +9,15 @@ import { TextField } from '../../../shared/ui/TextField';
 import { useToast } from '../../../shared/ui/useToast';
 import { useRenameComponent } from '../api/queries';
 import { renameFormSchema, type RenameFormValues } from '../schemas';
-import type { EmployeeComponent } from '../types';
+
+/** What a rename needs: the catalog entry's id and its current name. An assigned component fits. */
+export interface RenameTarget {
+  componentId: string;
+  name: string;
+}
 
 interface RenameFormProps {
-  item: EmployeeComponent;
+  item: RenameTarget;
   onClose: () => void;
 }
 
@@ -62,7 +67,7 @@ function RenameForm({ item, onClose }: RenameFormProps) {
         required
         autoFocus
         autoComplete="off"
-        hint="Applies to all employees using this component."
+        hint="Applies to all employees using it."
         error={errors.name?.message}
         {...register('name')}
       />
@@ -80,7 +85,7 @@ function RenameForm({ item, onClose }: RenameFormProps) {
 
 interface RenameDialogProps {
   /** The component to rename, or null while the dialog is closed. */
-  item: EmployeeComponent | null;
+  item: RenameTarget | null;
   onClose: () => void;
 }
 

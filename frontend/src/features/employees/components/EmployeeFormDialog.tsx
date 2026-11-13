@@ -8,7 +8,11 @@ import { Button } from '../../../shared/ui/Button';
 import { Dialog } from '../../../shared/ui/Dialog';
 import { TextField } from '../../../shared/ui/TextField';
 import { useSaveEmployee } from '../api/queries';
-import { employeeSchema, type EmployeeFormValues } from '../schemas';
+import {
+  editEmployeeSchema,
+  employeeSchema,
+  type EmployeeFormValues,
+} from '../schemas';
 import type { Employee } from '../types';
 
 export type SaveResult = 'created' | 'updated';
@@ -39,7 +43,7 @@ function EmployeeForm({ employee, onClose, onSaved }: EmployeeFormProps) {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<EmployeeFormValues>({
-    resolver: zodResolver(employeeSchema),
+    resolver: zodResolver(editing ? editEmployeeSchema : employeeSchema),
     defaultValues: {
       employeeNo: employee?.employeeNo ?? '',
       firstName: employee?.firstName ?? '',
@@ -82,7 +86,7 @@ function EmployeeForm({ employee, onClose, onSaved }: EmployeeFormProps) {
         required
         readOnly={editing}
         autoFocus={!editing}
-        hint={editing ? "The Employee ID can't be changed." : undefined}
+        hint={editing ? "The Employee ID can't be changed." : 'Format: EMP-001'}
         error={errors.employeeNo?.message}
         {...register('employeeNo')}
       />

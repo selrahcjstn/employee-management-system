@@ -176,7 +176,7 @@ export function EmployeesPage() {
               onChange={(event) => setUnassignedOnly(event.target.checked)}
               className="size-4 accent-primary-600"
             />
-            Not assigned only
+            Needs salary only
           </label>
         </div>
         {content}

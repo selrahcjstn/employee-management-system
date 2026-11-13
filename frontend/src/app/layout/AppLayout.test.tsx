@@ -26,7 +26,7 @@ describe('AppLayout', () => {
   });
 
   describe('sidebar', () => {
-    it('groups the pages under Overview and People, with the current page marked', async () => {
+    it('groups the pages under Overview, People, Pay and Account, with the current page marked', async () => {
       await openApp();
       const nav = screen.getByRole('navigation', { name: 'Main' });
 
@@ -34,19 +34,24 @@ describe('AppLayout', () => {
       expect(
         within(people).getByRole('link', { name: 'Employees' }),
       ).toHaveAttribute('aria-current', 'page');
-      const overview = within(nav).getByRole('list', { name: 'Overview' });
+      const pay = within(nav).getByRole('list', { name: 'Pay' });
       expect(
-        within(overview).getByRole('link', { name: 'Dashboard' }),
-      ).not.toHaveAttribute('aria-current');
-      expect(within(nav).getAllByRole('link')).toHaveLength(2);
+        within(pay)
+          .getAllByRole('link')
+          .map((link) => link.textContent?.replace(/\s+/g, ' ').trim()),
+      ).toEqual(['Salaries', 'Components', 'Computation']);
+      const account = within(nav).getByRole('list', { name: 'Account' });
+      expect(
+        within(account).getByRole('link', { name: 'My profile' }),
+      ).toHaveAttribute('href', '/profile');
+      expect(within(nav).getAllByRole('link')).toHaveLength(6);
     });
 
-    it('has no Pay group: the pay pages are tabs in an employee workspace', async () => {
+    it('has no "Soon" badge: every item is a real page', async () => {
       await openApp();
       const nav = screen.getByRole('navigation', { name: 'Main' });
-      expect(within(nav).queryByRole('list', { name: 'Pay' })).toBeNull();
-      expect(within(nav).queryByText('Salary')).toBeNull();
       expect(within(nav).queryByText('Soon')).toBeNull();
+      expect(nav.querySelector('[aria-disabled="true"]')).toBeNull();
     });
 
     it('shows the logo and the app name on two lines', async () => {

@@ -1,8 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { computationKey } from '../../computation/api/queries';
+import { employeesKey } from '../../employees/api/queries';
 import type { AddComponentInput } from '../types';
 import {
   addEmployeeComponent,
+  createComponent,
+  deleteComponent,
   listCatalog,
   listEmployeeComponents,
   removeEmployeeComponent,
@@ -27,12 +30,13 @@ export function useEmployeeComponents(employeeId: string) {
   });
 }
 
-/** Runs after any change here: the lists, the catalog and the computation all read the same rows. */
+/** Runs after any change here: the lists, the catalog, the employee list (counts and totals) and the computation all read the same rows. */
 function useRefreshAfterChange() {
   const queryClient = useQueryClient();
   return () =>
     Promise.all([
       queryClient.invalidateQueries({ queryKey: componentsKey }),
+      queryClient.invalidateQueries({ queryKey: employeesKey }),
       queryClient.invalidateQueries({ queryKey: computationKey }),
     ]);
 }
@@ -79,6 +83,24 @@ export function useRenameComponent() {
       componentId: string;
       name: string;
     }) => renameComponent(componentId, name),
+    onSuccess: refresh,
+  });
+}
+
+/** Creates a catalog name (no employee involved). */
+export function useCreateComponent() {
+  const refresh = useRefreshAfterChange();
+  return useMutation({
+    mutationFn: (name: string) => createComponent(name),
+    onSuccess: refresh,
+  });
+}
+
+/** Deletes a component everywhere: it leaves the catalog and every employee that had it. */
+export function useDeleteComponent() {
+  const refresh = useRefreshAfterChange();
+  return useMutation({
+    mutationFn: (componentId: string) => deleteComponent(componentId),
     onSuccess: refresh,
   });
 }

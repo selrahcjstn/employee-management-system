@@ -1,14 +1,28 @@
 import { api } from '../../../shared/api/client';
 import type {
   AddComponentInput,
+  CatalogComponent,
   EmployeeComponent,
   SalaryComponent,
 } from '../types';
 
-/** Every active component name, for suggestions. */
-export async function listCatalog(): Promise<SalaryComponent[]> {
-  const { data } = await api.get<SalaryComponent[]>('/salary-components');
+/** Every active component, with how many employees have it. Also the source of the name suggestions. */
+export async function listCatalog(): Promise<CatalogComponent[]> {
+  const { data } = await api.get<CatalogComponent[]>('/salary-components');
   return data;
+}
+
+/** Creates a name in the catalog only: no amount, no employee. */
+export async function createComponent(name: string): Promise<SalaryComponent> {
+  const { data } = await api.post<SalaryComponent>('/salary-components', {
+    name,
+  });
+  return data;
+}
+
+/** Deletes the component and, in the same transaction, removes it from every employee that has it. */
+export async function deleteComponent(componentId: string): Promise<void> {
+  await api.delete(`/salary-components/${componentId}`);
 }
 
 export async function listEmployeeComponents(

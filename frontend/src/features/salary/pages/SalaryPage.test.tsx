@@ -161,7 +161,11 @@ describe('Salary page', () => {
       );
 
       await router.navigate('/employees');
-      expect(await screen.findByText('₱35,000.00')).toBeInTheDocument();
+      // The Employees table shows it as the basic salary and, with no components, as the monthly total.
+      const row = (
+        await screen.findByRole('link', { name: 'Ana Reyes' })
+      ).closest('tr')!;
+      expect(within(row).getAllByText('₱35,000.00')).toHaveLength(2);
     });
 
     it('refuses the same amount in any spelling, without calling the API', async () => {

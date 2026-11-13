@@ -1,7 +1,11 @@
 import type { ComponentType } from 'react';
 import {
+  CalculatorIcon,
   DashboardIcon,
+  ListIcon,
+  UserIcon,
   UsersIcon,
+  WalletIcon,
   type IconProps,
 } from '../../shared/ui/icons';
 
@@ -17,23 +21,29 @@ export interface NavGroup {
 }
 
 /**
- * The sidebar: the dashboard, and the employee hub. Salary, Components and Computation are tabs in an
- * employee's workspace, not pages of their own. The breadcrumb in the header repeats the group.
+ * The sidebar, grouped by what the pages are about. Every item is a real page. The breadcrumb in
+ * the header repeats the group.
  */
 export const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Overview',
-    items: [
-      {
-        to: '/dashboard',
-        label: 'Dashboard',
-        icon: DashboardIcon,
-      },
-    ],
+    items: [{ to: '/dashboard', label: 'Dashboard', icon: DashboardIcon }],
   },
   {
     label: 'People',
     items: [{ to: '/employees', label: 'Employees', icon: UsersIcon }],
+  },
+  {
+    label: 'Pay',
+    items: [
+      { to: '/salaries', label: 'Salaries', icon: WalletIcon },
+      { to: '/components', label: 'Components', icon: ListIcon },
+      { to: '/computation', label: 'Computation', icon: CalculatorIcon },
+    ],
+  },
+  {
+    label: 'Account',
+    items: [{ to: '/profile', label: 'My profile', icon: UserIcon }],
   },
 ];
 

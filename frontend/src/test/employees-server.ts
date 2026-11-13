@@ -23,6 +23,10 @@ export function makeEmployee(overrides: Partial<Employee> = {}): Employee {
     createdAt: '2026-11-13T00:00:00.000Z',
     updatedAt: '2026-11-13T00:00:00.000Z',
     currentBasicSalary: null,
+    basicSalarySince: null,
+    componentsCount: 0,
+    componentsTotal: '0.00',
+    monthlyTotal: null,
     ...overrides,
   };
 }
@@ -31,6 +35,10 @@ interface Options {
   /** How long the list takes to answer, to see the loading state. */
   listDelayMs?: number;
   saveDelayMs?: number;
+  /** Fills in what other endpoints own (salary and components) on each employee the list returns. */
+  decorate?: (employee: Employee) => Employee;
+  /** Failure switches shared with the caller, so a wrapper can add its own next to `list` and `save`. */
+  fail?: { list: boolean; save: FakeReply | null };
   /** Answers other endpoints (the salary ones) before the employee endpoints do. */
   extend?: (
     call: RecordedCall,
@@ -48,10 +56,7 @@ export function employeesServer(
   options: Options = {},
 ) {
   const employees = [...initial];
-  const fail: { list: boolean; save: FakeReply | null } = {
-    list: false,
-    save: null,
-  };
+  const fail = options.fail ?? { list: false, save: null };
 
   const server = authServer({
     signedIn: true,
@@ -78,9 +83,9 @@ export function employeesServer(
         );
         return {
           status: 200,
-          data: [...matches].sort((a, b) =>
-            a.employeeNo.localeCompare(b.employeeNo),
-          ),
+          data: [...matches]
+            .sort((a, b) => a.employeeNo.localeCompare(b.employeeNo))
+            .map(options.decorate ?? ((employee) => employee)),
         };
       }
 

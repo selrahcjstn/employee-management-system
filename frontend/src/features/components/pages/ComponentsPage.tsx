@@ -1,90 +1,199 @@
 import { useState } from 'react';
-import { useParams } from 'react-router';
 import { parseApiError } from '../../../shared/api/errors';
+import { formatTimestamp } from '../../../shared/lib/format';
+import { usePageTitle } from '../../../shared/lib/use-page-title';
+import {
+  PAGE_SIZE,
+  usePagedSearch,
+} from '../../../shared/lib/use-paged-search';
+import { ActionsMenu } from '../../../shared/ui/ActionsMenu';
 import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
 import { EmptyState } from '../../../shared/ui/EmptyState';
-import { ListIcon } from '../../../shared/ui/icons';
-import { useEmployee } from '../../employees/api/queries';
-import { fullName } from '../../employees/types';
-import { useEmployeeComponents } from '../api/queries';
-import { AddComponentForm } from '../components/AddComponentForm';
-import {
-  ComponentsTable,
-  ComponentsTableSkeleton,
-} from '../components/ComponentsTable';
-import { RemoveDialog } from '../components/RemoveDialog';
+import { ListIcon, PlusIcon, SearchIcon } from '../../../shared/ui/icons';
+import { ListCard } from '../../../shared/ui/ListCard';
+import { Pagination } from '../../../shared/ui/Pagination';
+import { Table, TableSkeleton, Td, Th, Tr } from '../../../shared/ui/Table';
+import { useCatalog } from '../api/queries';
+import { DeleteComponentDialog } from '../components/DeleteComponentDialog';
+import { NewComponentDialog } from '../components/NewComponentDialog';
 import { RenameDialog } from '../components/RenameDialog';
-import type { EmployeeComponent } from '../types';
+import type { CatalogComponent } from '../types';
 
-/** The Components tab of an employee workspace: add, edit, rename and remove their components. */
+const HEADERS = [
+  { text: 'Component name' },
+  { text: 'Employees using it', align: 'right' },
+  { text: 'Created' },
+  { text: 'Actions', align: 'right' },
+] as const;
+
+const matches = (component: CatalogComponent, term: string) =>
+  component.name.toLowerCase().includes(term);
+
+/**
+ * The catalog of component names. A name has no amount here: the amount is set per employee, in
+ * that employee's Components tab. Rename changes it for everyone; delete takes it off everyone.
+ */
 export function ComponentsPage() {
-  const { id: employeeId = '' } = useParams();
-  const components = useEmployeeComponents(employeeId);
-  const employee = useEmployee(employeeId).data;
-  const [renaming, setRenaming] = useState<EmployeeComponent | null>(null);
-  const [removing, setRemoving] = useState<EmployeeComponent | null>(null);
+  usePageTitle('Components');
+  const catalog = useCatalog();
+  const list = usePagedSearch(catalog.data, matches);
+  const [creating, setCreating] = useState(false);
+  const [renaming, setRenaming] = useState<CatalogComponent | null>(null);
+  const [deleting, setDeleting] = useState<CatalogComponent | null>(null);
 
-  if (components.isError) {
-    return (
-      <div>
+  const openNew = () => setCreating(true);
+
+  let content;
+  if (catalog.isPending) {
+    content = (
+      <TableSkeleton
+        label="Loading components"
+        headers={HEADERS.map((header) => ({
+          text: header.text,
+          align: 'align' in header ? header.align : undefined,
+        }))}
+      />
+    );
+  } else if (catalog.isError) {
+    content = (
+      <div className="p-6">
         <Alert>
-          <p>{parseApiError(components.error).message}</p>
+          <p>{parseApiError(catalog.error).message}</p>
           <Button
             variant="secondary"
             size="sm"
             className="mt-2"
-            loading={components.isFetching}
-            onClick={() => components.refetch()}
+            loading={catalog.isFetching}
+            onClick={() => catalog.refetch()}
           >
             Retry
           </Button>
         </Alert>
       </div>
     );
-  }
-
-  const items = components.data;
-  let content;
-  if (items === undefined) {
-    content = <ComponentsTableSkeleton />;
-  } else if (items.length === 0) {
+  } else if (catalog.data.length === 0) {
     content = (
       <EmptyState
         icon={<ListIcon size={48} />}
         title="No components yet"
-        description="Add one above, such as Rice Allowance or Transportation. Each has its own amount."
+        description="Components are allowances and other amounts added to an employee's basic salary, such as Rice Allowance. Create the first name here."
+        action={
+          <Button icon={<PlusIcon />} onClick={openNew}>
+            New component
+          </Button>
+        }
+      />
+    );
+  } else if (list.rows.length === 0) {
+    content = (
+      <EmptyState
+        icon={<SearchIcon size={48} />}
+        title={`No components match “${list.search.trim()}”`}
+        description="Check the spelling."
+        action={
+          <Button variant="secondary" onClick={() => list.setSearch('')}>
+            Clear search
+          </Button>
+        }
       />
     );
   } else {
     content = (
-      <ComponentsTable
-        employeeId={employeeId}
-        items={items}
-        onRename={setRenaming}
-        onRemove={setRemoving}
-      />
+      <Table label="Components">
+        <thead>
+          <tr>
+            {HEADERS.map((header) => (
+              <Th
+                key={header.text}
+                align={'align' in header ? header.align : undefined}
+              >
+                {header.text === 'Actions' ? (
+                  <span className="sr-only">Actions</span>
+                ) : (
+                  header.text
+                )}
+              </Th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {list.visible.map((component) => (
+            <Tr key={component.id}>
+              <Td className="font-medium">{component.name}</Td>
+              <Td align="right">
+                <span className="num">{component.usageCount}</span>
+              </Td>
+              <Td className="whitespace-nowrap">
+                {formatTimestamp(component.createdAt)}
+              </Td>
+              <Td align="right">
+                <div className="flex justify-end">
+                  <ActionsMenu
+                    label={`Actions for ${component.name}`}
+                    items={[
+                      {
+                        label: 'Rename',
+                        onSelect: () => setRenaming(component),
+                      },
+                      {
+                        label: 'Delete',
+                        onSelect: () => setDeleting(component),
+                      },
+                    ]}
+                  />
+                </div>
+              </Td>
+            </Tr>
+          ))}
+        </tbody>
+      </Table>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      {items !== undefined && (
-        <AddComponentForm employeeId={employeeId} assigned={items} />
-      )}
-      <section
-        aria-label="Assigned components"
-        className="rounded-lg border border-neutral-200 bg-neutral-0 shadow-sm"
+    <>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-neutral-900">
+            Components
+          </h1>
+          <p className="mt-2 text-sm text-neutral-600">
+            The names of allowances and other amounts. An amount is set per
+            employee, in their Components tab.
+          </p>
+        </div>
+        <Button icon={<PlusIcon />} onClick={openNew}>
+          New component
+        </Button>
+      </div>
+      <ListCard
+        searchLabel="Search components"
+        placeholder="Search by component name"
+        search={list.search}
+        onSearch={list.setSearch}
+        footer={
+          catalog.isSuccess && list.rows.length > 0 ? (
+            <Pagination
+              page={list.page}
+              pageSize={PAGE_SIZE}
+              total={list.rows.length}
+              onPageChange={list.setPage}
+            />
+          ) : undefined
+        }
       >
         {content}
-      </section>
-      <RenameDialog item={renaming} onClose={() => setRenaming(null)} />
-      <RemoveDialog
-        employeeId={employeeId}
-        employeeName={employee ? fullName(employee) : 'this employee'}
-        item={removing}
-        onClose={() => setRemoving(null)}
+      </ListCard>
+      <NewComponentDialog open={creating} onClose={() => setCreating(false)} />
+      <RenameDialog
+        item={renaming && { componentId: renaming.id, name: renaming.name }}
+        onClose={() => setRenaming(null)}
       />
-    </div>
+      <DeleteComponentDialog
+        item={deleting}
+        onClose={() => setDeleting(null)}
+      />
+    </>
   );
 }

@@ -17,6 +17,21 @@ export function centavosToAmount(centavos: bigint): string {
   return `${whole}.${decimals}`;
 }
 
+/** The sum of decimal-string amounts, exact to the centavo: "0.10" + "0.20" is "0.30", never 0.30000000000000004. */
+export function sumAmounts(amounts: readonly string[]): string {
+  return centavosToAmount(
+    amounts.reduce((sum, amount) => sum + toCentavos(amount), 0n),
+  );
+}
+
+/** The average of decimal-string amounts, rounded half up to the centavo; null for no amounts. */
+export function averageAmount(amounts: readonly string[]): string | null {
+  if (amounts.length === 0) return null;
+  const count = BigInt(amounts.length);
+  const sum = amounts.reduce((total, amount) => total + toCentavos(amount), 0n);
+  return centavosToAmount((sum * 2n + count) / (count * 2n));
+}
+
 /** "30000" and "30000.5" become "30000.00" and "30000.50": one spelling to compare and to send. */
 export function normalizeAmount(value: string): string {
   const [whole = '0', decimals = ''] = value.trim().split('.');

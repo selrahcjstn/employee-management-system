@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { refreshSession } from '../../../shared/api/refresh';
 import { sessionEvents, tokenStore } from '../../../shared/api/token-store';
+import type { SessionUser } from '../../../shared/api/types';
 import * as authApi from '../api/auth-api';
 import {
   AuthContext,
@@ -55,6 +56,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState({ status: 'authenticated', user: session.user });
   }, []);
 
+  const setUser = useCallback((user: SessionUser) => {
+    setState((current) =>
+      current.status === 'authenticated'
+        ? { status: 'authenticated', user }
+        : current,
+    );
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
@@ -68,8 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ ...state, login, logout }),
-    [state, login, logout],
+    () => ({ ...state, login, logout, setUser }),
+    [state, login, logout, setUser],
   );
 
   return <AuthContext value={value}>{children}</AuthContext>;

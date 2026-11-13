@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  averageAmount,
   centavosToAmount,
   checkAmount,
   normalizeAmount,
+  sumAmounts,
   toCentavos,
 } from './money';
 
@@ -58,5 +60,19 @@ describe('checkAmount', () => {
       'Amount cannot be more than ₱99,999,999.99',
     );
     expect(checkAmount('99999999.99', rules(true))).toBeUndefined();
+  });
+
+  describe('sumAmounts and averageAmount', () => {
+    it('add decimal strings exactly, with no float error', () => {
+      expect(sumAmounts(['0.10', '0.20'])).toBe('0.30');
+      expect(sumAmounts([])).toBe('0.00');
+      expect(sumAmounts(['99999999.99', '0.01'])).toBe('100000000.00');
+    });
+
+    it('average rounds half up to the centavo, and is null for nothing', () => {
+      expect(averageAmount(['0.01', '0.02'])).toBe('0.02');
+      expect(averageAmount(['30000.00', '45000.00'])).toBe('37500.00');
+      expect(averageAmount([])).toBeNull();
+    });
   });
 });

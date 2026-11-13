@@ -9,6 +9,8 @@ export type AuthState =
 export type AuthContextValue = AuthState & {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  /** Replaces the signed-in user, for example after the name is changed. */
+  setUser: (user: SessionUser) => void;
 };
 
 export const AuthContext = createContext<AuthContextValue | null>(null);

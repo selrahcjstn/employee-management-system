@@ -4,7 +4,7 @@ React + Vite. Follow the root `AGENTS.md` too.
 
 ## Structure
 - `src/app/`: `providers.tsx`, `router.tsx`, and the `layout/` (`AppLayout`, sidebar, header).
-- `src/features/<name>/`: `auth`, `employees`, `salary`, `components`, `computation`. Each has its pages, components, hooks and API calls (`auth` also has `context/` for `AuthProvider` and `routes/` for `ProtectedRoute`).
+- `src/features/<name>/`: `auth`, `dashboard`, `employees` (the hub and the employee workspace), `salary`, `components`, `computation`, `profile`. Each has its pages, components, hooks and API calls (`auth` also has `context/` for `AuthProvider` and `routes/` for `ProtectedRoute`).
 - `src/shared/api/`: the one axios instance with `withCredentials: true` and the interceptors, the in-memory token store, the shared refresh, and API error parsing.
 - `src/shared/ui/`: Button, TextField, Alert and the other building blocks. `src/shared/lib/`: utilities such as `formatPeso()`. `src/shared/pages/`: pages with no feature.
 - `src/styles/`: `tokens.css` (DESIGN.md as the Tailwind theme) and `index.css`.

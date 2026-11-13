@@ -17,6 +17,7 @@ import plus from '../../assets/icons/plus.svg?raw';
 import search from '../../assets/icons/search.svg?raw';
 import tag from '../../assets/icons/tag.svg?raw';
 import trash from '../../assets/icons/trash.svg?raw';
+import user from '../../assets/icons/user.svg?raw';
 import users from '../../assets/icons/users.svg?raw';
 import wallet from '../../assets/icons/wallet.svg?raw';
 import x from '../../assets/icons/x.svg?raw';
@@ -109,6 +110,9 @@ export const TagIcon = (props: IconProps) => (
 );
 export const TrashIcon = (props: IconProps) => (
   <SvgIcon source={trash} {...props} />
+);
+export const UserIcon = (props: IconProps) => (
+  <SvgIcon source={user} {...props} />
 );
 export const UsersIcon = (props: IconProps) => (
   <SvgIcon source={users} {...props} />

@@ -12,6 +12,14 @@ export interface Employee {
   updatedAt: string;
   /** The active basic salary as a decimal string ("30000.00"), or null when none is assigned. */
   currentBasicSalary: string | null;
+  /** When the active basic salary was assigned (an ISO timestamp), or null with none. */
+  basicSalarySince: string | null;
+  /** How many active components the employee has. */
+  componentsCount: number;
+  /** The sum of their active components, a decimal string. */
+  componentsTotal: string;
+  /** Basic salary plus components, or null when there is no basic salary. */
+  monthlyTotal: string | null;
 }
 
 /** What the form sends. `middleName` is an empty string when there is none. */

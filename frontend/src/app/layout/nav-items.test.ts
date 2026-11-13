@@ -1,23 +1,36 @@
 import { NAV_GROUPS, findNav } from './nav-items';
 
 describe('nav groups', () => {
-  it('lists Overview and People, with the dashboard and the employee hub', () => {
+  it('lists Overview, People, Pay and Account, each page once', () => {
     expect(NAV_GROUPS.map((group) => group.label)).toEqual([
       'Overview',
       'People',
+      'Pay',
+      'Account',
     ]);
     expect(
-      NAV_GROUPS.flatMap((group) => group.items.map((item) => item.to)),
-    ).toEqual(['/dashboard', '/employees']);
+      NAV_GROUPS.flatMap((group) => group.items.map((item) => item.label)),
+    ).toEqual([
+      'Dashboard',
+      'Employees',
+      'Salaries',
+      'Components',
+      'Computation',
+      'My profile',
+    ]);
   });
 
-  it('has no pay links: Salary, Components and Computation are tabs in an employee workspace', () => {
-    const labels = NAV_GROUPS.flatMap((group) =>
-      group.items.map((item) => item.label),
-    );
-    for (const gone of ['Salary', 'Components', 'Computation']) {
-      expect(labels).not.toContain(gone);
-    }
+  it('points every item at a real page', () => {
+    expect(
+      NAV_GROUPS.flatMap((group) => group.items.map((item) => item.to)),
+    ).toEqual([
+      '/dashboard',
+      '/employees',
+      '/salaries',
+      '/components',
+      '/computation',
+      '/profile',
+    ]);
   });
 });
 
@@ -36,12 +49,24 @@ describe('findNav', () => {
       group: 'People',
       item: { label: 'Employees' },
     });
+    expect(findNav('/salaries')).toMatchObject({
+      group: 'Pay',
+      item: { label: 'Salaries' },
+    });
+    expect(findNav('/computation')).toMatchObject({
+      group: 'Pay',
+      item: { label: 'Computation' },
+    });
+    expect(findNav('/profile')).toMatchObject({
+      group: 'Account',
+      item: { label: 'My profile' },
+    });
   });
 
   it('does not match a path that only starts with the same letters', () => {
     expect(findNav('/employeesX')).toBeUndefined();
-    expect(findNav('/salaries')).toBeUndefined();
     expect(findNav('/salary')).toBeUndefined();
+    expect(findNav('/profiles')).toBeUndefined();
   });
 
   it('returns nothing for the root and for unknown paths', () => {

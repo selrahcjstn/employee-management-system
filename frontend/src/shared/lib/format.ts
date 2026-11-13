@@ -2,6 +2,12 @@ const PESO = new Intl.NumberFormat('en-PH', {
   style: 'currency',
   currency: 'PHP',
 });
+const PESO_RATE = new Intl.NumberFormat('en-PH', {
+  style: 'currency',
+  currency: 'PHP',
+  minimumFractionDigits: 4,
+  maximumFractionDigits: 4,
+});
 const DATE = new Intl.DateTimeFormat('en-US', {
   month: 'short',
   day: 'numeric',
@@ -23,6 +29,11 @@ const DATE_MANILA = new Intl.DateTimeFormat('en-US', {
  */
 export function formatPeso(amount: string): string {
   return PESO.format(amount as unknown as number);
+}
+
+/** "2.6672" -> "₱2.6672". For small rates such as the per-minute rate, which two decimals would flatten. */
+export function formatPesoRate(amount: string): string {
+  return PESO_RATE.format(amount as unknown as number);
 }
 
 /** "2023-01-16" -> "Jan 16, 2023". Read as a calendar date, so the viewer's timezone cannot shift the day. */

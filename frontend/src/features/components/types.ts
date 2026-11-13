@@ -6,6 +6,11 @@ export interface SalaryComponent {
   updatedAt: string;
 }
 
+/** A catalog entry as the catalog page lists it: with how many employees have it. */
+export interface CatalogComponent extends SalaryComponent {
+  usageCount: number;
+}
+
 /** A component as assigned to one employee, from `GET /employees/:id/components`. */
 export interface EmployeeComponent {
   /** The assignment (what PATCH and DELETE use). */

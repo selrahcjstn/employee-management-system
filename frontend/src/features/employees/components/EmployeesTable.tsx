@@ -1,30 +1,24 @@
-import { Link, useNavigate } from 'react-router';
 import { formatDate, formatPeso } from '../../../shared/lib/format';
-import { ActionsMenu } from '../../../shared/ui/ActionsMenu';
-import { LinkButton } from '../../../shared/ui/LinkButton';
 import { Badge } from '../../../shared/ui/Badge';
-import { PencilIcon } from '../../../shared/ui/icons';
-import { IconButton } from '../../../shared/ui/IconButton';
-import { Skeleton } from '../../../shared/ui/Skeleton';
-import { Table, Td, Th, Tr } from '../../../shared/ui/Table';
+import { Table, TableSkeleton, Td, Th } from '../../../shared/ui/Table';
 import { fullName, type Employee } from '../types';
-import { WORKSPACE_TABS } from '../workspace-tabs';
+import {
+  EmployeeNameLink,
+  EmployeeRow,
+  EmployeeRowMenu,
+  EmployeeStatusBadge,
+} from './employee-row';
 
-function Head() {
-  return (
-    <thead>
-      <tr>
-        <Th>Employee ID</Th>
-        <Th>Full name</Th>
-        <Th>Date hired</Th>
-        <Th align="right">Monthly basic salary</Th>
-        <Th align="right">
-          <span className="sr-only">Actions</span>
-        </Th>
-      </tr>
-    </thead>
-  );
-}
+const HEADERS = [
+  { text: 'Employee ID' },
+  { text: 'Full name' },
+  { text: 'Date hired' },
+  { text: 'Basic salary', align: 'right' },
+  { text: 'Components', align: 'right' },
+  { text: 'Monthly total', align: 'right' },
+  { text: 'Status' },
+  { text: 'Actions', align: 'right' },
+] as const;
 
 interface EmployeesTableProps {
   employees: Employee[];
@@ -32,28 +26,31 @@ interface EmployeesTableProps {
 }
 
 export function EmployeesTable({ employees, onEdit }: EmployeesTableProps) {
-  const navigate = useNavigate();
-
   return (
     <Table label="Employees">
-      <Head />
+      <thead>
+        <tr>
+          {HEADERS.map((header) => (
+            <Th
+              key={header.text}
+              align={'align' in header ? header.align : undefined}
+            >
+              {header.text === 'Actions' ? (
+                <span className="sr-only">Actions</span>
+              ) : (
+                header.text
+              )}
+            </Th>
+          ))}
+        </tr>
+      </thead>
       <tbody>
         {employees.map((employee) => {
           const name = fullName(employee);
-          const base = `/employees/${employee.id}`;
           return (
-            <Tr
+            <EmployeeRow
               key={employee.id}
-              onClick={(event) => {
-                // A click on a link, button or menu inside the row does its own thing.
-                if (
-                  (event.target as HTMLElement).closest(
-                    'a, button, [role="menu"]',
-                  )
-                )
-                  return;
-                void navigate(`${base}/salary`);
-              }}
+              to={`/employees/${employee.id}/salary`}
             >
               <Td>
                 <span className="font-mono text-sm font-medium whitespace-nowrap">
@@ -61,12 +58,10 @@ export function EmployeesTable({ employees, onEdit }: EmployeesTableProps) {
                 </span>
               </Td>
               <Td>
-                <Link
-                  to={`${base}/salary`}
-                  className="font-medium text-neutral-900 hover:text-primary-700 hover:underline"
-                >
-                  {name}
-                </Link>
+                <EmployeeNameLink
+                  to={`/employees/${employee.id}/salary`}
+                  name={name}
+                />
               </Td>
               <Td className="whitespace-nowrap">
                 {formatDate(employee.dateHired)}
@@ -81,44 +76,37 @@ export function EmployeesTable({ employees, onEdit }: EmployeesTableProps) {
                 )}
               </Td>
               <Td align="right">
-                <div className="flex items-center justify-end gap-1">
-                  <div className="hidden items-center gap-1 lg:flex">
-                    {WORKSPACE_TABS.map((tab) => (
-                      <LinkButton
-                        key={tab.path}
-                        to={`${base}/${tab.path}`}
-                        aria-label={`${tab.label} for ${name}`}
-                      >
-                        {tab.label}
-                      </LinkButton>
-                    ))}
-                  </div>
-                  <div className="lg:hidden">
-                    <ActionsMenu
-                      label={`Actions for ${name}`}
-                      items={[
-                        ...WORKSPACE_TABS.map((tab) => ({
-                          label: tab.label,
-                          to: `${base}/${tab.path}`,
-                        })),
-                        {
-                          label: 'Edit employee',
-                          onSelect: () => onEdit(employee),
-                        },
-                      ]}
-                    />
-                  </div>
-                  <IconButton
-                    label={`Edit ${name}`}
-                    title="Edit"
-                    className="hidden lg:flex"
-                    onClick={() => onEdit(employee)}
+                <span className="num">{employee.componentsCount}</span>
+              </Td>
+              <Td align="right">
+                {employee.monthlyTotal ? (
+                  <span className="num font-medium whitespace-nowrap">
+                    {formatPeso(employee.monthlyTotal)}
+                  </span>
+                ) : (
+                  <span
+                    aria-label="No monthly total"
+                    className="text-neutral-500"
                   >
-                    <PencilIcon />
-                  </IconButton>
+                    —
+                  </span>
+                )}
+              </Td>
+              <Td>
+                <EmployeeStatusBadge
+                  hasSalary={employee.currentBasicSalary !== null}
+                />
+              </Td>
+              <Td align="right">
+                <div className="flex justify-end">
+                  <EmployeeRowMenu
+                    employeeId={employee.id}
+                    name={name}
+                    onEdit={() => onEdit(employee)}
+                  />
                 </div>
               </Td>
-            </Tr>
+            </EmployeeRow>
           );
         })}
       </tbody>
@@ -127,36 +115,14 @@ export function EmployeesTable({ employees, onEdit }: EmployeesTableProps) {
 }
 
 /** Rows the same height as the real ones, shown while the first load is under way. */
-export function EmployeesTableSkeleton({ rows = 5 }: { rows?: number }) {
+export function EmployeesTableSkeleton() {
   return (
-    <div aria-busy="true">
-      <Table label="Loading employees">
-        <Head />
-        <tbody>
-          {Array.from({ length: rows }, (_, index) => (
-            <Tr key={index}>
-              <Td>
-                <Skeleton className="h-4 w-20" />
-              </Td>
-              <Td>
-                <Skeleton className="h-4 w-40" />
-              </Td>
-              <Td>
-                <Skeleton className="h-4 w-24" />
-              </Td>
-              <Td align="right">
-                <Skeleton className="ml-auto h-4 w-24" />
-              </Td>
-              <Td align="right">
-                <Skeleton className="ml-auto size-8" />
-              </Td>
-            </Tr>
-          ))}
-        </tbody>
-      </Table>
-      <span role="status" className="sr-only">
-        Loading employees
-      </span>
-    </div>
+    <TableSkeleton
+      label="Loading employees"
+      headers={HEADERS.map((header) => ({
+        text: header.text,
+        align: 'align' in header ? header.align : undefined,
+      }))}
+    />
   );
 }

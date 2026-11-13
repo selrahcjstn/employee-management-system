@@ -18,8 +18,14 @@ const required = (label: string, max: number) =>
     .min(1, `${label} is required`)
     .max(max, `${label} must be ${max} characters or fewer`);
 
-/** The same rules as the API (CreateEmployeeDto), so mistakes show before anything is sent. */
-export const employeeSchema = z.object({
+/** EMP- and at least three digits, as the API requires for a new employee. */
+export const EMPLOYEE_NO_PATTERN = /^EMP-\d{3,}$/;
+
+/**
+ * The same rules as the API (CreateEmployeeDto), so mistakes show before anything is sent. The
+ * Employee ID is saved in upper case, so it is checked and sent that way.
+ */
+const employeeFields = z.object({
   employeeNo: required('Employee ID', 50),
   firstName: required('First name', 100),
   middleName: z
@@ -44,4 +50,19 @@ export const employeeSchema = z.object({
     }),
 });
 
-export type EmployeeFormValues = z.infer<typeof employeeSchema>;
+/** A new employee: the Employee ID must be EMP- and at least 3 digits, and is saved in upper case. */
+export const employeeSchema = employeeFields.extend({
+  employeeNo: employeeFields.shape.employeeNo
+    .transform((value) => value.toUpperCase())
+    .refine((value) => EMPLOYEE_NO_PATTERN.test(value), {
+      message: 'Employee ID must look like EMP-001',
+    }),
+});
+
+/**
+ * An existing employee: the Employee ID cannot change and is not sent, so a row created before the
+ * format rule (such as EMP001) can still be edited.
+ */
+export const editEmployeeSchema = employeeFields;
+
+export type EmployeeFormValues = z.infer<typeof employeeFields>;

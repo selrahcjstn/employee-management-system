@@ -214,7 +214,7 @@ describe('Employees page', () => {
 
       const dialog = await openAddDialog(user);
       await fillForm(user, {
-        'Employee ID': 'EMP-1',
+        'Employee ID': 'EMP-901',
         'First name': 'A',
         'Last name': 'B',
       });
@@ -248,7 +248,7 @@ describe('Employees page', () => {
 
       const field = screen.getByLabelText(/^Employee ID/);
       await waitFor(() =>
-        expect(field).toHaveAccessibleDescription('Employee ID already exists'),
+        expect(field).toHaveAccessibleDescription(/Employee ID already exists/),
       );
       expect(field).toHaveFocus();
       expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -265,7 +265,7 @@ describe('Employees page', () => {
 
       const dialog = await openAddDialog(user);
       await fillForm(user, {
-        'Employee ID': 'EMP-1',
+        'Employee ID': 'EMP-901',
         'First name': 'A',
         'Last name': 'B',
       });
@@ -286,7 +286,7 @@ describe('Employees page', () => {
 
       const dialog = await openAddDialog(user);
       await fillForm(user, {
-        'Employee ID': 'EMP-1',
+        'Employee ID': 'EMP-901',
         'First name': 'Ana',
         'Last name': 'B',
       });
@@ -327,7 +327,7 @@ describe('Employees page', () => {
 
       const dialog = await openAddDialog(user);
       await fillForm(user, {
-        'Employee ID': 'EMP-1',
+        'Employee ID': 'EMP-901',
         'First name': 'A',
         'Last name': 'B',
       });
@@ -356,8 +356,11 @@ describe('Employees page', () => {
       renderApp('/employees');
 
       await user.click(
-        await screen.findByRole('button', { name: 'Edit Ana Cruz Reyes' }),
+        await screen.findByRole('button', {
+          name: 'Actions for Ana Cruz Reyes',
+        }),
       );
+      await user.click(screen.getByRole('menuitem', { name: 'Edit employee' }));
 
       const dialog = await screen.findByRole('dialog', {
         name: 'Edit employee',
@@ -384,8 +387,11 @@ describe('Employees page', () => {
       renderApp('/employees');
 
       await user.click(
-        await screen.findByRole('button', { name: 'Edit Ana Cruz Reyes' }),
+        await screen.findByRole('button', {
+          name: 'Actions for Ana Cruz Reyes',
+        }),
       );
+      await user.click(screen.getByRole('menuitem', { name: 'Edit employee' }));
       await fillForm(user, { 'First name': 'Anna', 'Middle name': '' });
       await user.click(screen.getByRole('button', { name: 'Save changes' }));
 

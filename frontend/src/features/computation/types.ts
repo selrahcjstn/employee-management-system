@@ -14,3 +14,16 @@ export interface Computation {
   hourlyRate: string | null;
   perMinuteRate: string | null;
 }
+
+/** One line of `GET /computations`: an employee's monthly total and rates. Money and rates are null without a basic salary. */
+export interface ComputationSummary {
+  employee: { id: string; employeeNo: string; name: string };
+  basicSalary: string | null;
+  componentsTotal: string;
+  monthlyTotal: string | null;
+  annualSalary: string | null;
+  dailyRate: string | null;
+  hourlyRate: string | null;
+  /** Four decimals, because the rate is small. */
+  perMinuteRate: string | null;
+}

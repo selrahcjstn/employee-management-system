@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { employeeSchema } from './schemas';
+import { editEmployeeSchema, employeeSchema } from './schemas';
 
 const valid = {
   employeeNo: 'EMP-001',
@@ -68,5 +68,49 @@ describe('employeeSchema', () => {
     expect(messages({ dateHired: '2026-11-15' })).toEqual([
       'Date hired cannot be in the future',
     ]);
+  });
+
+  describe('Employee ID format', () => {
+    it.each(['EMP-001', 'EMP-1042', 'EMP-0000001'])(
+      'accepts %s',
+      (employeeNo) => {
+        expect(messages({ employeeNo })).toEqual([]);
+      },
+    );
+
+    it.each([
+      'EMP001',
+      'E-001',
+      'EMP-12',
+      'EMP-12a',
+      'EMP-',
+      'EMP 001',
+      'ABC-001',
+    ])('rejects %s', (employeeNo) => {
+      expect(messages({ employeeNo })).toEqual([
+        'Employee ID must look like EMP-001',
+      ]);
+    });
+
+    it('saves it in upper case, so emp-001 becomes EMP-001', () => {
+      expect(
+        employeeSchema.parse({ ...valid, employeeNo: ' emp-007 ' }).employeeNo,
+      ).toBe('EMP-007');
+    });
+  });
+
+  describe('editEmployeeSchema', () => {
+    it('does not check the format, so a row created before the rule (EMP001) can still be edited', () => {
+      expect(
+        editEmployeeSchema.safeParse({ ...valid, employeeNo: 'EMP001' })
+          .success,
+      ).toBe(true);
+    });
+
+    it('still checks the other fields', () => {
+      expect(
+        editEmployeeSchema.safeParse({ ...valid, firstName: '' }).success,
+      ).toBe(false);
+    });
   });
 });

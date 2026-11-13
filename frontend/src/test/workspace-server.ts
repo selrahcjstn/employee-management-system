@@ -47,6 +47,13 @@ interface Assignment {
   amount: string;
 }
 
+/** Per-minute rate to four decimals from the annual amount in centavos: annual / 314 / 8 / 60. */
+function centavosToAmount4(annualCentavos: bigint): string {
+  const tenThousandths = divide(annualCentavos * 100n, 314n * 8n * 60n);
+  const whole = tenThousandths / 10000n;
+  return `${whole}.${(tenThousandths % 10000n).toString().padStart(4, '0')}`;
+}
+
 /** Divides and rounds half up to a whole centavo, like the server's decimal math does for display. */
 const divide = (value: bigint, by: bigint) => (value * 2n + by) / (by * 2n);
 
@@ -111,14 +118,41 @@ export function workspaceServer(
   });
 
   const fail = {
+    list: false,
+    save: null as FakeReply | null,
     salarySave: null as FakeReply | null,
     salaryCurrent: false,
     componentsWrite: null as FakeReply | null,
     componentsList: false,
+    catalog: false,
     computation: false,
   };
 
+  /** What the real list adds to each employee, worked out from the current salary and components. */
+  const decorate = (employee: Employee): Employee => {
+    const current = rows.get(employee.id)?.current;
+    const mine = assignments.get(employee.id) ?? [];
+    const componentsTotal = mine.reduce(
+      (sum, row) => sum + toCentavos(row.amount),
+      0n,
+    );
+    return {
+      ...employee,
+      currentBasicSalary: current?.monthlyBasicSalary ?? null,
+      basicSalarySince: current?.createdAt ?? null,
+      componentsCount: mine.length,
+      componentsTotal: centavosToAmount(componentsTotal),
+      monthlyTotal: current
+        ? centavosToAmount(
+            toCentavos(current.monthlyBasicSalary) + componentsTotal,
+          )
+        : null,
+    };
+  };
+
   const server = employeesServer(employees, {
+    decorate,
+    fail,
     extend: (call, list) => {
       // --- salary
       const salary = /^\/employees\/([^/]+)\/salary(\/history)?$/.exec(
@@ -158,14 +192,53 @@ export function workspaceServer(
             monthlyBasicSalary,
             '2026-11-13T00:00:00.000Z',
           );
-          const employee = list.find((e) => e.id === salary[1]);
-          if (employee) employee.currentBasicSalary = monthlyBasicSalary;
           return {
             status: 200,
             data: { changed: true, salary: entry.current },
           };
         }
         return undefined;
+      }
+
+      // --- computation for everyone
+      if (call.url === '/computations' && call.method === 'GET') {
+        if (fail.computation) return apiError(500, 'select sum(amount) failed');
+        return {
+          status: 200,
+          data: list
+            .toSorted((a, b) => a.employeeNo.localeCompare(b.employeeNo))
+            .map((employee) => {
+              const full = decorate(employee);
+              const base = {
+                employee: {
+                  id: employee.id,
+                  employeeNo: employee.employeeNo,
+                  name: `${employee.firstName} ${employee.lastName}`,
+                },
+                basicSalary: full.currentBasicSalary,
+                componentsTotal: full.componentsTotal,
+                monthlyTotal: full.monthlyTotal,
+              };
+              if (full.monthlyTotal === null) {
+                return {
+                  ...base,
+                  annualSalary: null,
+                  dailyRate: null,
+                  hourlyRate: null,
+                  perMinuteRate: null,
+                };
+              }
+              const annual = toCentavos(full.monthlyTotal) * 12n;
+              return {
+                ...base,
+                annualSalary: centavosToAmount(annual),
+                dailyRate: centavosToAmount(divide(annual, 314n)),
+                hourlyRate: centavosToAmount(divide(annual, 314n * 8n)),
+                // Four decimals: scale by 100 for two more digits.
+                perMinuteRate: centavosToAmount4(annual),
+              };
+            }),
+        };
       }
 
       // --- computation
@@ -222,7 +295,44 @@ export function workspaceServer(
 
       // --- component catalog
       if (call.url === '/salary-components' && call.method === 'GET') {
-        return { status: 200, data: catalog };
+        if (fail.catalog)
+          return apiError(500, 'select * from salary_components');
+        const usage = (componentId: string) =>
+          [...assignments.values()]
+            .flat()
+            .filter((row) => row.componentId === componentId).length;
+        return {
+          status: 200,
+          data: [...catalog]
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((entry) => ({ ...entry, usageCount: usage(entry.id) })),
+        };
+      }
+      if (call.url === '/salary-components' && call.method === 'POST') {
+        if (fail.componentsWrite) return fail.componentsWrite;
+        const { name } = call.body as { name: string };
+        if (
+          catalog.some(
+            (entry) => entry.name.toLowerCase() === name.trim().toLowerCase(),
+          )
+        ) {
+          return apiError(409, 'Component name already exists');
+        }
+        return { status: 201, data: named(name) };
+      }
+      const removeCatalog = /^\/salary-components\/([^/]+)$/.exec(call.url);
+      if (removeCatalog && call.method === 'DELETE') {
+        if (fail.componentsWrite) return fail.componentsWrite;
+        const target = catalog.find((entry) => entry.id === removeCatalog[1]);
+        if (!target) return apiError(404, 'Component not found');
+        catalog.splice(catalog.indexOf(target), 1);
+        // The real API soft deletes the assignments in the same transaction.
+        for (const mine of assignments.values()) {
+          for (let i = mine.length - 1; i >= 0; i--) {
+            if (mine[i]!.componentId === target.id) mine.splice(i, 1);
+          }
+        }
+        return { status: 204 };
       }
       const rename = /^\/salary-components\/([^/]+)$/.exec(call.url);
       if (rename && call.method === 'PATCH') {
