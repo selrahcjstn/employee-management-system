@@ -35,7 +35,7 @@ export function ProfileCard({ user }: { user: SessionUser }) {
   return (
     <section
       aria-labelledby="profile-name"
-      className="min-w-0 rounded-lg border border-neutral-200 bg-neutral-0 p-6 shadow-sm"
+      className="min-w-0 rounded-lg border border-neutral-200 bg-neutral-0 p-4 shadow-sm"
     >
       <div className="flex flex-col items-center text-center">
         <Avatar name={user.fullName} size="lg" />
@@ -53,7 +53,7 @@ export function ProfileCard({ user }: { user: SessionUser }) {
         </div>
       </div>
 
-      <dl className="mt-6 divide-y divide-neutral-200 border-t border-neutral-200 pt-6">
+      <dl className="mt-4 divide-y divide-neutral-200 border-t border-neutral-200 pt-4">
         <Detail icon={<MailIcon />} label="Email">
           {user.email}
         </Detail>

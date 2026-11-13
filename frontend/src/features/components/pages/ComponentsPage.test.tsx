@@ -179,7 +179,10 @@ describe('Components catalog page', () => {
 
       await router.navigate(`/employees/${ben.id}/components`);
       await screen.findByRole('heading', { name: 'Ben Lim' });
-      expect(await screen.findByText('Rice Subsidy')).toBeInTheDocument();
+      const table = await screen.findByRole('table', {
+        name: 'Salary components',
+      });
+      expect(within(table).getByText('Rice Subsidy')).toBeInTheDocument();
     });
 
     it('shows a taken name inside the dialog', async () => {

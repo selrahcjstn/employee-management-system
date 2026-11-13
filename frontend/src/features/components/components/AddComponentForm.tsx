@@ -26,17 +26,23 @@ interface AddComponentFormProps {
   employeeId: string;
   /** What the employee already has, to catch a duplicate before anything is sent. */
   assigned: EmployeeComponent[];
+  /** A name to start with, for example from a suggestion chip. Mount with a new `key` to change it. */
+  initialName?: string;
 }
 
 /** Adds a component to one employee. Mount it with `key={employeeId}` so each employee starts clean. */
 export function AddComponentForm({
   employeeId,
   assigned,
+  initialName,
 }: AddComponentFormProps) {
   const toast = useToast();
   const catalog = useCatalog();
   const add = useAddComponent(employeeId);
-  const [choice, setChoice] = useState<Choice | null>(null);
+  // A suggested name is a new name: the API reuses an active component with that name, or creates it.
+  const [choice, setChoice] = useState<Choice | null>(
+    initialName ? { kind: 'new', name: initialName } : null,
+  );
   const [choiceError, setChoiceError] = useState<string | undefined>();
   const [serverError, setServerError] = useState<string | null>(null);
   const {
@@ -114,7 +120,7 @@ export function AddComponentForm({
   return (
     <section
       aria-labelledby="add-component-title"
-      className="rounded-lg border border-neutral-200 bg-neutral-0 p-6 shadow-sm"
+      className="rounded-lg border border-neutral-200 bg-neutral-0 p-4 shadow-sm"
     >
       <h2
         id="add-component-title"
@@ -155,6 +161,8 @@ export function AddComponentForm({
             className="sm:w-48"
             label="Amount"
             required
+            // With a name already chosen, the amount is the next thing to type.
+            autoFocus={Boolean(initialName)}
             inputMode="decimal"
             autoComplete="off"
             startAdornment={<span aria-hidden="true">₱</span>}

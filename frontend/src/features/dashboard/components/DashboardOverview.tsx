@@ -34,7 +34,7 @@ function StatCard({ label, icon, value, note, children }: StatCardProps) {
   return (
     <article
       aria-label={label}
-      className="min-w-0 rounded-lg border border-neutral-200 bg-neutral-0 p-6 shadow-sm transition hover:-translate-y-px hover:shadow-md"
+      className="min-w-0 rounded-lg border border-neutral-200 bg-neutral-0 p-4 shadow-sm transition hover:-translate-y-px hover:shadow-md"
     >
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-sm font-medium text-neutral-600">{label}</h2>
@@ -58,7 +58,7 @@ function StatsSkeleton() {
         {[0, 1, 2, 3].map((index) => (
           <div
             key={index}
-            className="rounded-lg border border-neutral-200 bg-neutral-0 p-6 shadow-sm"
+            className="rounded-lg border border-neutral-200 bg-neutral-0 p-4 shadow-sm"
           >
             <Skeleton className="h-4 w-24" />
             <Skeleton className="mt-4 h-8 w-32" />
@@ -180,9 +180,9 @@ export function DashboardOverview({
   const stats = computeStats(employees, today);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <Cards stats={stats} />
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div className="grid gap-4 xl:grid-cols-3">
         <PayrollChart
           employees={stats.bySalary}
           payroll={stats.payroll}
@@ -194,7 +194,7 @@ export function DashboardOverview({
           today={today}
         />
       </div>
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div className="grid gap-4 xl:grid-cols-3">
         <RecentHires employees={stats.recentHires} className="xl:col-span-2" />
         <AtAGlance salaryRange={stats.salaryRange} tenure={stats.tenure} />
       </div>

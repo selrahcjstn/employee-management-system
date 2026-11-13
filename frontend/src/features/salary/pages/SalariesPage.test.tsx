@@ -119,12 +119,12 @@ describe('Salaries page', () => {
       seeded();
       const { user } = await open();
       await user.selectOptions(
-        screen.getByLabelText('Last adjusted'),
+        screen.getByLabelText('Adjusted'),
         'Last 30 days',
       );
       expect(names()).toEqual(['Ana Reyes']);
       await user.selectOptions(
-        screen.getByLabelText('Last adjusted'),
+        screen.getByLabelText('Adjusted'),
         'Over a year ago',
       );
       expect(names()).toEqual(['Cara Santos']);

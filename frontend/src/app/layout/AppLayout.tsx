@@ -61,7 +61,7 @@ export function AppLayout() {
           id="main"
           ref={main}
           tabIndex={-1}
-          className="mx-auto w-full max-w-content p-4 outline-none lg:p-8"
+          className="w-full p-4 outline-none lg:p-6"
         >
           <Outlet />
         </main>

@@ -135,19 +135,16 @@ describe('Computation page', () => {
       seeded();
       const { user } = await open();
       await user.selectOptions(
-        screen.getByLabelText('Monthly total'),
+        screen.getByLabelText('Total'),
         '₱25,000 to ₱50,000',
       );
       expect(names()).toEqual(['Ana Reyes']);
       await user.selectOptions(
-        screen.getByLabelText('Monthly total'),
+        screen.getByLabelText('Total'),
         '₱50,000 or more',
       );
       expect(names()).toEqual(['Cara Santos']);
-      await user.selectOptions(
-        screen.getByLabelText('Monthly total'),
-        'Under ₱25,000',
-      );
+      await user.selectOptions(screen.getByLabelText('Total'), 'Under ₱25,000');
       expect(
         await screen.findByRole('heading', { name: 'No employees match' }),
       ).toBeInTheDocument();
@@ -158,12 +155,12 @@ describe('Computation page', () => {
       const { user } = await open();
       await user.selectOptions(
         screen.getByLabelText('Sort by'),
-        'Monthly total, high to low',
+        'Total, high to low',
       );
       expect(names()).toEqual(['Cara Santos', 'Ana Reyes', 'Ben Lim']);
       await user.selectOptions(
         screen.getByLabelText('Sort by'),
-        'Monthly total, low to high',
+        'Total, low to high',
       );
       expect(names()).toEqual(['Ana Reyes', 'Cara Santos', 'Ben Lim']);
     });

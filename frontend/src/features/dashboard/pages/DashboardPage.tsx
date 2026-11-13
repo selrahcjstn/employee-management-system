@@ -31,7 +31,7 @@ export function DashboardPage() {
           {firstName ? `, ${firstName}` : ''}. Here is your team today.
         </p>
       </div>
-      <div className="mt-6">
+      <div className="mt-4">
         {employees.isError ? (
           <Alert>
             <p>{parseApiError(employees.error).message}</p>

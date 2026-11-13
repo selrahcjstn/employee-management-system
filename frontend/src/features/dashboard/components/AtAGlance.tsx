@@ -42,7 +42,7 @@ export function AtAGlance({ salaryRange, tenure }: AtAGlanceProps) {
   return (
     <section
       aria-labelledby="glance-title"
-      className="min-w-0 rounded-lg border border-neutral-200 bg-neutral-0 p-6 shadow-sm"
+      className="min-w-0 rounded-lg border border-neutral-200 bg-neutral-0 p-4 shadow-sm"
     >
       <h2 id="glance-title" className="text-sm font-medium text-neutral-600">
         At a glance

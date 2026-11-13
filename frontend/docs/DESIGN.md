@@ -138,9 +138,9 @@ All spacing, sizing, and gaps are multiples of **8px**. A 4px half-step is allow
 |---|---|---|
 | `space-0.5` | 4 | Icon to label gap, badge vertical padding |
 | `space-1` | 8 | Label to input, between inline items |
-| `space-2` | 16 | Between form fields, card inner gaps |
-| `space-3` | 24 | **Card padding**, grid gutter, between sections in a card |
-| `space-4` | 32 | Page padding (desktop), between cards |
+| `space-2` | 16 | Between form fields, **card padding**, **gap between cards**, grid gutter, between sections in a card |
+| `space-3` | 24 | **Page padding** (desktop), between a card's header and a large block |
+| `space-4` | 32 | Reserved for dialogs and empty states |
 | `space-5` | 40 | Control height (default) |
 | `space-6` | 48 | Table row height, large control |
 | `space-8` | 64 | Header height, large empty-state padding |
@@ -167,14 +167,14 @@ All spacing, sizing, and gaps are multiples of **8px**. A 4px half-step is allow
 |---|---|
 | Header height | 64px |
 | Sidebar width | 240px (collapsed 72px) |
-| Page padding | 32px desktop, 16px mobile |
-| Content max width | 1200px, centered |
-| Grid | 12 columns, 24px gutters |
-| Card padding | 24px |
-| Gap between cards | 24px |
+| Page padding | 24px desktop, 16px mobile |
+| Content width | Fills the space beside the sidebar (no centered cap, so nothing floats away from it) |
+| Grid | 12 columns, 16px gutters |
+| Card padding | 16px |
+| Gap between cards | 16px |
 | Gap between form fields | 16px |
 | Gap between a section heading and its content | 16px |
-| Gap between page title block and content | 24px |
+| Gap between page title block and content | 16px |
 
 ### 4.4 Breakpoints
 
@@ -183,7 +183,7 @@ All spacing, sizing, and gaps are multiples of **8px**. A 4px half-step is allow
 | sm | 640px | Single column, drawer sidebar |
 | md | 768px | Two-column forms |
 | lg | 1024px | Fixed sidebar, tables full width |
-| xl | 1280px | Content capped at 1200px |
+| xl | 1280px | Two-column layouts open up |
 
 ---
 
@@ -243,7 +243,7 @@ Rules: 40px height, 16px horizontal padding, weight 500, `radius-md`. Hover dark
 
 ### 6.4 Cards
 
-White, 1px neutral-200 border, `radius-lg`, `shadow-sm`, 24px padding. Title `text-lg` weight 600, 16px gap to content. Optional action area top right.
+White, 1px neutral-200 border, `radius-lg`, `shadow-sm`, 16px padding. Title `text-lg` weight 600, 16px gap to content. Optional action area top right.
 
 ### 6.5 Badges
 
@@ -340,7 +340,7 @@ Split screen from `lg` (1024px) up, form only below it.
 ### 7.6 Salaries (`/salaries`)
 - Header: title and one line. No primary button: the page is for looking and for opening an employee.
 - A strip of three small stats (`MiniStat`): Salaries assigned ("2 of 3", warning colors while anyone is missing), Total basic payroll, Average basic salary.
-- One card: the search field, then the filters on the same bar: Status (a segmented control, "All", "Ready", "Needs salary", each with its count), Last adjusted (Any time, Last 30 days, Last 90 days, Over a year ago), Sort by (Employee ID, Salary high to low, Salary low to high, Recently adjusted; employees without a salary always last) and "Clear filters" while any filter is on. Pagination below, 10 per page.
+- One card: the search field and the filters on **one row that never wraps** (the search takes the leftover width up to 384px, the controls keep their size, each select shows its label inside it, and a narrow screen scrolls the bar sideways inside the card): Status (a segmented control, "All", "Ready", "Needs salary", each with its count), Adjusted (Any time, Last 30 days, Last 90 days, Over a year ago), Sort by (Employee ID, Salary high to low, Salary low to high, Recently adjusted; employees without a salary always last) and "Clear filters" while any filter is on. Pagination below, 10 per page.
 - Table: Employee (avatar, name as a link, Employee ID in mono under it), Basic salary (right aligned, or "Not assigned"), Last adjusted, Status, and a chevron. **No actions column and no menu**: the whole row, and the name link, open that employee's Salary tab.
 
 ### 7.7 Components catalog (`/components`)
@@ -348,11 +348,11 @@ Split screen from `lg` (1024px) up, form only below it.
 - Table: Component name, Employees using it (right aligned count), Created, and the actions menu ("Actions for <name>": Rename, Delete). Rename shows "Applies to all employees using it." Delete asks first and says how many employees will also lose the component ("It will also be removed from 2 employees, and their monthly totals will change."; "No employee has this component" when it is unused), with a danger-colored button. Search by name, pagination, "No components yet" with a "New component" action.
 
 ### 7.8 Computation overview (`/computation`)
-- Same frame as Salaries: a strip (Total monthly payroll, Total annual payroll, Average monthly total), a card with search and filters (Status: All, Computed, Needs salary, with counts; Monthly total: Any amount, Under ₱25,000, ₱25,000 to ₱50,000, ₱50,000 or more; Sort by Employee ID or monthly total), and pagination.
+- Same frame as Salaries: a strip (Total monthly payroll, Total annual payroll, Average monthly total), a card with search and filters (Status: All, Computed, Needs salary, with counts; Total: Any amount, Under ₱25,000, ₱25,000 to ₱50,000, ₱50,000 or more; Sort by Employee ID or total), and pagination.
 - Table: Employee (avatar, link, Employee ID), Monthly total (weight 600), Annual, Daily, Hourly and Per-minute, all right aligned in tabular numbers; the per-minute rate shows 4 decimals. An employee without a basic salary has one "Not assigned" badge across the number columns. A chevron ends the row; **no actions column**: the row opens that employee's Computation tab.
 
 ### 7.9 My profile (`/profile`)
-- Same page frame as the others: title and one line, then white cards (border neutral-200, `rounded-lg`, `shadow-sm`, 24px padding) in the app's own colors. No gradient or banner: the page is meant to look like the rest of the app.
+- Same page frame as the others: title and one line, then white cards (border neutral-200, `rounded-lg`, `shadow-sm`, 16px padding) in the app's own colors. No gradient or banner: the page is meant to look like the rest of the app.
 - From `xl`, a 1/3 and 2/3 grid (stacked below it, so a long email never gets cut off) that fades in once when the page opens (skipped with reduced motion).
 - **Left card:** a 64px initials avatar (primary-50 with primary-700 text), the full name (`text-xl`, weight 600), a role badge and an "Active" status badge, then the account facts as rows: Email, Role, Member since. Each row has a 40px primary-50 icon chip (mail, shield, calendar), a `text-xs` label and a `text-sm` weight-500 value; long values truncate. Nothing in this card can be edited.
 - **Right card, "Edit your name":** a short line saying where the name shows, the Full name field (1 to 150 characters), a live count ("12 / 150", tabular, right aligned under the field) that turns warning from 135 and is announced to screen readers once as "N characters left", "Save changes" (off until the name changes) and a ghost "Reset" that appears once it has changed and puts the saved name back. A save shows "Profile updated" and updates the card and the account menu at once. A failure is an alert above the field that keeps what was typed.
@@ -441,7 +441,6 @@ Split screen from `lg` (1024px) up, form only below it.
   /* Layout */
   --header-height: 64px;
   --sidebar-width: 240px;
-  --content-max: 1200px;
   --control-height: 40px;
   --row-height: 48px;
 }

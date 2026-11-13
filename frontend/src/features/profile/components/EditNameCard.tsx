@@ -72,7 +72,7 @@ export function EditNameCard({ user, onSaved }: EditNameCardProps) {
   return (
     <section
       aria-labelledby="edit-name-title"
-      className="rounded-lg border border-neutral-200 bg-neutral-0 p-6 shadow-sm"
+      className="rounded-lg border border-neutral-200 bg-neutral-0 p-4 shadow-sm"
     >
       <h2
         id="edit-name-title"
@@ -84,7 +84,7 @@ export function EditNameCard({ user, onSaved }: EditNameCardProps) {
         This is the name shown in the menu at the top right and in your account.
       </p>
 
-      <form onSubmit={onSubmit} noValidate className="mt-6 flex flex-col gap-4">
+      <form onSubmit={onSubmit} noValidate className="mt-4 flex flex-col gap-4">
         {serverError && <Alert>{serverError}</Alert>}
         <div>
           <TextField

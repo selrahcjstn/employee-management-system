@@ -73,7 +73,7 @@ export function SalaryForm({ employeeId, current }: SalaryFormProps) {
   return (
     <section
       aria-labelledby="salary-form-title"
-      className="rounded-lg border border-neutral-200 bg-neutral-0 p-6 shadow-sm"
+      className="rounded-lg border border-neutral-200 bg-neutral-0 p-4 shadow-sm"
     >
       <h2
         id="salary-form-title"

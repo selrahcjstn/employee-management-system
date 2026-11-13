@@ -86,7 +86,6 @@
   --default-transition-timing-function: ease-out;
 
   /* Layout (4.3), for the few places utilities do not already cover it */
-  --container-content: 1200px;
 
   /* Login page animations (DESIGN.md 7.1). Decorative only; reduced motion turns them off in index.css. */
   --animate-fade-up: fade-up 500ms ease-out both;

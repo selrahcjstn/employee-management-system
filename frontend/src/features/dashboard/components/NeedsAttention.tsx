@@ -42,7 +42,7 @@ export function NeedsAttention({
     <section
       aria-labelledby="attention-title"
       className={cx(
-        'min-w-0 rounded-lg border p-6 shadow-sm',
+        'min-w-0 rounded-lg border p-4 shadow-sm',
         clear
           ? 'border-success-border bg-success-bg'
           : 'border-warning-border bg-neutral-0',
@@ -60,7 +60,7 @@ export function NeedsAttention({
       </div>
 
       {clear ? (
-        <div className="flex flex-col items-center py-6 text-center">
+        <div className="flex flex-col items-center py-4 text-center">
           <CheckCircleIcon size={48} className="text-success" />
           <p className="mt-4 text-lg font-semibold text-neutral-900">
             All caught up

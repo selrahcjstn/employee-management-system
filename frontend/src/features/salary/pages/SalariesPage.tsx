@@ -128,7 +128,7 @@ export function SalariesPage() {
     );
   } else if (employees.isError) {
     content = (
-      <div className="p-6">
+      <div className="p-4">
         <Alert>
           <p>{parseApiError(employees.error).message}</p>
           <Button
@@ -248,7 +248,7 @@ export function SalariesPage() {
       </div>
 
       {employees.isSuccess && all.length > 0 && (
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <MiniStat
             label="Salaries assigned"
             value={`${withSalary.length} of ${all.length}`}
@@ -294,7 +294,7 @@ export function SalariesPage() {
               ]}
             />
             <SelectFilter
-              label="Last adjusted"
+              label="Adjusted"
               value={adjusted}
               onChange={setAdjusted}
               options={[
@@ -316,7 +316,12 @@ export function SalariesPage() {
               ]}
             />
             {filtering && (
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="shrink-0 whitespace-nowrap"
+                onClick={clearFilters}
+              >
                 Clear filters
               </Button>
             )}

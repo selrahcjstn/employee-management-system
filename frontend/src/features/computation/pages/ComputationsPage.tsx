@@ -126,7 +126,7 @@ export function ComputationsPage() {
     );
   } else if (computations.isError) {
     content = (
-      <div className="p-6">
+      <div className="p-4">
         <Alert>
           <p>{parseApiError(computations.error).message}</p>
           <Button
@@ -244,7 +244,7 @@ export function ComputationsPage() {
       </div>
 
       {computations.isSuccess && all.length > 0 && (
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <MiniStat
             label="Total monthly payroll"
             value={formatPeso(sumAmounts(monthly))}
@@ -296,7 +296,7 @@ export function ComputationsPage() {
               ]}
             />
             <SelectFilter
-              label="Monthly total"
+              label="Total"
               value={range}
               onChange={setRange}
               options={[
@@ -312,12 +312,17 @@ export function ComputationsPage() {
               onChange={setSort}
               options={[
                 { value: 'name', label: 'Employee ID' },
-                { value: 'high', label: 'Monthly total, high to low' },
-                { value: 'low', label: 'Monthly total, low to high' },
+                { value: 'high', label: 'Total, high to low' },
+                { value: 'low', label: 'Total, low to high' },
               ]}
             />
             {filtering && (
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="shrink-0 whitespace-nowrap"
+                onClick={clearFilters}
+              >
                 Clear filters
               </Button>
             )}

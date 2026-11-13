@@ -33,8 +33,8 @@ export function SalaryPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="grid gap-6 lg:grid-cols-2">
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-4 lg:grid-cols-2">
         <CurrentSalaryCard salary={current.data} />
         {current.isSuccess && (
           <SalaryForm employeeId={employeeId} current={current.data} />

@@ -415,14 +415,21 @@ describe('Employee Components tab', () => {
       );
 
       expect(await screen.findByText('Component renamed')).toBeInTheDocument();
-      expect(await screen.findByText('Rice Subsidy')).toBeInTheDocument();
+      expect(
+        await within(
+          screen.getByRole('table', { name: 'Salary components' }),
+        ).findByText('Rice Subsidy'),
+      ).toBeInTheDocument();
       expect(writes(calls)[0]).toMatchObject({ method: 'PATCH' });
       expect(writes(calls)[0]!.body).toEqual({ name: 'Rice Subsidy' });
 
       await router.navigate(`/employees/${ben.id}/components`);
       // Wait for Ben's workspace first: until then the old page is still showing Ana's row.
       await screen.findByRole('heading', { name: 'Ben Lim' });
-      expect(await screen.findByText('Rice Subsidy')).toBeInTheDocument();
+      const table = await screen.findByRole('table', {
+        name: 'Salary components',
+      });
+      expect(within(table).getByText('Rice Subsidy')).toBeInTheDocument();
     });
 
     it('shows a name that is taken inside the dialog', async () => {
@@ -552,6 +559,79 @@ describe('Employee Components tab', () => {
         /delete from/,
       );
       expect(rowTexts()[0]).toContain('Rice Allowance');
+    });
+  });
+
+  describe('the summary above the table', () => {
+    it('shows the total, how many, and the largest, from the amounts', async () => {
+      componentsServer([ana], {
+        assigned: {
+          [ana.id]: [
+            ['Rice Allowance', '2000.00'],
+            ['Transportation', '1500.50'],
+          ],
+        },
+      });
+      open();
+
+      const summary = await screen.findByRole('region', {
+        name: 'Components overview',
+      });
+      expect(summary).toHaveTextContent('Total amount₱3,500.50');
+      expect(summary).toHaveTextContent('How many2');
+      expect(summary).toHaveTextContent('Largest₱2,000.00Rice Allowance');
+    });
+
+    it('has no chart: the table is the only picture of the components', async () => {
+      componentsServer([ana], {
+        assigned: { [ana.id]: [['Rice Allowance', '2000.00']] },
+      });
+      open();
+      await screen.findByRole('table', { name: 'Salary components' });
+      expect(screen.queryByRole('img')).not.toBeInTheDocument();
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('columnheader', { name: 'Share' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('is left out while there are no components', async () => {
+      componentsServer([ana]);
+      open();
+      await screen.findByText('No components yet');
+      expect(
+        screen.queryByRole('region', { name: 'Components overview' }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('suggestions in the empty state', () => {
+    it('offers a few common names, and a click fills the add form and moves on to the amount', async () => {
+      componentsServer([ana]);
+      const user = userEvent.setup();
+      open();
+      await screen.findByText('No components yet');
+
+      await user.click(screen.getByRole('button', { name: 'Meal Allowance' }));
+
+      expect(componentBox()).toHaveValue('Meal Allowance');
+      expect(amountField()).toHaveFocus();
+    });
+
+    it('sends the suggested name with the amount you give it', async () => {
+      const { calls } = componentsServer([ana]);
+      const user = userEvent.setup();
+      open();
+      await screen.findByText('No components yet');
+
+      await user.click(screen.getByRole('button', { name: 'Rice Allowance' }));
+      await submitAdd(user, '2000');
+
+      expect(await screen.findByText('Component added')).toBeInTheDocument();
+      expect(writes(calls)[0]!.body).toEqual({
+        name: 'Rice Allowance',
+        amount: '2000.00',
+      });
     });
   });
 });

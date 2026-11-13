@@ -57,7 +57,7 @@ export function ComponentsPage() {
     );
   } else if (catalog.isError) {
     content = (
-      <div className="p-6">
+      <div className="p-4">
         <Alert>
           <p>{parseApiError(catalog.error).message}</p>
           <Button

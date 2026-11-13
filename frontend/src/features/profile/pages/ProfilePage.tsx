@@ -19,9 +19,9 @@ export function ProfilePage() {
         </p>
       </div>
 
-      <div className="mt-6 grid animate-fade-up items-start gap-6 xl:grid-cols-3">
+      <div className="mt-4 grid animate-fade-up items-start gap-4 xl:grid-cols-3">
         <ProfileCard user={user} />
-        <div className="flex flex-col gap-6 xl:col-span-2">
+        <div className="flex flex-col gap-4 xl:col-span-2">
           <EditNameCard user={user} onSaved={auth.setUser} />
           <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600">
             Your email and role are set by an administrator. Passwords are

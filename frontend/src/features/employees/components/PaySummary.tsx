@@ -34,7 +34,7 @@ export function PaySummary({ employeeId }: { employeeId: string }) {
 
   if (computation.isError) {
     return (
-      <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-neutral-600">
+      <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-neutral-600">
         <p>{parseApiError(computation.error).message}</p>
         <Button
           variant="secondary"
@@ -53,7 +53,7 @@ export function PaySummary({ employeeId }: { employeeId: string }) {
     <dl
       aria-label="Pay summary"
       aria-busy={data ? undefined : true}
-      className="mt-6 grid grid-cols-2 gap-4 border-t border-neutral-200 pt-6 md:grid-cols-3"
+      className="mt-4 grid grid-cols-2 gap-4 border-t border-neutral-200 pt-4 md:grid-cols-3"
     >
       <Figure label="Basic salary">
         {!data ? (

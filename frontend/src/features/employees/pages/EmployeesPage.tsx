@@ -62,7 +62,7 @@ export function EmployeesPage() {
     content = <EmployeesTableSkeleton />;
   } else if (employees.isError) {
     content = (
-      <div className="p-6">
+      <div className="p-4">
         <Alert>
           <p>{parseApiError(employees.error).message}</p>
           <Button
@@ -156,8 +156,8 @@ export function EmployeesPage() {
         </Button>
       </div>
 
-      <section className="mt-6 rounded-lg border border-neutral-200 bg-neutral-0 shadow-sm">
-        <div className="flex flex-wrap items-center gap-4 border-b border-neutral-200 p-4">
+      <section className="mt-4 rounded-lg border border-neutral-200 bg-neutral-0 shadow-sm">
+        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto border-b border-neutral-200 p-4">
           <TextField
             type="search"
             label="Search employees"
@@ -165,11 +165,11 @@ export function EmployeesPage() {
             placeholder="Search by name or Employee ID"
             autoComplete="off"
             startAdornment={<SearchIcon />}
-            className="w-full max-w-sm"
+            className="max-w-sm min-w-40 flex-1"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
-          <label className="flex h-10 items-center gap-2 text-sm text-neutral-700">
+          <label className="flex h-10 shrink-0 items-center gap-2 pl-2 text-sm whitespace-nowrap text-neutral-700">
             <input
               type="checkbox"
               checked={unassignedOnly}

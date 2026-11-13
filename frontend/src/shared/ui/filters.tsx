@@ -28,7 +28,7 @@ export function SegmentedFilter<T extends string>({
     <div
       role="group"
       aria-label={label}
-      className="inline-flex gap-1 rounded-md border border-field bg-neutral-0 p-1"
+      className="inline-flex shrink-0 gap-1 rounded-md border border-field bg-neutral-0 p-1"
     >
       {options.map((option) => {
         const chosen = option.value === value;
@@ -39,7 +39,7 @@ export function SegmentedFilter<T extends string>({
             aria-pressed={chosen}
             onClick={() => onChange(option.value)}
             className={cx(
-              'flex h-8 items-center gap-2 rounded-sm px-4 text-sm font-medium whitespace-nowrap transition-colors',
+              'flex h-8 items-center gap-2 rounded-sm px-3 text-sm font-medium whitespace-nowrap transition-colors',
               chosen
                 ? 'bg-primary-50 text-primary-700'
                 : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900',
@@ -79,28 +79,29 @@ export function SelectFilter<T extends string>({
 }: SelectFilterProps<T>) {
   const id = useId();
   return (
-    <div className="flex items-center gap-2">
-      <label htmlFor={id} className="text-sm text-neutral-600">
+    <div className="relative flex h-10 shrink-0 items-center gap-2 rounded-md border border-field bg-neutral-0 pr-8 pl-3 focus-within:border-primary-600">
+      <label
+        htmlFor={id}
+        className="text-sm whitespace-nowrap text-neutral-600"
+      >
         {label}
       </label>
-      <div className="relative">
-        <select
-          id={id}
-          value={value}
-          onChange={(event) => onChange(event.target.value as T)}
-          className="h-10 appearance-none rounded-md border border-field bg-neutral-0 pr-10 pl-4 text-sm text-neutral-900 focus:border-primary-600"
-        >
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <ChevronDownIcon
-          size={16}
-          className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-neutral-500"
-        />
-      </div>
+      <select
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value as T)}
+        className="h-full appearance-none bg-transparent pr-2 text-sm text-neutral-900"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDownIcon
+        size={16}
+        className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-neutral-500"
+      />
     </div>
   );
 }

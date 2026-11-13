@@ -28,7 +28,7 @@ export function PayrollChart({
     <section
       aria-labelledby="payroll-title"
       className={cx(
-        'min-w-0 rounded-lg border border-neutral-200 bg-neutral-0 p-6 shadow-sm',
+        'min-w-0 rounded-lg border border-neutral-200 bg-neutral-0 p-4 shadow-sm',
         className,
       )}
     >

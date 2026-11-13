@@ -19,7 +19,7 @@ export function SalaryHistoryCard({
   let content;
   if (isError) {
     content = (
-      <div className="p-6">
+      <div className="p-4">
         <Alert>
           <p>Could not load the salary history.</p>
           <Button
@@ -35,14 +35,14 @@ export function SalaryHistoryCard({
     );
   } else if (history === undefined) {
     content = (
-      <div role="status" aria-label="Loading salary history" className="p-6">
+      <div role="status" aria-label="Loading salary history" className="p-4">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="mt-4 h-4 w-3/4" />
       </div>
     );
   } else if (history.length === 0) {
     content = (
-      <p className="p-6 text-sm text-neutral-600">
+      <p className="p-4 text-sm text-neutral-600">
         No previous salaries. When the salary is adjusted, the old amount is
         listed here.
       </p>
@@ -85,7 +85,7 @@ export function SalaryHistoryCard({
     >
       <h2
         id="salary-history-title"
-        className="border-b border-neutral-200 p-6 text-sm font-medium text-neutral-600"
+        className="border-b border-neutral-200 p-4 text-sm font-medium text-neutral-600"
       >
         Salary history
       </h2>

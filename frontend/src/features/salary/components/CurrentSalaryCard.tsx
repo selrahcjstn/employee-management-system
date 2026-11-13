@@ -11,7 +11,7 @@ export function CurrentSalaryCard({ salary }: CurrentSalaryCardProps) {
   return (
     <section
       aria-labelledby="current-salary-title"
-      className="rounded-lg border border-neutral-200 bg-neutral-0 p-6 shadow-sm"
+      className="rounded-lg border border-neutral-200 bg-neutral-0 p-4 shadow-sm"
     >
       <h2
         id="current-salary-title"

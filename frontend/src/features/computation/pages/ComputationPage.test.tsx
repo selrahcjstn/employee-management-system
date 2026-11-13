@@ -132,4 +132,27 @@ describe('Computation tab', () => {
       await screen.findByRole('region', { name: 'Monthly breakdown' }),
     ).toBeInTheDocument();
   });
+
+  it('lists the four rates as rows with the formula and a plain meaning, and has no chart', async () => {
+    workspaceServer([ana], {
+      salaries: { [ana.id]: { current: makeSalary(ana.id, '30000.00') } },
+    });
+    open();
+
+    const rates = await screen.findByRole('region', { name: 'Salary rates' });
+    const rows = within(rates)
+      .getAllByRole('term')
+      .map((term) => term.textContent);
+    expect(rows).toEqual([
+      expect.stringContaining('Annual'),
+      expect.stringContaining('Daily'),
+      expect.stringContaining('Hourly'),
+      expect.stringContaining('Per minute'),
+    ]);
+    expect(within(rates).getByText('One working day')).toBeInTheDocument();
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/What the monthly total is made of/),
+    ).not.toBeInTheDocument();
+  });
 });

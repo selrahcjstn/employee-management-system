@@ -27,8 +27,9 @@ export function ListCard({
   footer,
 }: ListCardProps) {
   return (
-    <section className="mt-6 rounded-lg border border-neutral-200 bg-neutral-0 shadow-sm">
-      <div className="flex flex-wrap items-center gap-4 border-b border-neutral-200 p-4">
+    <section className="mt-4 rounded-lg border border-neutral-200 bg-neutral-0 shadow-sm">
+      {/* One row, never two: the search takes what is left, the controls keep their size, and a narrow screen scrolls this bar sideways instead of wrapping it. */}
+      <div className="flex flex-nowrap items-center gap-2 overflow-x-auto border-b border-neutral-200 p-4">
         <TextField
           type="search"
           label={searchLabel}
@@ -36,7 +37,7 @@ export function ListCard({
           placeholder={placeholder}
           autoComplete="off"
           startAdornment={<SearchIcon />}
-          className="w-full max-w-sm"
+          className="max-w-sm min-w-40 flex-1"
           value={search}
           onChange={(event) => onSearch(event.target.value)}
         />

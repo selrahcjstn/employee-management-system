@@ -9,6 +9,7 @@ import { useEmployee } from '../../employees/api/queries';
 import { fullName } from '../../employees/types';
 import { useEmployeeComponents } from '../api/queries';
 import { AddComponentForm } from '../components/AddComponentForm';
+import { ComponentsOverview } from '../components/ComponentsOverview';
 import {
   ComponentsTable,
   ComponentsTableSkeleton,
@@ -17,6 +18,9 @@ import { RemoveDialog } from '../components/RemoveDialog';
 import { RenameDialog } from '../components/RenameDialog';
 import type { EmployeeComponent } from '../types';
 
+/** Names offered when there is nothing yet. They only fill the form; the person still gives the amount. */
+const SUGGESTIONS = ['Rice Allowance', 'Transportation', 'Meal Allowance'];
+
 /** The Components tab of an employee workspace: add, edit, rename and remove their components. */
 export function EmployeeComponentsPage() {
   const { id: employeeId = '' } = useParams();
@@ -24,6 +28,8 @@ export function EmployeeComponentsPage() {
   const employee = useEmployee(employeeId).data;
   const [renaming, setRenaming] = useState<EmployeeComponent | null>(null);
   const [removing, setRemoving] = useState<EmployeeComponent | null>(null);
+  // A name picked from the empty state's suggestions, to start the add form with.
+  const [suggestion, setSuggestion] = useState<string | undefined>();
 
   if (components.isError) {
     return (
@@ -54,6 +60,21 @@ export function EmployeeComponentsPage() {
         icon={<ListIcon size={48} />}
         title="No components yet"
         description="Add one above, such as Rice Allowance or Transportation. Each has its own amount."
+        action={
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <span className="text-sm text-neutral-600">Start with</span>
+            {SUGGESTIONS.map((name) => (
+              <Button
+                key={name}
+                variant="secondary"
+                size="sm"
+                onClick={() => setSuggestion(name)}
+              >
+                {name}
+              </Button>
+            ))}
+          </div>
+        }
       />
     );
   } else {
@@ -68,9 +89,17 @@ export function EmployeeComponentsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
+      {items !== undefined && items.length > 0 && (
+        <ComponentsOverview items={items} />
+      )}
       {items !== undefined && (
-        <AddComponentForm employeeId={employeeId} assigned={items} />
+        <AddComponentForm
+          key={suggestion ?? ''}
+          employeeId={employeeId}
+          assigned={items}
+          initialName={suggestion}
+        />
       )}
       <section
         aria-label="Assigned components"

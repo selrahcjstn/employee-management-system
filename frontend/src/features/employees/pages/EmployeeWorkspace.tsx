@@ -20,7 +20,7 @@ const CARD = 'rounded-lg border border-neutral-200 bg-neutral-0 shadow-sm';
 function WorkspaceSkeleton() {
   return (
     <div role="status" aria-label="Loading employee">
-      <div className={cx(CARD, 'p-6')}>
+      <div className={cx(CARD, 'p-4')}>
         <Skeleton className="h-4 w-24" />
         <div className="mt-4 flex items-center gap-4">
           <Skeleton className="size-8 rounded-full" />
@@ -29,15 +29,15 @@ function WorkspaceSkeleton() {
             <Skeleton className="mt-2 h-4 w-40" />
           </div>
         </div>
-        <div className="mt-6 grid grid-cols-2 gap-4 border-t border-neutral-200 pt-6 md:grid-cols-3">
+        <div className="mt-4 grid grid-cols-2 gap-4 border-t border-neutral-200 pt-4 md:grid-cols-3">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="col-span-2 h-14 w-full md:col-span-1" />
         </div>
       </div>
-      <div className={cx(CARD, 'mt-6 p-6')}>
+      <div className={cx(CARD, 'mt-4 p-4')}>
         <Skeleton className="h-4 w-1/3" />
-        <Skeleton className="mt-6 h-4 w-full" />
+        <Skeleton className="mt-4 h-4 w-full" />
       </div>
     </div>
   );
@@ -96,7 +96,7 @@ export function EmployeeWorkspace() {
   return (
     <>
       <div className={CARD}>
-        <div className="p-6">
+        <div className="p-4">
           <NavLink
             to="/employees"
             end
@@ -145,7 +145,7 @@ export function EmployeeWorkspace() {
           </ul>
         </nav>
       </div>
-      <div className="mt-6">
+      <div className="mt-4">
         <Outlet />
       </div>
     </>
