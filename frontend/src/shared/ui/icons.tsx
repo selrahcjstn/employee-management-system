@@ -1,5 +1,6 @@
 import alertCircle from '../../assets/icons/alert-circle.svg?raw';
 import arrowLeft from '../../assets/icons/arrow-left.svg?raw';
+import calendar from '../../assets/icons/calendar.svg?raw';
 import calculator from '../../assets/icons/calculator.svg?raw';
 import checkCircle from '../../assets/icons/check-circle.svg?raw';
 import chevronDown from '../../assets/icons/chevron-down.svg?raw';
@@ -9,12 +10,14 @@ import eye from '../../assets/icons/eye.svg?raw';
 import layoutDashboard from '../../assets/icons/layout-dashboard.svg?raw';
 import list from '../../assets/icons/list.svg?raw';
 import logOut from '../../assets/icons/log-out.svg?raw';
+import mail from '../../assets/icons/mail.svg?raw';
 import menu from '../../assets/icons/menu.svg?raw';
 import moreHorizontal from '../../assets/icons/more-horizontal.svg?raw';
 import panelLeft from '../../assets/icons/panel-left.svg?raw';
 import pencil from '../../assets/icons/pencil.svg?raw';
 import plus from '../../assets/icons/plus.svg?raw';
 import search from '../../assets/icons/search.svg?raw';
+import shield from '../../assets/icons/shield.svg?raw';
 import tag from '../../assets/icons/tag.svg?raw';
 import trash from '../../assets/icons/trash.svg?raw';
 import user from '../../assets/icons/user.svg?raw';
@@ -57,6 +60,9 @@ export const AlertCircleIcon = (props: IconProps) => (
 export const ArrowLeftIcon = (props: IconProps) => (
   <SvgIcon source={arrowLeft} {...props} />
 );
+export const CalendarIcon = (props: IconProps) => (
+  <SvgIcon source={calendar} {...props} />
+);
 export const CalculatorIcon = (props: IconProps) => (
   <SvgIcon source={calculator} {...props} />
 );
@@ -87,6 +93,9 @@ export const ListIcon = (props: IconProps) => (
 export const LogOutIcon = (props: IconProps) => (
   <SvgIcon source={logOut} {...props} />
 );
+export const MailIcon = (props: IconProps) => (
+  <SvgIcon source={mail} {...props} />
+);
 export const MenuIcon = (props: IconProps) => (
   <SvgIcon source={menu} {...props} />
 );
@@ -104,6 +113,9 @@ export const PlusIcon = (props: IconProps) => (
 );
 export const SearchIcon = (props: IconProps) => (
   <SvgIcon source={search} {...props} />
+);
+export const ShieldIcon = (props: IconProps) => (
+  <SvgIcon source={shield} {...props} />
 );
 export const TagIcon = (props: IconProps) => (
   <SvgIcon source={tag} {...props} />

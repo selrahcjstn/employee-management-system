@@ -6,11 +6,12 @@ const components = Object.entries(icons).filter(([name]) =>
 ) as [string, (props: icons.IconProps) => React.JSX.Element][];
 
 describe('icons', () => {
-  it('has all twenty-three icons from src/assets/icons', () => {
+  it('has all twenty-six icons from src/assets/icons', () => {
     expect(components.map(([name]) => name).sort()).toEqual([
       'AlertCircleIcon',
       'ArrowLeftIcon',
       'CalculatorIcon',
+      'CalendarIcon',
       'CheckCircleIcon',
       'ChevronDownIcon',
       'ChevronRightIcon',
@@ -20,12 +21,14 @@ describe('icons', () => {
       'EyeOffIcon',
       'ListIcon',
       'LogOutIcon',
+      'MailIcon',
       'MenuIcon',
       'MoreIcon',
       'PanelLeftIcon',
       'PencilIcon',
       'PlusIcon',
       'SearchIcon',
+      'ShieldIcon',
       'TagIcon',
       'TrashIcon',
       'UserIcon',

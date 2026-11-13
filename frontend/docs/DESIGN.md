@@ -352,7 +352,12 @@ Split screen from `lg` (1024px) up, form only below it.
 - Table: Employee (avatar, link, Employee ID), Monthly total (weight 600), Annual, Daily, Hourly and Per-minute, all right aligned in tabular numbers; the per-minute rate shows 4 decimals. An employee without a basic salary has one "Not assigned" badge across the number columns. A chevron ends the row; **no actions column**: the row opens that employee's Computation tab.
 
 ### 7.9 My profile (`/profile`)
-- One card up to 576px: avatar, name and role badge; the email, role and member-since date as read-only text; and a form with the full name (1 to 150 characters). "Save changes" stays off until the name changes. A save shows "Profile updated" and updates the account menu at once. There is no password change.
+- Same page frame as the others: title and one line, then white cards (border neutral-200, `rounded-lg`, `shadow-sm`, 24px padding) in the app's own colors. No gradient or banner: the page is meant to look like the rest of the app.
+- From `xl`, a 1/3 and 2/3 grid (stacked below it, so a long email never gets cut off) that fades in once when the page opens (skipped with reduced motion).
+- **Left card:** a 64px initials avatar (primary-50 with primary-700 text), the full name (`text-xl`, weight 600), a role badge and an "Active" status badge, then the account facts as rows: Email, Role, Member since. Each row has a 40px primary-50 icon chip (mail, shield, calendar), a `text-xs` label and a `text-sm` weight-500 value; long values truncate. Nothing in this card can be edited.
+- **Right card, "Edit your name":** a short line saying where the name shows, the Full name field (1 to 150 characters), a live count ("12 / 150", tabular, right aligned under the field) that turns warning from 135 and is announced to screen readers once as "N characters left", "Save changes" (off until the name changes) and a ghost "Reset" that appears once it has changed and puts the saved name back. A save shows "Profile updated" and updates the card and the account menu at once. A failure is an alert above the field that keeps what was typed.
+- Under it, a quiet neutral-50 note: email, role and password are managed by an administrator, so there is nothing to change. There is no password field.
+- At 375px the cards stack and nothing scrolls sideways.
 
 ---
 
