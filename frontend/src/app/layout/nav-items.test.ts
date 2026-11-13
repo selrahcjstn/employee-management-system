@@ -22,7 +22,12 @@ describe('nav groups', () => {
     const enabled = NAV_GROUPS.flatMap((group) => group.items)
       .filter((item) => item.enabled)
       .map((item) => item.to);
-    expect(enabled).toEqual(['/dashboard', '/employees', '/salary']);
+    expect(enabled).toEqual([
+      '/dashboard',
+      '/employees',
+      '/salary',
+      '/components',
+    ]);
   });
 });
 

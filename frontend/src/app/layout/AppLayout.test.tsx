@@ -40,14 +40,14 @@ describe('AppLayout', () => {
       expect(
         within(pay).getByRole('link', { name: 'Salary' }),
       ).not.toHaveAttribute('aria-current');
-      expect(within(nav).getAllByRole('link')).toHaveLength(3);
+      expect(within(nav).getAllByRole('link')).toHaveLength(4);
     });
 
     it('shows pages that are not built yet as disabled, each with a "Soon" label', async () => {
       await openApp();
       const pay = screen.getByRole('list', { name: 'Pay' });
 
-      for (const name of ['Components', 'Computation']) {
+      for (const name of ['Computation']) {
         const item = within(pay)
           .getByText(name)
           .closest('[aria-disabled="true"]');
@@ -56,7 +56,7 @@ describe('AppLayout', () => {
           within(item as HTMLElement).getByText('Soon'),
         ).toBeInTheDocument();
       }
-      expect(within(pay).getAllByRole('link')).toHaveLength(1);
+      expect(within(pay).getAllByRole('link')).toHaveLength(2);
     });
 
     it('shows the logo and the app name on two lines', async () => {
@@ -150,14 +150,14 @@ describe('AppLayout', () => {
     it('shows a label beside an icon in the rail, and only there', async () => {
       const { user } = await openApp();
       expect(
-        screen.queryByText('Components (coming soon)'),
+        screen.queryByText('Computation (coming soon)'),
       ).not.toBeInTheDocument();
 
       await user.click(
         screen.getByRole('button', { name: 'Collapse sidebar' }),
       );
 
-      const tooltip = screen.getByText('Components (coming soon)');
+      const tooltip = screen.getByText('Computation (coming soon)');
       expect(tooltip).toHaveAttribute('aria-hidden', 'true');
       expect(
         screen.getByText('Employees', { selector: '[aria-hidden="true"]' }),

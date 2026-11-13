@@ -3,16 +3,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { parseApiError } from '../../../shared/api/errors';
 import { formatPeso } from '../../../shared/lib/format';
+import { normalizeAmount } from '../../../shared/lib/money';
 import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
 import { TextField } from '../../../shared/ui/TextField';
 import { useToast } from '../../../shared/ui/useToast';
 import { useAssignSalary } from '../api/queries';
-import {
-  normalizeAmount,
-  salarySchema,
-  type SalaryFormValues,
-} from '../schemas';
+import { salarySchema, type SalaryFormValues } from '../schemas';
 import type { Salary } from '../types';
 
 interface SalaryFormProps {

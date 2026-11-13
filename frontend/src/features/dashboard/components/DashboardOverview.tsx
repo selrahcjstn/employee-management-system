@@ -11,12 +11,8 @@ import {
   WalletIcon,
 } from '../../../shared/ui/icons';
 import { Skeleton } from '../../../shared/ui/Skeleton';
-import {
-  centavosToAmount,
-  computeStats,
-  toCentavos,
-  type EmployeeStats,
-} from '../stats';
+import { centavosToAmount, toCentavos } from '../../../shared/lib/money';
+import { computeStats, type EmployeeStats } from '../stats';
 import type { Employee } from '../../employees/types';
 import { AtAGlance } from './AtAGlance';
 import { NeedsAttention } from './NeedsAttention';

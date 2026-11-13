@@ -30,6 +30,8 @@ describe('SVG assets (inlined into the page, so they must be safe and consistent
       'icons/pencil.svg',
       'icons/plus.svg',
       'icons/search.svg',
+      'icons/tag.svg',
+      'icons/trash.svg',
       'icons/users.svg',
       'icons/wallet.svg',
       'icons/x.svg',

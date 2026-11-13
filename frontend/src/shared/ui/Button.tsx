@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cx } from '../lib/cx';
 
-type Variant = 'primary' | 'secondary' | 'ghost';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
@@ -20,6 +20,7 @@ const VARIANTS: Record<Variant, string> = {
   secondary:
     'border border-field bg-neutral-0 text-neutral-900 enabled:hover:bg-neutral-100',
   ghost: 'text-primary-600 enabled:hover:bg-primary-50',
+  danger: 'bg-danger text-neutral-0 enabled:hover:opacity-90',
 };
 
 export function Button({

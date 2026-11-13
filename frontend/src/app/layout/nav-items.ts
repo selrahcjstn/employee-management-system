@@ -48,7 +48,7 @@ export const NAV_GROUPS: NavGroup[] = [
         to: '/components',
         label: 'Components',
         icon: ListIcon,
-        enabled: false,
+        enabled: true,
       },
       {
         to: '/computation',

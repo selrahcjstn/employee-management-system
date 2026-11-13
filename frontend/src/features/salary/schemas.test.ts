@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeAmount, salarySchema } from './schemas';
+import { normalizeAmount } from '../../shared/lib/money';
+import { salarySchema } from './schemas';
 
 const messages = (monthlyBasicSalary: string) => {
   const result = salarySchema.safeParse({ monthlyBasicSalary });

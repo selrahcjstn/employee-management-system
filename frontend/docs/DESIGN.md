@@ -321,10 +321,14 @@ Split screen from `lg` (1024px) up, form only below it.
 - States: loading skeletons, a plain error with Retry, a field-level API error under the field, any other save failure as an alert inside the form that keeps the typed amount.
 
 ### 7.4 Salary Components (`/components`)
-- Employee picker.
-- Add form: component combobox (type to search existing names or create a new one), amount, "Add component".
-- Table: Component, Amount (right aligned), actions (Edit amount, Rename, Remove). Rename shows a note: "Applies to all employees using this component."
-- Duplicate error inline: "This employee already has this component."
+- Header: title "Components" and a one-line description. Below it the employee picker (`max-w-sm`), kept in the address (`/components?employee=<id>`). Until one is chosen, an empty state says "Choose an employee".
+- Card "Add a component": a component combobox (type to search the shared names, or choose the last row `Create “name”` for a new one), an amount field with a fixed peso sign, and "Add component". On `sm` and up they sit in one row; below it they stack. Amount: zero or more, at most 2 decimals, at most ₱99,999,999.99 (checked as text); name: 1 to 100 characters.
+- Table "Salary components": Component, Amount (right aligned, tabular) and three icon buttons per row: Edit amount, Rename, Remove, each with an `aria-label` that names the component. A footer row shows "Components total". Edit amount turns the cell into a field with Save and Cancel (Enter saves, Escape cancels, an unchanged amount sends nothing).
+- Rename opens a dialog with the note "Applies to all employees using this component." A taken name shows "Component name already exists" under the field.
+- Remove asks first in a dialog ("Remove {name} from {employee}?"; others keep it; it can be added again), with a danger-colored Remove button.
+- Duplicate error inline under the component field: "This employee already has this component." It is checked before sending (any letter case) and again from the API's `409`.
+- A change shows a toast ("Component added", "Amount updated", "Component renamed", "Component removed") and refreshes the lists, the suggestions and the computation.
+- States: skeleton while loading, an empty state ("No components yet"), a plain error with Retry, and a failed write as an alert (add) or inside the dialog (rename, remove).
 
 ### 7.5 Computation (`/computation`)
 - Employee picker.

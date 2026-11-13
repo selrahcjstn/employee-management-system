@@ -14,7 +14,7 @@ interface TableProps {
 /** A table that scrolls sideways inside its box on small screens instead of squeezing its columns. */
 export function Table({ label, children }: TableProps) {
   return (
-    <div className="overflow-x-auto">
+    <div className="relative overflow-x-auto">
       <table aria-label={label} className="w-full border-collapse text-sm">
         {children}
       </table>

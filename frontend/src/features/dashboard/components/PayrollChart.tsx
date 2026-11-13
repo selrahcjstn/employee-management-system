@@ -1,6 +1,6 @@
 import { cx } from '../../../shared/lib/cx';
 import { formatPeso } from '../../../shared/lib/format';
-import { toCentavos } from '../stats';
+import { toCentavos } from '../../../shared/lib/money';
 import { fullName, type Employee } from '../../employees/types';
 
 const SHOWN = 6;

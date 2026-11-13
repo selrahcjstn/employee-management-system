@@ -13,6 +13,8 @@ import panelLeft from '../../assets/icons/panel-left.svg?raw';
 import pencil from '../../assets/icons/pencil.svg?raw';
 import plus from '../../assets/icons/plus.svg?raw';
 import search from '../../assets/icons/search.svg?raw';
+import tag from '../../assets/icons/tag.svg?raw';
+import trash from '../../assets/icons/trash.svg?raw';
 import users from '../../assets/icons/users.svg?raw';
 import wallet from '../../assets/icons/wallet.svg?raw';
 import x from '../../assets/icons/x.svg?raw';
@@ -93,6 +95,12 @@ export const PlusIcon = (props: IconProps) => (
 );
 export const SearchIcon = (props: IconProps) => (
   <SvgIcon source={search} {...props} />
+);
+export const TagIcon = (props: IconProps) => (
+  <SvgIcon source={tag} {...props} />
+);
+export const TrashIcon = (props: IconProps) => (
+  <SvgIcon source={trash} {...props} />
 );
 export const UsersIcon = (props: IconProps) => (
   <SvgIcon source={users} {...props} />

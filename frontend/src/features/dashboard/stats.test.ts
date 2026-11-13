@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { makeEmployee } from '../../test/employees-server';
-import { centavosToAmount, computeStats, toCentavos } from './stats';
+import { centavosToAmount, toCentavos } from '../../shared/lib/money';
+import { computeStats } from './stats';
 
 const TODAY = '2026-11-13';
 

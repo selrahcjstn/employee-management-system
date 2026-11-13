@@ -161,4 +161,77 @@ describe('Combobox', () => {
     await user.tab();
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
+
+  describe('create', () => {
+    function CreateHarness({
+      onCreate,
+    }: {
+      onCreate: (typed: string) => void;
+    }) {
+      return (
+        <Combobox
+          label="Employee"
+          options={OPTIONS}
+          value={null}
+          onChange={() => {}}
+          create={{ label: (typed) => `Create “${typed}”`, onCreate }}
+          error="Choose one"
+        />
+      );
+    }
+
+    it('offers to create what was typed, last, when it is not in the list', async () => {
+      const onCreate = vi.fn();
+      const user = userEvent.setup();
+      render(<CreateHarness onCreate={onCreate} />);
+      await user.type(box(), '  Zed  ');
+
+      const options = screen.getAllByRole('option');
+      expect(options.map((o) => o.textContent)).toEqual(['Create “Zed”']);
+      await user.click(options[0]!);
+      expect(onCreate).toHaveBeenCalledWith('Zed');
+    });
+
+    it('puts the create row after the matches and chooses it with Enter', async () => {
+      const onCreate = vi.fn();
+      const user = userEvent.setup();
+      render(<CreateHarness onCreate={onCreate} />);
+      await user.type(box(), 'ana');
+
+      expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual([
+        'Ana ReyesEMP-001',
+        'Create “ana”',
+      ]);
+      await user.keyboard('{ArrowDown}{Enter}');
+      expect(onCreate).toHaveBeenCalledWith('ana');
+    });
+
+    it('does not offer to create a name that is already there, in any letter case', async () => {
+      const user = userEvent.setup();
+      render(<CreateHarness onCreate={() => {}} />);
+      await user.type(box(), 'ben lim');
+      expect(screen.queryByText(/^Create/)).not.toBeInTheDocument();
+    });
+
+    it('offers nothing to create while the field is empty', async () => {
+      const user = userEvent.setup();
+      render(<CreateHarness onCreate={() => {}} />);
+      await user.click(box());
+      expect(screen.queryByText(/^Create/)).not.toBeInTheDocument();
+    });
+  });
+
+  it('shows an error under the field and links it to the input', () => {
+    render(
+      <Combobox
+        label="Employee"
+        options={OPTIONS}
+        value={null}
+        onChange={() => {}}
+        error="Choose one"
+      />,
+    );
+    expect(box()).toHaveAttribute('aria-invalid', 'true');
+    expect(box()).toHaveAccessibleDescription('Choose one');
+  });
 });

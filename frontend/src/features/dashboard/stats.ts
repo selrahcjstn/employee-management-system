@@ -1,23 +1,8 @@
+import { centavosToAmount, toCentavos } from '../../shared/lib/money';
 import type { Employee } from '../employees/types';
 
 /** How many days count as "recently hired". */
 export const RECENT_DAYS = 30;
-
-/**
- * Money is added as whole centavos in a BigInt, so a total of many salaries has no float error.
- * "30000.50" -> 3000050n.
- */
-export function toCentavos(amount: string): bigint {
-  const [whole = '0', decimals = ''] = amount.split('.');
-  return BigInt(whole) * 100n + BigInt(decimals.padEnd(2, '0').slice(0, 2));
-}
-
-/** 3000050n -> "30000.50", the decimal string the formatters expect. */
-export function centavosToAmount(centavos: bigint): string {
-  const whole = centavos / 100n;
-  const decimals = (centavos % 100n).toString().padStart(2, '0');
-  return `${whole}.${decimals}`;
-}
 
 /** A calendar date YYYY-MM-DD moved by whole days (UTC math, so no timezone or daylight saving shift). */
 function addDays(isoDate: string, days: number): string {
