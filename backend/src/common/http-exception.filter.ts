@@ -1,4 +1,11 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import type { Response } from 'express';
 
 interface ErrorBody {
@@ -19,14 +26,29 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   private toBody(exception: unknown): ErrorBody {
     if (!(exception instanceof HttpException)) {
-      this.logger.error(exception instanceof Error ? exception.stack : String(exception));
-      return { statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: 'Internal server error', errors: [] };
+      this.logger.error(
+        exception instanceof Error ? exception.stack : String(exception),
+      );
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error',
+        errors: [],
+      };
     }
     const statusCode = exception.getStatus();
     const payload = exception.getResponse();
-    if (typeof payload === 'string') return { statusCode, message: payload, errors: [] };
-    const { message, errors } = payload as { message?: string | string[]; errors?: string[] };
-    if (Array.isArray(message)) return { statusCode, message: exception.message, errors: message };
-    return { statusCode, message: message ?? exception.message, errors: errors ?? [] };
+    if (typeof payload === 'string')
+      return { statusCode, message: payload, errors: [] };
+    const { message, errors } = payload as {
+      message?: string | string[];
+      errors?: string[];
+    };
+    if (Array.isArray(message))
+      return { statusCode, message: exception.message, errors: message };
+    return {
+      statusCode,
+      message: message ?? exception.message,
+      errors: errors ?? [],
+    };
   }
 }

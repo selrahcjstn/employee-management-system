@@ -12,6 +12,10 @@
       "model": "RefreshToken",
       "namespace": "public"
     },
+    "salary_assignments": {
+      "model": "SalaryAssignment",
+      "namespace": "public"
+    },
     "users": {
       "model": "User",
       "namespace": "public"
@@ -268,6 +272,107 @@
               },
               "namespaceId": "public",
               "table": "refresh_tokens"
+            }
+          },
+          "SalaryAssignment": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "deletedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "employeeId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "monthlyBasicSalary": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 2
+                  }
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "employee": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "employeeId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Employee",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "deletedAt": {
+                  "column": "deleted_at"
+                },
+                "employeeId": {
+                  "column": "employee_id"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "monthlyBasicSalary": {
+                  "column": "monthly_basic_salary"
+                },
+                "updatedAt": {
+                  "column": "updated_at"
+                }
+              },
+              "namespaceId": "public",
+              "table": "salary_assignments"
             }
           },
           "User": {
@@ -614,6 +719,110 @@
                 }
               ]
             },
+            "salary_assignments": {
+              "checks": [
+                {
+                  "expression": "monthly_basic_salary > 0",
+                  "name": "chk_salary_assignments_basic_positive_7e2329d0",
+                  "prefix": "chk_salary_assignments_basic_positive"
+                }
+              ],
+              "columns": {
+                "created_at": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "deleted_at": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "employee_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "monthly_basic_salary": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 2
+                  }
+                },
+                "updated_at": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "salary_assignments_employee_id_idx_a830a6c3"
+                  },
+                  "source": {
+                    "columns": [
+                      "employee_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "salary_assignments"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "employees"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "employee_id"
+                  ],
+                  "name": "salary_assignments_employee_id_idx_a830a6c3",
+                  "prefix": "salary_assignments_employee_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "employee_id"
+                  ],
+                  "name": "uq_active_salary_per_employee_554132d9",
+                  "prefix": "uq_active_salary_per_employee",
+                  "unique": true,
+                  "where": "deleted_at IS NULL"
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "users": {
               "columns": {
                 "created_at": {
@@ -709,10 +918,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "212761d6b29a7f34da178bc71db421866857964529617a6db9f0ca14507f1bcd"
+    "storageHash": "1ee3c0ee44de0b35bc461f85bafd93377a836e90c1ee6fdac6172f8dc0fc271e"
   },
   "execution": {
-    "executionHash": "8fd02b06589709d0c7f0cadfd0cfd1bf8c3b639cc8aa900d91c27c784a28bdb4",
+    "executionHash": "e0f606457fac0b58afd6adaffb0d9841986ef8a8c9871d789c91325d263cd7fb",
     "mutations": {
       "defaults": [
         {
@@ -755,6 +964,38 @@
           "ref": {
             "entry": "refresh_tokens",
             "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "salary_assignments",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator",
+            "params": {
+              "precision": 3
+            }
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator",
+            "params": {
+              "precision": 3
+            }
+          },
+          "ref": {
+            "entry": "salary_assignments",
+            "field": "updated_at",
             "namespace": "public"
           }
         },

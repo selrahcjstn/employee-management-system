@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -11,7 +20,10 @@ import {
 import { CreateEmployeeDto } from './dto/create-employee.dto.js';
 import { ListEmployeesDto } from './dto/list-employees.dto.js';
 import { UpdateEmployeeDto } from './dto/update-employee.dto.js';
-import { EmployeeEntity } from './entities/employee.entity.js';
+import {
+  EmployeeEntity,
+  EmployeeListItemEntity,
+} from './entities/employee.entity.js';
 import { EmployeesService } from './employees.service.js';
 
 @ApiTags('employees')
@@ -30,7 +42,7 @@ export class EmployeesController {
 
   @Get()
   @ApiOperation({ summary: 'List employees, optionally filtered by ?search=' })
-  @ApiOkResponse({ type: [EmployeeEntity] })
+  @ApiOkResponse({ type: [EmployeeListItemEntity] })
   list(@Query() query: ListEmployeesDto) {
     return this.employeesService.list(query.search);
   }
@@ -47,7 +59,10 @@ export class EmployeesController {
   @ApiOperation({ summary: 'Update an employee (Employee ID cannot change)' })
   @ApiOkResponse({ type: EmployeeEntity })
   @ApiNotFoundResponse()
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateEmployeeDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateEmployeeDto,
+  ) {
     return this.employeesService.update(id, dto);
   }
 }

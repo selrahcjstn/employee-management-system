@@ -23,9 +23,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'212761d6b29a7f34da178bc71db421866857964529617a6db9f0ca14507f1bcd'>;
+  StorageHashBase<'1ee3c0ee44de0b35bc461f85bafd93377a836e90c1ee6fdac6172f8dc0fc271e'>;
 export type ExecutionHash =
-  ExecutionHashBase<'8fd02b06589709d0c7f0cadfd0cfd1bf8c3b639cc8aa900d91c27c784a28bdb4'>;
+  ExecutionHashBase<'e0f606457fac0b58afd6adaffb0d9841986ef8a8c9871d789c91325d263cd7fb'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -334,6 +334,16 @@ export namespace Models {
     user: public_User;
     readonly [RelationKeys]?: 'user';
   };
+  export type public_SalaryAssignment = {
+    createdAt: FieldOutputTypes['public']['SalaryAssignment']['createdAt'];
+    deletedAt: FieldOutputTypes['public']['SalaryAssignment']['deletedAt'];
+    employeeId: FieldOutputTypes['public']['SalaryAssignment']['employeeId'];
+    id: FieldOutputTypes['public']['SalaryAssignment']['id'];
+    monthlyBasicSalary: FieldOutputTypes['public']['SalaryAssignment']['monthlyBasicSalary'];
+    updatedAt: FieldOutputTypes['public']['SalaryAssignment']['updatedAt'];
+    employee: public_Employee;
+    readonly [RelationKeys]?: 'employee';
+  };
   export type public_User = {
     createdAt: FieldOutputTypes['public']['User']['createdAt'];
     email: FieldOutputTypes['public']['User']['email'];
@@ -352,6 +362,7 @@ export declare const models: {
   public: {
     Employee: Models.public_Employee;
     RefreshToken: Models.public_RefreshToken;
+    SalaryAssignment: Models.public_SalaryAssignment;
     User: Models.public_User;
   };
 };
@@ -549,6 +560,82 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly salary_assignments: {
+              columns: {
+                readonly created_at: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly deleted_at: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly employee_id: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly monthly_basic_salary: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 12; readonly scale: 2 };
+                  readonly many: false;
+                };
+                readonly updated_at: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'salary_assignments_employee_id_idx_a830a6c3';
+                  readonly prefix: 'salary_assignments_employee_id_idx';
+                  readonly columns: readonly ['employee_id'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'uq_active_salary_per_employee_554132d9';
+                  readonly prefix: 'uq_active_salary_per_employee';
+                  readonly columns: readonly ['employee_id'];
+                  readonly where: 'deleted_at IS NULL';
+                  readonly unique: true;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'salary_assignments';
+                    readonly columns: readonly ['employee_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'employees';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly users: {
               columns: {
                 readonly created_at: {
@@ -642,6 +729,10 @@ type ContractBase = Omit<
     readonly refresh_tokens: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'RefreshToken';
+    };
+    readonly salary_assignments: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'SalaryAssignment';
     };
     readonly users: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
   };
@@ -811,6 +902,76 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly SalaryAssignment: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly deletedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly employeeId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly monthlyBasicSalary: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 12; readonly scale: 2 };
+                };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly employee: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Employee';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['employeeId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'salary_assignments';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'created_at' };
+                readonly deletedAt: { readonly column: 'deleted_at' };
+                readonly employeeId: { readonly column: 'employee_id' };
+                readonly id: { readonly column: 'id' };
+                readonly monthlyBasicSalary: { readonly column: 'monthly_basic_salary' };
+                readonly updatedAt: { readonly column: 'updated_at' };
+              };
+            };
+          };
           readonly User: {
             readonly fields: {
               readonly createdAt: {
@@ -965,6 +1126,31 @@ type ContractBase = Omit<
           readonly ref: {
             readonly entry: 'refresh_tokens';
             readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'salary_assignments';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: {
+            readonly id: 'timestampNow';
+            readonly kind: 'generator';
+            readonly params: { readonly precision: 3 };
+          };
+          readonly onUpdate: {
+            readonly id: 'timestampNow';
+            readonly kind: 'generator';
+            readonly params: { readonly precision: 3 };
+          };
+          readonly ref: {
+            readonly entry: 'salary_assignments';
+            readonly field: 'updated_at';
             readonly namespace: 'public';
           };
         },

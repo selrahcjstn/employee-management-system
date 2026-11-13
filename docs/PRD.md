@@ -421,6 +421,8 @@ The database is the final guard, the service gives readable errors, and the fron
 | GET | `/users/me` | Access token | Signed-in user (never includes the password hash) |
 | PATCH | `/users/me` | Access token | Update own `fullName`; change password with `currentPassword` + `newPassword` (8 to 72 chars) |
 
+Salary endpoints: amounts are sent and returned as decimal strings (`"30000.00"`); a JSON number is rejected with `400`. `PUT /employees/:id/salary` takes `{ monthlyBasicSalary }` and returns `{ changed, salary }` (`changed: false` when the amount equals the current salary, nothing is written). `GET /employees/:id/salary` returns `404` when no salary is assigned. Physical index and constraint names in the database carry a short hash suffix added by Prisma 8 (for example `uq_active_salary_per_employee_554132d9`).
+
 Login and refresh return `{ accessToken, user }` in the body. Logout returns `204`. There is no user list, create or delete endpoint (Q10): the admin is created by `npm run seed`, and user management is out of scope until requested. A deactivated user (`is_active = false`) cannot log in, use an access token or refresh.
 
 All endpoints below require `Authorization: Bearer <access token>`.

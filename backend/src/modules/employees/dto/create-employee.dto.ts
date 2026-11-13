@@ -4,7 +4,12 @@ import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { IsPastOrTodayDate, trim } from '../../../common/validators.js';
 
 export class CreateEmployeeDto {
-  @ApiProperty({ example: 'EMP-001', maxLength: 50, description: 'Business Employee ID. Unique (case-insensitive) and immutable.' })
+  @ApiProperty({
+    example: 'EMP-001',
+    maxLength: 50,
+    description:
+      'Business Employee ID. Unique (case-insensitive) and immutable.',
+  })
   @Transform(trim)
   @IsString()
   @IsNotEmpty()
@@ -32,7 +37,10 @@ export class CreateEmployeeDto {
   @MaxLength(100)
   lastName: string;
 
-  @ApiProperty({ example: '2026-01-15', description: 'YYYY-MM-DD, not in the future' })
+  @ApiProperty({
+    example: '2026-01-15',
+    description: 'YYYY-MM-DD, not in the future',
+  })
   @IsPastOrTodayDate()
   dateHired: string;
 }

@@ -46,3 +46,18 @@ model Employee {
   @@index(expression: sql`lower(employee_no)`, unique: true, name: "uq_employees_employee_no_lower")
   @@map("employees")
 }
+
+model SalaryAssignment {
+  id                 Uuid                             @id @onCreate(uuid())
+  employeeId         Uuid                             @map("employee_id")
+  monthlyBasicSalary Decimal(precision: 12, scale: 2) @map("monthly_basic_salary")
+  deletedAt          DateTime?                        @map("deleted_at")
+  createdAt          DateTime                         @default(now()) @map("created_at")
+  updatedAt          DateTime                         @onCreate(now()) @onUpdate(now()) @map("updated_at")
+  employee           Employee                         @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId], unique: true, where: sql`deleted_at IS NULL`, name: "uq_active_salary_per_employee")
+  @@index([employeeId])
+  @@check(expression: sql`monthly_basic_salary > 0`, name: "chk_salary_assignments_basic_positive")
+  @@map("salary_assignments")
+}

@@ -2,9 +2,15 @@ import { ConflictException } from '@nestjs/common';
 
 const UNIQUE_VIOLATION = '23505';
 
-function sqlState(error: unknown): string | undefined {
-  for (let current = error; current && typeof current === 'object'; current = (current as { cause?: unknown }).cause) {
-    const state = (current as { sqlState?: unknown; code?: unknown }).sqlState ?? (current as { code?: unknown }).code;
+export function sqlState(error: unknown): string | undefined {
+  for (
+    let current = error;
+    current && typeof current === 'object';
+    current = (current as { cause?: unknown }).cause
+  ) {
+    const state =
+      (current as { sqlState?: unknown; code?: unknown }).sqlState ??
+      (current as { code?: unknown }).code;
     if (typeof state === 'string') return state;
   }
   return undefined;

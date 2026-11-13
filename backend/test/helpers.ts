@@ -50,6 +50,7 @@ export async function authHeader(app: INestApplication, email: string): Promise<
 /** Deletes employees created by a test, after the rows that point at them. */
 export async function deleteTestEmployees(ids: string[]) {
   for (const id of ids) {
+    await db.orm.public.SalaryAssignment.where({ employeeId: id }).deleteAll();
     await db.orm.public.Employee.where({ id }).deleteAll();
   }
 }

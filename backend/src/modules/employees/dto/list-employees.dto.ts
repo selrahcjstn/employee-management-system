@@ -4,7 +4,9 @@ import { IsOptional, IsString, MaxLength } from 'class-validator';
 import { trim } from '../../../common/validators.js';
 
 export class ListEmployeesDto {
-  @ApiPropertyOptional({ description: 'Matches Employee ID, first, middle or last name' })
+  @ApiPropertyOptional({
+    description: 'Matches Employee ID, first, middle or last name',
+  })
   @IsOptional()
   @Transform(trim)
   @IsString()
