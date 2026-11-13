@@ -425,6 +425,8 @@ Salary endpoints: amounts are sent and returned as decimal strings (`"30000.00"`
 
 Component endpoints: an employee component is returned as `{ id, componentId, name, amount, createdAt, updatedAt }`, where `id` is the assignment id used in `PATCH`/`DELETE /employees/:id/components/:ecId`. `POST /employees/:id/components` takes `amount` plus exactly one of `componentId` or `name` (both or neither is `400`); a `name` reuses the active component with that name in any case, or creates it. A duplicate active component for the employee is `409`, an unknown or deleted `componentId` is `404`. Component amounts may be `"0"` (Q3). `DELETE` endpoints return `204`.
 
+Computation (`GET /employees/:id/computation`) is computed on the server with `decimal.js` at 50 significant digits, rounding half up to 2 decimals only in the returned strings; every rate, including per-minute, is returned with 2 decimals (the worked example: `2.67`). Empty state (FR-4.7): an employee with no active basic salary gets `200` with `basicSalary`, `monthlyTotal`, `annualSalary`, `dailyRate`, `hourlyRate` and `perMinuteRate` all `null`; `components` and `componentsTotal` are still returned. An unknown employee is `404`.
+
 Login and refresh return `{ accessToken, user }` in the body. Logout returns `204`. There is no user list, create or delete endpoint (Q10): the admin is created by `npm run seed`, and user management is out of scope until requested. A deactivated user (`is_active = false`) cannot log in, use an access token or refresh.
 
 All endpoints below require `Authorization: Bearer <access token>`.
