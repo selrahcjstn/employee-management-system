@@ -1,0 +1,34 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@layer base {
+  body {
+    @apply bg-neutral-50 font-sans text-base text-neutral-900;
+  }
+
+  /* One focus ring for every interactive element: 2px primary, 2px offset (DESIGN.md section 5). */
+  :focus-visible {
+    outline: 2px solid var(--color-primary-600);
+    outline-offset: 2px;
+  }
+
+  /* The ring color is fixed on every element. Without this, elements with `transition-colors`
+     (buttons) animate the outline from currentColor to blue, so the ring is briefly invisible. */
+  * {
+    outline-color: var(--color-primary-600);
+  }
+
+  a {
+    @apply text-primary-600;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

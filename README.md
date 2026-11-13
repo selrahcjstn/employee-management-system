@@ -5,7 +5,7 @@ A small HR/payroll-style web app with four integrated modules: onboard employees
 | | |
 |---|---|
 | **Backend** | NestJS, Prisma 8 (release candidate), PostgreSQL 15+ |
-| **Frontend** | React 19, Vite, TypeScript, React Router, TanStack Query, React Hook Form + Zod. The scaffold is in place; the pages are not built yet. |
+| **Frontend** | React 19, Vite, TypeScript, Tailwind CSS 4, React Router, TanStack Query, React Hook Form + Zod. Login and the app shell are built; the feature pages are not yet. |
 | **Source of truth** | [`docs/PRD.md`](docs/PRD.md) (requirements, data model, API, business rules) |
 | **ERD** | [`docs/ERD.pdf`](docs/ERD.pdf) and the diagram in the PRD |
 
@@ -48,10 +48,11 @@ The API listens on `http://localhost:3000/api`. Interactive docs are at `http://
 ```bash
 cd frontend
 npm install
+cp .env.example .env
 npm run dev
 ```
 
-Open `http://localhost:5173`. Vite forwards `/api` to the backend on port 3000, so no CORS setup is needed in development. Change the target with `VITE_API_PROXY_TARGET` (see `frontend/.env.example`).
+Open `http://localhost:5173` and sign in with the seed admin from `backend/.env`. `frontend/.env` sets `VITE_API_URL` (default `http://localhost:3000/api`); the backend already allows the Vite origin through `FRONTEND_ORIGIN`.
 
 ## Checks
 
@@ -95,6 +96,6 @@ The e2e tests use their own database, `<your database>_test`. They create and mi
 ```
 docs/                PRD.md, ERD.pdf
 backend/             NestJS API (see backend/README.md)
-frontend/            React app (scaffold only so far)
+frontend/            React app (design guide in frontend/docs/DESIGN.md)
 docker-compose.yml   local PostgreSQL
 ```
