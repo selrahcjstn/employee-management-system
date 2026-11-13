@@ -1,5 +1,19 @@
-import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { CurrentUser } from '../../common/current-user.decorator.js';
@@ -26,8 +40,16 @@ export class AuthController {
   @HttpCode(200)
   @ApiOperation({ summary: 'Sign in; sets the refresh cookie' })
   @ApiOkResponse({ type: AuthResponseDto })
-  async login(@Body() dto: LoginDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const session = await this.auth.login(dto.email, dto.password, this.meta(req));
+  async login(
+    @Body() dto: LoginDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const session = await this.auth.login(
+      dto.email,
+      dto.password,
+      this.meta(req),
+    );
     return this.respond(res, session);
   }
 
@@ -37,10 +59,18 @@ export class AuthController {
   @Throttle({ default: { limit: REFRESH_RATE_LIMIT, ttl: 60_000 } })
   @Post('refresh')
   @HttpCode(200)
-  @ApiOperation({ summary: 'Rotate the refresh cookie and get a new access token' })
+  @ApiOperation({
+    summary: 'Rotate the refresh cookie and get a new access token',
+  })
   @ApiOkResponse({ type: AuthResponseDto })
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const session = await this.auth.refresh(this.cookie(req) ?? '', this.meta(req));
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const session = await this.auth.refresh(
+      this.cookie(req) ?? '',
+      this.meta(req),
+    );
     return this.respond(res, session);
   }
 
@@ -70,7 +100,9 @@ export class AuthController {
   }
 
   private cookie(req: Request): string | undefined {
-    return (req.cookies as Record<string, string> | undefined)?.[REFRESH_COOKIE];
+    return (req.cookies as Record<string, string> | undefined)?.[
+      REFRESH_COOKIE
+    ];
   }
 
   private cookieOptions() {

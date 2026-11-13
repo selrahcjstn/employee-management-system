@@ -89,6 +89,8 @@ HR staff / admin (single role).
 - Submitting with empty First/Last Name or Date Hired shows field-level errors and does not call the API (and the API rejects it anyway with `400`).
 - Creating `EMP-001` twice returns `409 Conflict`; UI shows "Employee ID already exists".
 - Editing an employee never changes its Employee ID.
+- The Employee ID must be `EMP-` followed by at least three digits (`^EMP-\d{3,}$`, for example `EMP-001` or `EMP-1042`). It is trimmed and saved in upper case, so `emp-001` is stored as `EMP-001`. Anything else is a `400` with "Employee ID must look like EMP-001" (and the form shows it before calling the API). The rule applies when an employee is created; rows that already exist are not rewritten.
+- The employee list also shows each employee's `componentsCount`, `componentsTotal`, `monthlyTotal` (basic salary plus components, `null` with no basic salary) and `basicSalarySince` (when the active salary was assigned), worked out from active rows only, so overview pages need no extra requests per employee.
 
 ---
 
@@ -109,6 +111,11 @@ HR staff / admin (single role).
 - If the soft delete or the insert fails, neither is applied (transaction).
 - Computation (Module 4) always uses the active row only.
 - Currency shown as `₱` with thousands separators.
+
+---
+
+**Overview page (`/salaries`)**
+- FR-2.7 One table of every employee: Employee, Basic salary (or "Not assigned"), Last adjusted (`basicSalarySince`) and Status ("Ready" with a salary, "Needs salary" without). A row opens the employee's Salary tab.
 
 ---
 
@@ -134,6 +141,11 @@ A salary component is a user-created name (e.g. "Rice Allowance", "Transportatio
 - After removing "Rice Allowance" from an employee, it can be added again (the active-only uniqueness allows it).
 - Soft-deleted records never appear in lists or computations but remain in the database.
 - Names differing only by case or surrounding spaces count as duplicates.
+
+---
+
+**Catalog page (`/components`)**
+- FR-3.12 The catalog is the list of component names: Component name, Employees using it (`usageCount`, active assignments) and Created. "New component" creates a name only (no amount, no employee). Rename applies to every employee that uses it. Delete soft deletes the component and, in the same transaction, its active assignments (Q6), so the confirmation says how many employees lose it. There is no predefined list.
 
 ---
 
@@ -171,6 +183,12 @@ Basic ₱30,000 + Rice ₱2,000 + Transport ₱1,500 = **₱33,500 monthly**
 (Values rounded for display only; see rounding rule below.)
 
 **Rounding rule (proposed):** compute at full precision using a decimal library, round to 2 decimals only for display. Do not compute hourly from the already-rounded daily. Per-minute is small, so consider displaying 4 decimals.
+
+**Overview page (`/computation`)**
+- FR-4.8 One table of every employee: Monthly total, Annual, Daily, Hourly and Per-minute (four decimals, because the rate is small), all right aligned with tabular numbers. "Not assigned" for an employee without a basic salary. A row opens the employee's Computation tab. The numbers come from `GET /computations`, worked out on the server from unrounded values with the same divisor (314) as the single-employee computation.
+
+### Module 5: Profile
+- FR-5.1 `/profile` shows the signed-in user's name, email and role. The full name can be changed (`PATCH /users/me`). Changing the password is out of scope here.
 
 ---
 
@@ -431,18 +449,20 @@ Computation (`GET /employees/:id/computation`) is computed on the server with `d
 
 Login and refresh return `{ accessToken, user }` in the body. Logout returns `204`. There is no user list, create or delete endpoint (Q10): the admin is created by `npm run seed`, and user management is out of scope until requested. A deactivated user (`is_active = false`) cannot log in, use an access token or refresh. Changing the password (`PATCH /users/me` with `newPassword`) revokes every active refresh token of the user in the same transaction, so all sessions, including the current one once its access token expires, must sign in again.
 
+List pages read pay figures through one shared service (`PaySummaryService`): three bulk reads of the active salaries, components and assignments, through the same `active` filter as everywhere else, added up with `decimal.js`. The number of queries does not depend on the number of employees (no N+1). `GET /computations` returns amounts as strings, `null` for the money and rates of an employee without a basic salary, and rounds the rates only in the returned strings.
+
 All endpoints below require `Authorization: Bearer <access token>`.
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/employees` | List employees (with current basic salary); optional `?search=` matches Employee ID or any name part, case-insensitive |
+| GET | `/employees` | List employees with current basic salary, `basicSalarySince`, `componentsCount`, `componentsTotal` and `monthlyTotal`; optional `?search=` matches Employee ID or any name part, case-insensitive |
 | POST | `/employees` | Create employee (`409` on duplicate ID) |
 | GET | `/employees/:id` | Get one employee |
 | PATCH | `/employees/:id` | Update employee (ID immutable) |
 | PUT | `/employees/:id/salary` | Assign or adjust basic salary (soft deletes the active row, inserts a new one, in a transaction) |
 | GET | `/employees/:id/salary` | Get active basic salary |
 | GET | `/employees/:id/salary/history` | List previous (soft-deleted) salaries, newest first |
-| GET | `/salary-components` | List active component names (for autocomplete) |
+| GET | `/salary-components` | List active components with `usageCount` (employees using each); also the autocomplete source |
 | POST | `/salary-components` | Create component name |
 | PATCH | `/salary-components/:id` | Rename component |
 | DELETE | `/salary-components/:id` | Soft delete component |
@@ -451,6 +471,7 @@ All endpoints below require `Authorization: Bearer <access token>`.
 | PATCH | `/employees/:id/components/:ecId` | Update amount |
 | DELETE | `/employees/:id/components/:ecId` | Soft delete assignment |
 | GET | `/employees/:id/computation` | Computed rates and breakdown |
+| GET | `/computations` | One line per employee: `monthlyTotal`, annual, daily, hourly and per-minute rates (per-minute with 4 decimals) |
 
 **Auth implementation notes (NestJS)**
 - `@nestjs/jwt` + `@nestjs/passport` with two strategies: `jwt` (access, reads Bearer header) and `jwt-refresh` (reads cookie, uses the refresh secret).
@@ -493,7 +514,12 @@ Compute on the server (single source of truth) and return amounts as strings to 
 | Route | Module |
 |---|---|
 | `/login` | Login form (public) |
+| `/dashboard` | Dashboard |
 | `/employees` | Onboarding (list + add/edit form); the hub for the employee workspace |
+| `/salaries` | Salaries overview (all employees) |
+| `/components` | Component catalog |
+| `/computation` | Computation overview (all employees) |
+| `/profile` | My profile |
 | `/employees/:id/salary` | Salary assignment (tab of the employee workspace) |
 | `/employees/:id/components` | Salary components of the employee (tab) |
 | `/employees/:id/computation` | Rate computation (tab) |

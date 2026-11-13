@@ -15,7 +15,9 @@ import { TokenCleanupService } from './token-cleanup.service.js';
     JwtModule.register({}),
     // Login and refresh: 5 attempts per minute per IP + email (AUTH_RATE_LIMIT overrides, e.g. in tests).
     ThrottlerModule.forRootAsync({
-      useFactory: () => [{ ttl: 60_000, limit: Number(process.env['AUTH_RATE_LIMIT'] ?? 5) }],
+      useFactory: () => [
+        { ttl: 60_000, limit: Number(process.env['AUTH_RATE_LIMIT'] ?? 5) },
+      ],
     }),
   ],
   controllers: [AuthController],

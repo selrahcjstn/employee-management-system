@@ -77,3 +77,7 @@ export async function deleteTestComponents(namePrefix: string) {
     await db.orm.public.SalaryComponent.where({ id }).deleteAll();
   }
 }
+
+/** Random digits for an Employee ID such as EMP-4821930: IDs must be EMP- and digits, so a test cannot use letters to stay unique. */
+export const randomDigits = (length = 7) =>
+  String(Math.floor(Math.random() * 10 ** length)).padStart(length, '0');

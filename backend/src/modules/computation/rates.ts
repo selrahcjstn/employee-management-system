@@ -16,9 +16,12 @@ export interface Rates {
 /**
  * Annual = monthly x 12, daily = annual / 314, hourly = daily / 8, per-minute = hourly / 60.
  * Every step uses the unrounded value of the step before; rounding happens only in the
- * returned strings.
+ * returned strings. The per-minute rate is small, so a list page can ask for more than 2 decimals.
  */
-export function computeRates(monthlySalary: MoneyInput): Rates {
+export function computeRates(
+  monthlySalary: MoneyInput,
+  perMinuteDecimals = 2,
+): Rates {
   const annual = new Decimal(monthlySalary).times(MONTHS_PER_YEAR);
   const daily = annual.div(WORKING_DAYS_DIVISOR);
   const hourly = daily.div(HOURS_PER_DAY);
@@ -27,6 +30,6 @@ export function computeRates(monthlySalary: MoneyInput): Rates {
     annualSalary: toMoneyString(annual),
     dailyRate: toMoneyString(daily),
     hourlyRate: toMoneyString(hourly),
-    perMinuteRate: toMoneyString(perMinute),
+    perMinuteRate: perMinute.toFixed(perMinuteDecimals),
   };
 }

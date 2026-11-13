@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { db } from '../src/prisma/db.js';
@@ -8,6 +7,7 @@ import {
   createTestUser,
   deleteTestEmployees,
   deleteTestUser,
+  randomDigits,
 } from './helpers.js';
 
 describe('Global error handling (e2e)', () => {
@@ -16,7 +16,7 @@ describe('Global error handling (e2e)', () => {
   let auth: { Authorization: string };
   const employeeIds: string[] = [];
   const componentIds: string[] = [];
-  const tag = randomUUID().slice(0, 8).toUpperCase();
+  const digits = randomDigits();
   const server = () => app.getHttpServer();
   const post = (url: string, body: unknown) =>
     request(server())
@@ -59,7 +59,7 @@ describe('Global error handling (e2e)', () => {
       const body =
         url === '/api/employees'
           ? {
-              employeeNo: `E2E-${tag}-NUL`,
+              employeeNo: `EMP-${digits}1`,
               firstName: 'A',
               lastName: 'B',
               dateHired: '2024-01-01',
@@ -166,7 +166,7 @@ describe('Global error handling (e2e)', () => {
 
     it('on every string field of the write endpoints', async () => {
       const employee = await post('/api/employees', {
-        employeeNo: `E2E-${tag}-FUZZ`,
+        employeeNo: `EMP-${digits}2`,
         firstName: 'Fuzz',
         lastName: 'Target',
         dateHired: '2024-01-01',
@@ -195,14 +195,11 @@ describe('Global error handling (e2e)', () => {
             .put(`/api/employees/${employee.body.id}/salary`)
             .set(auth)
             .send({ monthlyBasicSalary: value }),
-          request(server())
-            .patch('/api/users/me')
-            .set(auth)
-            .send({
-              fullName: value,
-              currentPassword: value,
-              newPassword: value,
-            }),
+          request(server()).patch('/api/users/me').set(auth).send({
+            fullName: value,
+            currentPassword: value,
+            newPassword: value,
+          }),
           request(server())
             .post('/api/auth/login')
             .send({ email: value, password: value }),

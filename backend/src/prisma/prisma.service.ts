@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { db } from './db.js';
 
 @Injectable()
@@ -16,6 +21,8 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   }
 
   async ping() {
-    await db.query(db.raw.sql`SELECT 1 AS ok`.returnsRow({ ok: 'pg/int4@1' }).build());
+    await db.query(
+      db.raw.sql`SELECT 1 AS ok`.returnsRow({ ok: 'pg/int4@1' }).build(),
+    );
   }
 }

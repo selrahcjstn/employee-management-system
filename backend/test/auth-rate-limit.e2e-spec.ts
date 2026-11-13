@@ -18,7 +18,9 @@ describe('Auth rate limit (e2e)', () => {
 
   it('answers 429 once the login limit for one email is exceeded', async () => {
     const attempt = () =>
-      request(app.getHttpServer()).post('/api/auth/login').send({ email: user.email, password: 'wrong-password' });
+      request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email: user.email, password: 'wrong-password' });
     for (let i = 0; i < 3; i++) await attempt().expect(401);
     await attempt().expect(429);
     await request(app.getHttpServer())
@@ -28,7 +30,10 @@ describe('Auth rate limit (e2e)', () => {
   });
 
   it('refresh has its own, higher limit: it is not throttled at the login limit, but still at 30 per minute', async () => {
-    const refresh = () => request(app.getHttpServer()).post('/api/auth/refresh').set('Cookie', 'refresh_token=garbage');
+    const refresh = () =>
+      request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .set('Cookie', 'refresh_token=garbage');
     // The login limit is 3 in this app; refresh must keep answering 401 well past that.
     for (let i = 0; i < 30; i++) await refresh().expect(401);
     await refresh().expect(429);

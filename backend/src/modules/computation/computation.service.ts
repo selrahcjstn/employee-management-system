@@ -4,7 +4,10 @@ import { EmployeesService } from '../employees/employees.service.js';
 import { EmployeeComponentsService } from '../salary-components/employee-components.service.js';
 import { SalaryService } from '../salary/salary.service.js';
 import { formatEmployeeName } from './employee-name.js';
-import { ComputationEntity } from './entities/computation.entity.js';
+import {
+  ComputationEntity,
+  ComputationSummaryEntity,
+} from './entities/computation.entity.js';
 import { WORKING_DAYS_DIVISOR, computeRates } from './rates.js';
 
 @Injectable()
@@ -14,6 +17,38 @@ export class ComputationService {
     private readonly salary: SalaryService,
     private readonly employeeComponents: EmployeeComponentsService,
   ) {}
+
+  /**
+   * One line per employee for the overview page: the same numbers as `compute`, from the shared
+   * pay summary (a fixed number of bulk reads, not one query per employee). The per-minute rate
+   * has 4 decimals.
+   */
+  async computeAll(): Promise<ComputationSummaryEntity[]> {
+    const employees = await this.employees.list();
+    return employees.map((employee) => {
+      const rates = employee.monthlyTotal
+        ? computeRates(employee.monthlyTotal, 4)
+        : undefined;
+      return {
+        employee: {
+          id: employee.id,
+          employeeNo: employee.employeeNo,
+          name: formatEmployeeName(
+            employee.firstName,
+            employee.middleName,
+            employee.lastName,
+          ),
+        },
+        basicSalary: employee.currentBasicSalary,
+        componentsTotal: employee.componentsTotal,
+        monthlyTotal: employee.monthlyTotal,
+        annualSalary: rates?.annualSalary ?? null,
+        dailyRate: rates?.dailyRate ?? null,
+        hourlyRate: rates?.hourlyRate ?? null,
+        perMinuteRate: rates?.perMinuteRate ?? null,
+      };
+    });
+  }
 
   /**
    * Monthly salary = active basic salary + active components, computed on the server in

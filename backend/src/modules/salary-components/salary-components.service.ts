@@ -2,24 +2,36 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { conflictOnUnique } from '../../common/db-errors.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { active } from '../../prisma/soft-delete.js';
-import { SalaryComponentEntity } from './entities/salary-component.entity.js';
+import { PaySummaryService } from '../pay/pay-summary.service.js';
+import {
+  SalaryComponentEntity,
+  SalaryComponentListItemEntity,
+} from './entities/salary-component.entity.js';
 
 const DUPLICATE_MESSAGE = 'Component name already exists';
 
 @Injectable()
 export class SalaryComponentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pay: PaySummaryService,
+  ) {}
 
   private get components() {
     return this.prisma.db.orm.public.SalaryComponent;
   }
 
-  async list(): Promise<SalaryComponentEntity[]> {
-    const rows = await this.components
-      .with(active)
-      .orderBy((c) => c.name.asc())
-      .all();
-    return rows.map((row) => SalaryComponentEntity.from(row));
+  async list(): Promise<SalaryComponentListItemEntity[]> {
+    const [rows, usage] = await Promise.all([
+      this.components
+        .with(active)
+        .orderBy((c) => c.name.asc())
+        .all(),
+      this.pay.usageCounts(),
+    ]);
+    return rows.map((row) =>
+      SalaryComponentListItemEntity.withUsage(row, usage.get(row.id) ?? 0),
+    );
   }
 
   async create(name: string): Promise<SalaryComponentEntity> {

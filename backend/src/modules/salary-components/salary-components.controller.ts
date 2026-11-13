@@ -20,7 +20,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ComponentNameDto } from './dto/component-name.dto.js';
-import { SalaryComponentEntity } from './entities/salary-component.entity.js';
+import {
+  SalaryComponentEntity,
+  SalaryComponentListItemEntity,
+} from './entities/salary-component.entity.js';
 import { SalaryComponentsService } from './salary-components.service.js';
 
 @ApiTags('salary-components')
@@ -31,9 +34,10 @@ export class SalaryComponentsController {
 
   @Get()
   @ApiOperation({
-    summary: 'List active component names (for autocomplete)',
+    summary:
+      'List active components with how many employees use each (also used for autocomplete)',
   })
-  @ApiOkResponse({ type: [SalaryComponentEntity] })
+  @ApiOkResponse({ type: [SalaryComponentListItemEntity] })
   list() {
     return this.components.list();
   }

@@ -10,6 +10,7 @@ import {
   deleteTestComponents,
   deleteTestEmployees,
   deleteTestUser,
+  randomDigits,
 } from './helpers.js';
 
 describe('Salary components (e2e)', () => {
@@ -18,6 +19,7 @@ describe('Salary components (e2e)', () => {
   let auth: { Authorization: string };
   const employeeIds: string[] = [];
   const tag = randomUUID().slice(0, 8).toUpperCase();
+  const digits = randomDigits();
   const prefix = `E2E${tag} `;
   let counter = 0;
   const server = () => app.getHttpServer();
@@ -39,7 +41,7 @@ describe('Salary components (e2e)', () => {
       .post('/api/employees')
       .set(auth)
       .send({
-        employeeNo: `E2E-${tag}-C${++counter}`,
+        employeeNo: `EMP-${digits}${++counter}`,
         firstName: 'Com',
         lastName: 'Ponent',
         dateHired: '2024-01-01',
@@ -513,6 +515,126 @@ describe('Salary components (e2e)', () => {
         }),
       );
       expect(sqlState(error)).toBe('23514');
+    });
+  });
+
+  describe('pay figures on the lists (active rows only)', () => {
+    const putSalary = (employeeId: string, amount: string) =>
+      request(server())
+        .put(`/api/employees/${employeeId}/salary`)
+        .set(auth)
+        .send({ monthlyBasicSalary: amount })
+        .expect(200);
+    const listEmployees = async () =>
+      new Map<string, Record<string, unknown>>(
+        (
+          (await request(server()).get('/api/employees').set(auth).expect(200))
+            .body as { id: string }[]
+        ).map((e) => [e.id, e as unknown as Record<string, unknown>]),
+      );
+    const usage = async (componentName: string) =>
+      (
+        (
+          await request(server())
+            .get('/api/salary-components')
+            .set(auth)
+            .expect(200)
+        ).body as { name: string; usageCount: number }[]
+      ).find((c) => c.name === componentName)?.usageCount;
+
+    it('the employee list has the components count, the components total and the monthly total', async () => {
+      const id = await newEmployee();
+      await putSalary(id, '30000');
+      await addByName(id, name('Rice'), '2000').expect(201);
+      await addByName(id, name('Transport'), '1500.50').expect(201);
+
+      const row = (await listEmployees()).get(id)!;
+      expect(row).toMatchObject({
+        currentBasicSalary: '30000.00',
+        componentsCount: 2,
+        componentsTotal: '3500.50',
+        monthlyTotal: '33500.50',
+      });
+      expect(row['basicSalarySince']).toEqual(expect.any(String));
+    });
+
+    it('an employee with no salary and no components has zeros and nulls, not an error', async () => {
+      const id = await newEmployee();
+      expect((await listEmployees()).get(id)).toMatchObject({
+        currentBasicSalary: null,
+        basicSalarySince: null,
+        componentsCount: 0,
+        componentsTotal: '0.00',
+        monthlyTotal: null,
+      });
+    });
+
+    it('components without a salary still count, but there is no monthly total', async () => {
+      const id = await newEmployee();
+      await addByName(id, name('Alone'), '700').expect(201);
+      expect((await listEmployees()).get(id)).toMatchObject({
+        currentBasicSalary: null,
+        componentsCount: 1,
+        componentsTotal: '700.00',
+        monthlyTotal: null,
+      });
+    });
+
+    it('leaves out a removed assignment, and a superseded salary counts only once', async () => {
+      const id = await newEmployee();
+      await putSalary(id, '10000');
+      await putSalary(id, '12000');
+      const added = await addByName(id, name('Removed'), '500').expect(201);
+      await addByName(id, name('Kept'), '300').expect(201);
+      await request(server())
+        .delete(`/api/employees/${id}/components/${added.body.id}`)
+        .set(auth)
+        .expect(204);
+
+      expect((await listEmployees()).get(id)).toMatchObject({
+        currentBasicSalary: '12000.00',
+        componentsCount: 1,
+        componentsTotal: '300.00',
+        monthlyTotal: '12300.00',
+      });
+    });
+
+    it('usageCount is how many employees have each component, and it falls when one is removed', async () => {
+      const [a, b] = [await newEmployee(), await newEmployee()];
+      const componentName = name('Usage Count');
+      const first = await addByName(a, componentName).expect(201);
+      await addByName(b, componentName).expect(201);
+      expect(await usage(componentName)).toBe(2);
+
+      await request(server())
+        .delete(`/api/employees/${a}/components/${first.body.id}`)
+        .set(auth)
+        .expect(204);
+      expect(await usage(componentName)).toBe(1);
+    });
+
+    it('a component nobody uses has usageCount 0', async () => {
+      const componentName = name('Unused');
+      await createComponent(componentName).expect(201);
+      expect(await usage(componentName)).toBe(0);
+    });
+
+    it('deleting a component removes it from the list, from its employees and from their totals', async () => {
+      const id = await newEmployee();
+      await putSalary(id, '20000');
+      const componentName = name('Doomed');
+      const added = await addByName(id, componentName, '800').expect(201);
+      await request(server())
+        .delete(`/api/salary-components/${added.body.componentId}`)
+        .set(auth)
+        .expect(204);
+
+      expect(await usage(componentName)).toBeUndefined();
+      expect((await listEmployees()).get(id)).toMatchObject({
+        componentsCount: 0,
+        componentsTotal: '0.00',
+        monthlyTotal: '20000.00',
+      });
     });
   });
 });

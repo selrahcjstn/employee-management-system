@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import type { EmployeePay } from '../../pay/pay-summary.service.js';
 
 export interface EmployeeRow {
   id: string;
@@ -45,14 +46,38 @@ export class EmployeeListItemEntity extends EmployeeEntity {
   })
   currentBasicSalary: string | null;
 
-  static withSalary(
-    row: EmployeeRow,
-    currentBasicSalary: string | null,
-  ): EmployeeListItemEntity {
+  @ApiProperty({
+    nullable: true,
+    type: Date,
+    description: 'When the active basic salary was assigned, or null with none',
+  })
+  basicSalarySince: Date | null;
+
+  @ApiProperty({ example: 2, description: 'Active components' })
+  componentsCount: number;
+
+  @ApiProperty({ example: '3500.00', description: 'Sum of active components' })
+  componentsTotal: string;
+
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    example: '33500.00',
+    description: 'Basic salary plus active components; null with no salary',
+  })
+  monthlyTotal: string | null;
+
+  static withPay(row: EmployeeRow, pay: EmployeePay): EmployeeListItemEntity {
     return Object.assign(
       new EmployeeListItemEntity(),
       EmployeeEntity.from(row),
-      { currentBasicSalary },
+      {
+        currentBasicSalary: pay.basicSalary,
+        basicSalarySince: pay.basicSalarySince,
+        componentsCount: pay.componentsCount,
+        componentsTotal: pay.componentsTotal,
+        monthlyTotal: pay.monthlyTotal,
+      },
     );
   }
 }

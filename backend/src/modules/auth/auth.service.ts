@@ -23,7 +23,8 @@ export interface Session {
 type Db = PrismaService['db'];
 type Client = Pick<Db, 'orm'>;
 
-const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
+const sha256 = (value: string) =>
+  createHash('sha256').update(value).digest('hex');
 
 @Injectable()
 export class AuthService {
@@ -36,9 +37,16 @@ export class AuthService {
     private readonly jwt: JwtService,
   ) {}
 
-  async login(email: string, password: string, meta: SessionMeta): Promise<Session> {
+  async login(
+    email: string,
+    password: string,
+    meta: SessionMeta,
+  ): Promise<Session> {
     const user = await this.users.findByEmail(email);
-    const passwordOk = await verifyPassword(password, user?.passwordHash ?? (await this.dummyHash));
+    const passwordOk = await verifyPassword(
+      password,
+      user?.passwordHash ?? (await this.dummyHash),
+    );
     if (!user || !user.isActive || !passwordOk) {
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -53,7 +61,10 @@ export class AuthService {
     const payload = await this.verifyRefreshToken(rawToken);
     const outcome = await this.prisma.db.transaction(async (tx) => {
       const tokens = tx.orm.public.RefreshToken;
-      const stored = await tokens.where({ tokenHash: sha256(rawToken) }).forUpdate().first();
+      const stored = await tokens
+        .where({ tokenHash: sha256(rawToken) })
+        .forUpdate()
+        .first();
       if (!stored || stored.userId !== payload.sub) return null;
       if (stored.revokedAt) {
         await this.revokeFamily(tx, stored.familyId);
@@ -61,7 +72,9 @@ export class AuthService {
       }
       if (stored.expiresAt <= new Date()) return null;
 
-      const user = await tx.orm.public.User.where({ id: stored.userId }).first();
+      const user = await tx.orm.public.User.where({
+        id: stored.userId,
+      }).first();
       if (!user?.isActive) {
         await this.revokeFamily(tx, stored.familyId);
         return null;
@@ -80,15 +93,15 @@ export class AuthService {
   /** Revokes the presented refresh token. Never throws on a bad token: logout always succeeds. */
   async logout(rawToken: string | undefined): Promise<void> {
     if (!rawToken) return;
-    await this.prisma.db.orm.public.RefreshToken
-      .where((token) => token.tokenHash.eq(sha256(rawToken)))
+    await this.prisma.db.orm.public.RefreshToken.where((token) =>
+      token.tokenHash.eq(sha256(rawToken)),
+    )
       .where((token) => token.revokedAt.isNull())
       .updateAll({ revokedAt: new Date() });
   }
 
   private revokeFamily(client: Client, familyId: string) {
-    return client.orm.public.RefreshToken
-      .where({ familyId })
+    return client.orm.public.RefreshToken.where({ familyId })
       .where((token) => token.revokedAt.isNull())
       .updateAll({ revokedAt: new Date() });
   }
@@ -104,11 +117,20 @@ export class AuthService {
     }
   }
 
-  private async openSession(client: Client, user: UserRow, familyId: string, meta: SessionMeta) {
+  private async openSession(
+    client: Client,
+    user: UserRow,
+    familyId: string,
+    meta: SessionMeta,
+  ) {
     const tokenId = randomUUID();
     const refreshToken = await this.jwt.signAsync(
       { sub: user.id, jti: tokenId, family: familyId },
-      { secret: env.jwtRefreshSecret, algorithm: 'HS256', expiresIn: env.jwtRefreshTtl },
+      {
+        secret: env.jwtRefreshSecret,
+        algorithm: 'HS256',
+        expiresIn: env.jwtRefreshTtl,
+      },
     );
     const { exp } = this.jwt.decode<{ exp: number }>(refreshToken);
     const refreshExpiresAt = new Date(exp * 1000);
@@ -123,7 +145,11 @@ export class AuthService {
     });
     const accessToken = await this.jwt.signAsync(
       { sub: user.id, email: user.email },
-      { secret: env.jwtAccessSecret, algorithm: 'HS256', expiresIn: env.jwtAccessTtl },
+      {
+        secret: env.jwtAccessSecret,
+        algorithm: 'HS256',
+        expiresIn: env.jwtAccessTtl,
+      },
     );
     return {
       accessToken,

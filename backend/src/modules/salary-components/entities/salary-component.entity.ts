@@ -32,6 +32,25 @@ export class SalaryComponentEntity {
   }
 }
 
+export class SalaryComponentListItemEntity extends SalaryComponentEntity {
+  @ApiProperty({
+    example: 3,
+    description: 'Employees that have this component (active assignments)',
+  })
+  usageCount: number;
+
+  static withUsage(
+    row: SalaryComponentRow,
+    usageCount: number,
+  ): SalaryComponentListItemEntity {
+    return Object.assign(
+      new SalaryComponentListItemEntity(),
+      SalaryComponentEntity.from(row),
+      { usageCount },
+    );
+  }
+}
+
 export class EmployeeComponentEntity {
   @ApiProperty({
     format: 'uuid',

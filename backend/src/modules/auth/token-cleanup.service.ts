@@ -10,9 +10,9 @@ export class TokenCleanupService {
 
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
   async purgeExpired() {
-    const deleted = await this.prisma.db.orm.public.RefreshToken
-      .where((token) => token.expiresAt.lt(new Date()))
-      .deleteAndCount();
+    const deleted = await this.prisma.db.orm.public.RefreshToken.where(
+      (token) => token.expiresAt.lt(new Date()),
+    ).deleteAndCount();
     this.logger.log(`Purged ${deleted} expired refresh tokens`);
     return deleted;
   }

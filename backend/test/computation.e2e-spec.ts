@@ -8,6 +8,7 @@ import {
   deleteTestComponents,
   deleteTestEmployees,
   deleteTestUser,
+  randomDigits,
 } from './helpers.js';
 
 describe('Computation (e2e)', () => {
@@ -16,6 +17,7 @@ describe('Computation (e2e)', () => {
   let auth: { Authorization: string };
   const employeeIds: string[] = [];
   const tag = randomUUID().slice(0, 8).toUpperCase();
+  const digits = randomDigits();
   const prefix = `E2E${tag} `;
   let counter = 0;
   const server = () => app.getHttpServer();
@@ -27,7 +29,7 @@ describe('Computation (e2e)', () => {
       .post('/api/employees')
       .set(auth)
       .send({
-        employeeNo: `E2E-${tag}-P${++counter}`,
+        employeeNo: `EMP-${digits}${++counter}`,
         firstName: 'Juan',
         lastName: 'Cruz',
         dateHired: '2024-01-01',
@@ -85,7 +87,7 @@ describe('Computation (e2e)', () => {
     expect(res.body).toEqual({
       employee: {
         id,
-        employeeNo: expect.stringContaining(`E2E-${tag}-P`),
+        employeeNo: expect.stringContaining(`EMP-${digits}`),
         name: 'Juan D. Cruz',
       },
       basicSalary: '30000.00',
@@ -247,5 +249,101 @@ describe('Computation (e2e)', () => {
     const { body } = await compute(id).expect(200);
     expect(body.componentsTotal).toBe('1200.00');
     expect(body.monthlyTotal).toBe('31200.00');
+  });
+
+  describe('GET /computations', () => {
+    const computeAll = () =>
+      request(server()).get('/api/computations').set(auth);
+    const lineFor = async (id: string) =>
+      (
+        (await computeAll().expect(200)).body as { employee: { id: string } }[]
+      ).find((line) => line.employee.id === id);
+
+    it('requires a token', async () => {
+      await request(server()).get('/api/computations').expect(401);
+    });
+
+    it('has one line per employee with the PRD worked example, per-minute to 4 decimals', async () => {
+      const id = await newEmployee({ middleName: 'Dela' });
+      await setSalary(id, '30000');
+      await addComponent(id, 'Rice Allowance', '2000');
+      await addComponent(id, 'Transportation', '1500');
+
+      expect(await lineFor(id)).toEqual({
+        employee: {
+          id,
+          employeeNo: expect.stringContaining(`EMP-${digits}`),
+          name: 'Juan D. Cruz',
+        },
+        basicSalary: '30000.00',
+        componentsTotal: '3500.00',
+        monthlyTotal: '33500.00',
+        annualSalary: '402000.00',
+        dailyRate: '1280.25',
+        hourlyRate: '160.03',
+        perMinuteRate: '2.6672',
+      });
+    });
+
+    it('agrees with the single-employee computation, apart from the per-minute decimals', async () => {
+      const id = await newEmployee();
+      await setSalary(id, '27500.75');
+      await addComponent(id, 'Meal', '1234.56');
+      const single = (await compute(id).expect(200)).body;
+      const line = await lineFor(id);
+      expect(line).toMatchObject({
+        monthlyTotal: single.monthlyTotal,
+        annualSalary: single.annualSalary,
+        dailyRate: single.dailyRate,
+        hourlyRate: single.hourlyRate,
+      });
+      expect(Number(line!['perMinuteRate' as never])).toBeCloseTo(
+        Number(single.perMinuteRate),
+        1,
+      );
+    });
+
+    it('an employee without a salary has null money and rates, but still lists the components total', async () => {
+      const id = await newEmployee();
+      await addComponent(id, 'Bonus', '900');
+      expect(await lineFor(id)).toMatchObject({
+        basicSalary: null,
+        componentsTotal: '900.00',
+        monthlyTotal: null,
+        annualSalary: null,
+        dailyRate: null,
+        hourlyRate: null,
+        perMinuteRate: null,
+      });
+    });
+
+    it('uses only the active salary and active components', async () => {
+      const id = await newEmployee();
+      await setSalary(id, '10000');
+      await setSalary(id, '20000');
+      const gone = await addComponent(id, 'Gone', '5000');
+      await request(server())
+        .delete(`/api/employees/${id}/components/${gone.id}`)
+        .set(auth)
+        .expect(204);
+      await addComponent(id, 'Here', '100');
+
+      expect(await lineFor(id)).toMatchObject({
+        basicSalary: '20000.00',
+        componentsTotal: '100.00',
+        monthlyTotal: '20100.00',
+      });
+    });
+
+    it('rounds only at the end: the rates come from the unrounded values', async () => {
+      const id = await newEmployee();
+      await setSalary(id, '33500');
+      const line = await lineFor(id);
+      // 33,500 x 12 / 314 / 8 = 160.0318..., not 1280.25 / 8 = 160.03125
+      expect(line).toMatchObject({
+        dailyRate: '1280.25',
+        hourlyRate: '160.03',
+      });
+    });
   });
 });

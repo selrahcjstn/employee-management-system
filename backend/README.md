@@ -34,6 +34,6 @@ migrations/          planned migrations (committed)
 src/common/          global guard, @Public(), exception filter, input middleware, validators, money helpers
 src/config/          environment validation (the app refuses to start on bad config)
 src/prisma/          shared database client and the soft-delete scopes
-src/modules/         auth, users, employees, salary, salary-components, computation, health
+src/modules/         auth, users, employees, salary, salary-components, computation, pay, health
 test/                end-to-end tests
 ```

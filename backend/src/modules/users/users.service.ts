@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { hashPassword, verifyPassword } from '../../common/password.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import type { UpdateMeDto } from './dto/update-me.dto.js';

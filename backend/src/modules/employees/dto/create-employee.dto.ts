@@ -1,19 +1,35 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
-import { IsPastOrTodayDate, trim } from '../../../common/validators.js';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+} from 'class-validator';
+import {
+  IsPastOrTodayDate,
+  trim,
+  trimUpperCase,
+} from '../../../common/validators.js';
+
+/** The business Employee ID: EMP- and at least three digits (EMP-001, EMP-1042). */
+export const EMPLOYEE_NO_PATTERN = /^EMP-\d{3,}$/;
 
 export class CreateEmployeeDto {
   @ApiProperty({
     example: 'EMP-001',
     maxLength: 50,
     description:
-      'Business Employee ID. Unique (case-insensitive) and immutable.',
+      'Business Employee ID: EMP- and at least 3 digits. Saved in upper case. Unique and immutable.',
   })
-  @Transform(trim)
+  @Transform(trimUpperCase)
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
+  @Matches(EMPLOYEE_NO_PATTERN, {
+    message: 'Employee ID must look like EMP-001',
+  })
   employeeNo: string;
 
   @ApiProperty({ maxLength: 100 })

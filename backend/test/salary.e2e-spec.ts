@@ -10,6 +10,7 @@ import {
   createTestUser,
   deleteTestEmployees,
   deleteTestUser,
+  randomDigits,
 } from './helpers.js';
 
 describe('Salary (e2e)', () => {
@@ -17,7 +18,7 @@ describe('Salary (e2e)', () => {
   let user: Awaited<ReturnType<typeof createTestUser>>;
   let auth: { Authorization: string };
   const employeeIds: string[] = [];
-  const tag = randomUUID().slice(0, 8).toUpperCase();
+  const digits = randomDigits();
   let counter = 0;
   const server = () => app.getHttpServer();
   const salaryUrl = (id: string) => `/api/employees/${id}/salary`;
@@ -34,7 +35,7 @@ describe('Salary (e2e)', () => {
       .post('/api/employees')
       .set(auth)
       .send({
-        employeeNo: `E2E-${tag}-S${++counter}`,
+        employeeNo: `EMP-${digits}${++counter}`,
         firstName: 'Sal',
         lastName: 'Ary',
         dateHired: '2024-01-01',
@@ -245,7 +246,7 @@ describe('Salary (e2e)', () => {
 
     const res = await request(server())
       .get('/api/employees')
-      .query({ search: `E2E-${tag}-S` })
+      .query({ search: `EMP-${digits}` })
       .set(auth)
       .expect(200);
     const byId = new Map<string, string | null>(
