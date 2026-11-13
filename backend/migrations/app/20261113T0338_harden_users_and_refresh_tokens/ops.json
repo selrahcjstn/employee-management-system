@@ -1,0 +1,149 @@
+[
+  {
+    "id": "checkConstraint.users.chk_users_email_lowercase_9b410a78",
+    "label": "Add check constraint \"chk_users_email_lowercase_9b410a78\" on \"users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "chk_users_email_lowercase_9b410a78",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"chk_users_email_lowercase_9b410a78\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "chk_users_email_lowercase_9b410a78",
+          "public",
+          "\"public\".\"users\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"chk_users_email_lowercase_9b410a78\" on \"users\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"chk_users_email_lowercase_9b410a78\"",
+        "sql": "ALTER TABLE \"public\".\"users\" ADD CONSTRAINT \"chk_users_email_lowercase_9b410a78\" CHECK (email = lower(email))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"chk_users_email_lowercase_9b410a78\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "chk_users_email_lowercase_9b410a78",
+          "public",
+          "\"public\".\"users\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refresh_tokens.refresh_tokens_replaced_by_id_idx_325c901b",
+    "label": "Create index \"refresh_tokens_replaced_by_id_idx_325c901b\" on \"refresh_tokens\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "refresh_tokens_replaced_by_id_idx_325c901b",
+        "table": "refresh_tokens"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"refresh_tokens_replaced_by_id_idx_325c901b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refresh_tokens_replaced_by_id_idx_325c901b\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"refresh_tokens_replaced_by_id_idx_325c901b\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"refresh_tokens_replaced_by_id_idx_325c901b\"",
+        "sql": "CREATE INDEX \"refresh_tokens_replaced_by_id_idx_325c901b\" ON \"public\".\"refresh_tokens\" (\"replaced_by_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"refresh_tokens_replaced_by_id_idx_325c901b\" exists on \"refresh_tokens\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"refresh_tokens_replaced_by_id_idx_325c901b\"",
+          "i",
+          "I",
+          "\"public\".\"refresh_tokens\"",
+          "btree",
+          "[\"replaced_by_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.refresh_tokens.refresh_tokens_replaced_by_id_fkey",
+    "label": "Add foreign key \"refresh_tokens_replaced_by_id_fkey\" on \"refresh_tokens\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "refresh_tokens_replaced_by_id_fkey",
+        "table": "refresh_tokens"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"refresh_tokens_replaced_by_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refresh_tokens_replaced_by_id_fkey",
+          "public",
+          "\"public\".\"refresh_tokens\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"refresh_tokens_replaced_by_id_fkey\" on \"refresh_tokens\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"refresh_tokens_replaced_by_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"refresh_tokens\"\nADD CONSTRAINT \"refresh_tokens_replaced_by_id_fkey\"\nFOREIGN KEY (\"replaced_by_id\")\nREFERENCES \"public\".\"refresh_tokens\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"refresh_tokens_replaced_by_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "refresh_tokens_replaced_by_id_fkey",
+          "public",
+          "\"public\".\"refresh_tokens\"",
+          "f",
+          "[\"replaced_by_id\"]",
+          "\"public\".\"refresh_tokens\"",
+          "[\"id\"]",
+          "n",
+          "a"
+        ]
+      }
+    ]
+  }
+]

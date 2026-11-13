@@ -52,7 +52,7 @@ HR staff / admin (single role).
 - FR-0.5 `GET /auth/me` returns the current user (used to restore the session on page reload via refresh).
 - FR-0.6 All routes are protected by a global `JwtAuthGuard`; only routes marked `@Public()` (login, refresh) are open.
 - FR-0.7 Passwords hashed with argon2id (or bcrypt, cost ≥ 12); never logged or returned.
-- FR-0.8 Login rate-limited (e.g. 5 attempts/min per IP+email) with a generic "Invalid email or password" message.
+- FR-0.8 Login rate-limited (e.g. 5 attempts/min per IP+email) with a generic "Invalid email or password" message. Refresh has its own higher limit (30/min per IP) because it has no email to key on and runs on every page load.
 - FR-0.9 Expired/invalid tokens return `401`; the frontend handles it silently (see section 6).
 - FR-0.10 Expired refresh tokens are purged by a scheduled cleanup job.
 
@@ -239,7 +239,7 @@ Brainstorm these before coding. Items marked ⭐ are the ones a panel interviewe
 
 **users**
 - `id` UUID PK
-- `email` VARCHAR(255) NOT NULL, unique (case-insensitive)
+- `email` VARCHAR(255) NOT NULL, unique (case-insensitive), stored in lowercase (`CHECK (email = lower(email))`), so the lookup by lowercased email is exact
 - `password_hash` VARCHAR NOT NULL
 - `full_name` VARCHAR(150) NOT NULL
 - `role` VARCHAR(30) NOT NULL DEFAULT 'admin'
@@ -253,7 +253,7 @@ Brainstorm these before coding. Items marked ⭐ are the ones a panel interviewe
 - `token_hash` CHAR(64) NOT NULL, unique (SHA-256 of the raw token)
 - `expires_at` TIMESTAMPTZ NOT NULL
 - `revoked_at` TIMESTAMPTZ NULL
-- `replaced_by_id` UUID NULL (points to the next token in the chain)
+- `replaced_by_id` UUID NULL, FK → refresh_tokens.id `ON DELETE SET NULL` (points to the next token in the chain)
 - `user_agent` VARCHAR NULL, `ip_address` VARCHAR NULL
 - `created_at` TIMESTAMPTZ
 - Index on `(user_id)` and `(family_id)`; index on `expires_at` for cleanup
@@ -265,6 +265,7 @@ Brainstorm these before coding. Items marked ⭐ are the ones a panel interviewe
 ```mermaid
 erDiagram
     USERS ||--o{ REFRESH_TOKENS : "owns sessions"
+    REFRESH_TOKENS |o--o{ REFRESH_TOKENS : "replaced_by (rotation chain)"
     EMPLOYEES ||--o{ SALARY_ASSIGNMENTS : "has history, one active"
     EMPLOYEES ||--o{ EMPLOYEE_SALARY_COMPONENTS : "has many"
     SALARY_COMPONENTS ||--o{ EMPLOYEE_SALARY_COMPONENTS : "assigned via"
@@ -357,7 +358,8 @@ employee-salary-management/
 - Money fields: `Decimal @db.Decimal(12, 2)`; compute with `decimal.js`.
 - Prisma's schema cannot express partial unique indexes. Generate the migration with `prisma migrate dev --create-only`, then add the three `CREATE UNIQUE INDEX ... WHERE "deleted_at" IS NULL` statements (section 4b) to the migration SQL by hand. Keep a test that proves a duplicate active row is rejected.
 - Soft delete filtering: one Prisma client extension (or one shared helper) adds `deletedAt: null` to reads, so the filter is never forgotten.
-- Seed: `npx prisma db seed` creates the admin user and sample employees.
+- Seed: `npm run seed` creates the admin user and four sample employees (EMP-001 is the worked example: 30,000 + 2,000 + 1,500; EMP-004 has no salary for the "Not assigned" state). It is idempotent.
+- Tests: the e2e suite never touches the development database. It creates and migrates `<database>_test` (or `TEST_DATABASE_URL`) automatically and refuses to run against the development database.
 
 ---
 
@@ -417,7 +419,7 @@ The database is the final guard, the service gives readable errors, and the fron
 | POST | `/auth/refresh` | Public (needs refresh cookie) | Rotate refresh token, issue new access token |
 | POST | `/auth/logout` | Access token | Revoke current refresh token, clear cookie |
 | GET | `/auth/me` | Access token | Current user |
-| GET | `/health` | Public | Checks the API can reach the database (`SELECT 1`) |
+| GET | `/health` | Public | Checks the API can reach the database (`SELECT 1`); `503` when it cannot. A successful check is reused for 1 second, so the public route cannot be used to flood the database |
 | GET | `/users/me` | Access token | Signed-in user (never includes the password hash) |
 | PATCH | `/users/me` | Access token | Update own `fullName`; change password with `currentPassword` + `newPassword` (8 to 72 chars) |
 
@@ -427,7 +429,7 @@ Component endpoints: an employee component is returned as `{ id, componentId, na
 
 Computation (`GET /employees/:id/computation`) is computed on the server with `decimal.js` at 50 significant digits, rounding half up to 2 decimals only in the returned strings; every rate, including per-minute, is returned with 2 decimals (the worked example: `2.67`). Empty state (FR-4.7): an employee with no active basic salary gets `200` with `basicSalary`, `monthlyTotal`, `annualSalary`, `dailyRate`, `hourlyRate` and `perMinuteRate` all `null`; `components` and `componentsTotal` are still returned. An unknown employee is `404`.
 
-Login and refresh return `{ accessToken, user }` in the body. Logout returns `204`. There is no user list, create or delete endpoint (Q10): the admin is created by `npm run seed`, and user management is out of scope until requested. A deactivated user (`is_active = false`) cannot log in, use an access token or refresh.
+Login and refresh return `{ accessToken, user }` in the body. Logout returns `204`. There is no user list, create or delete endpoint (Q10): the admin is created by `npm run seed`, and user management is out of scope until requested. A deactivated user (`is_active = false`) cannot log in, use an access token or refresh. Changing the password (`PATCH /users/me` with `newPassword`) revokes every active refresh token of the user in the same transaction, so all sessions, including the current one once its access token expires, must sign in again.
 
 All endpoints below require `Authorization: Bearer <access token>`.
 
@@ -453,7 +455,7 @@ All endpoints below require `Authorization: Bearer <access token>`.
 **Auth implementation notes (NestJS)**
 - `@nestjs/jwt` + `@nestjs/passport` with two strategies: `jwt` (access, reads Bearer header) and `jwt-refresh` (reads cookie, uses the refresh secret).
 - Register `JwtAuthGuard` as a global `APP_GUARD`; add a `@Public()` decorator that the guard checks via `Reflector`.
-- Secrets in env: `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `JWT_ACCESS_TTL=15m`, `JWT_REFRESH_TTL=7d`. Fail startup if missing.
+- Secrets in env: `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `JWT_ACCESS_TTL=15m`, `JWT_REFRESH_TTL=7d`. Fail startup if a secret is missing, or if a TTL (`15m`, `12h`, `7d`) or `PORT` is malformed. Optional: `TRUST_PROXY` (hop count or `loopback`) so rate limiting sees the real client IP behind a reverse proxy, and `SWAGGER_ENABLED` (API docs at `/api/docs`; on outside production by default).
 - Pin the algorithm (HS256) on both sign and verify.
 - Refresh flow inside one DB transaction: look up by hash → check not expired/revoked → if already revoked, revoke family and `401` → else mark revoked, insert the new token with the same `family_id`, set `replaced_by_id`.
 - CORS: explicit frontend origin with `credentials: true` (no wildcard). Cookie `Secure` in production, `SameSite=Strict`, `Path=/api/auth` so it is not sent on normal API calls.

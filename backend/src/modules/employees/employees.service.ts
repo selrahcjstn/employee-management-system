@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { or } from '@prisma/orm-postgres/orm-client';
+import { chunk } from '../../common/arrays.js';
 import { conflictOnUnique } from '../../common/db-errors.js';
 import { escapeLike } from '../../common/sql.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
@@ -17,6 +18,7 @@ import {
 } from './entities/employee.entity.js';
 
 const DUPLICATE_MESSAGE = 'Employee ID already exists';
+const SALARY_LOOKUP_CHUNK = 1000;
 
 @Injectable()
 export class EmployeesService {
@@ -54,12 +56,18 @@ export class EmployeesService {
         )
       : this.employees;
     const rows = await query.orderBy((e) => e.employeeNo.asc()).all();
-    const salaries =
-      rows.length === 0
-        ? []
-        : await this.prisma.db.orm.public.SalaryAssignment.with(active)
-            .where((s) => s.employeeId.in(rows.map((row) => row.id)))
-            .all();
+    // Chunked so the IN list never nears PostgreSQL's bind-parameter limit.
+    const salaryChunks = await Promise.all(
+      chunk(
+        rows.map((row) => row.id),
+        SALARY_LOOKUP_CHUNK,
+      ).map((ids) =>
+        this.prisma.db.orm.public.SalaryAssignment.with(active)
+          .where((s) => s.employeeId.in(ids))
+          .all(),
+      ),
+    );
+    const salaries = salaryChunks.flat();
     const salaryByEmployee = new Map(
       salaries.map((s) => [s.employeeId, toMoneyString(s.monthlyBasicSalary)]),
     );

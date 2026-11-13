@@ -35,7 +35,17 @@ export class UsersService {
       }
       changes.passwordHash = await hashPassword(dto.newPassword);
     }
-    const updated = await this.users.where({ id }).update(changes);
+    // A new password signs the user out everywhere: every active refresh token is revoked in the
+    // same transaction, so a stolen session cannot outlive the password change.
+    const updated = await this.prisma.db.transaction(async (tx) => {
+      const row = await tx.orm.public.User.where({ id }).update(changes);
+      if (row && changes.passwordHash) {
+        await tx.orm.public.RefreshToken.where({ userId: id })
+          .where((token) => token.revokedAt.isNull())
+          .updateAll({ revokedAt: new Date() });
+      }
+      return row;
+    });
     if (!updated) throw new NotFoundException('User not found');
     return UserEntity.from(updated);
   }

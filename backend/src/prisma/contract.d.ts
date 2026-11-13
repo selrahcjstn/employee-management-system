@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'f29d57c5e3e126d959a9686a8dc090bec52996fa68df0c4cc9c646583a50bd32'>;
+  StorageHashBase<'305bc4d637a7cd6b07c6c65157717ca2c01bd596e0d9c8b21cfc0f5a9a7fb78a'>;
 export type ExecutionHash =
   ExecutionHashBase<'73f308d6e91eed7b2b95ef5f15af1d19ed836b16cf4cc889ddf7cf3b64a64b19'>;
 export type ProfileHash =
@@ -343,8 +343,10 @@ export namespace Models {
     tokenHash: FieldOutputTypes['public']['RefreshToken']['tokenHash'];
     userAgent: FieldOutputTypes['public']['RefreshToken']['userAgent'];
     userId: FieldOutputTypes['public']['RefreshToken']['userId'];
+    replacedBy: public_RefreshToken | null;
+    replaces: public_RefreshToken[];
     user: public_User;
-    readonly [RelationKeys]?: 'user';
+    readonly [RelationKeys]?: 'replacedBy' | 'replaces' | 'user';
   };
   export type public_SalaryAssignment = {
     createdAt: FieldOutputTypes['public']['SalaryAssignment']['createdAt'];
@@ -661,6 +663,12 @@ type ContractBase = Omit<
                   readonly unique: false;
                 },
                 {
+                  readonly name: 'refresh_tokens_replaced_by_id_idx_325c901b';
+                  readonly prefix: 'refresh_tokens_replaced_by_id_idx';
+                  readonly columns: readonly ['replaced_by_id'];
+                  readonly unique: false;
+                },
+                {
                   readonly name: 'refresh_tokens_user_id_idx_6c952402';
                   readonly prefix: 'refresh_tokens_user_id_idx';
                   readonly columns: readonly ['user_id'];
@@ -677,6 +685,18 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'users';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'refresh_tokens';
+                    readonly columns: readonly ['replaced_by_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'refresh_tokens';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -1143,6 +1163,29 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly replacedBy: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'RefreshToken';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['replacedById'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly replaces: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'RefreshToken';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['replacedById'];
+                };
+              };
               readonly user: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';

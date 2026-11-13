@@ -1,5 +1,6 @@
 import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { CurrentUser } from '../../common/current-user.decorator.js';
 import { Public } from '../../common/public.decorator.js';
@@ -12,6 +13,7 @@ import { LoginDto } from './dto/login.dto.js';
 
 export const REFRESH_COOKIE = 'refresh_token';
 const COOKIE_PATH = '/api/auth';
+const REFRESH_RATE_LIMIT = 30;
 
 @ApiTags('auth')
 @Controller('auth')
@@ -29,8 +31,10 @@ export class AuthController {
     return this.respond(res, session);
   }
 
+  // Refresh has no email to key on and runs on every page load, so it gets a higher per-IP limit.
   @Public()
   @UseGuards(AuthThrottlerGuard)
+  @Throttle({ default: { limit: REFRESH_RATE_LIMIT, ttl: 60_000 } })
   @Post('refresh')
   @HttpCode(200)
   @ApiOperation({ summary: 'Rotate the refresh cookie and get a new access token' })

@@ -1,6 +1,8 @@
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { TEST_PASSWORD, createApp, createTestUser, deleteTestUser } from './helpers.js';
+import { sqlState } from '../src/common/db-errors.js';
+import { db } from '../src/prisma/db.js';
+import { TEST_PASSWORD, createApp, createTestUser, deleteTestUser, refreshCookie } from './helpers.js';
 
 describe('Users /me (e2e)', () => {
   let app: INestApplication;
@@ -62,5 +64,59 @@ describe('Users /me (e2e)', () => {
 
     await request(server()).post('/api/auth/login').send({ email: user.email, password: TEST_PASSWORD }).expect(401);
     await request(server()).post('/api/auth/login').send({ email: user.email, password: 'Another-pass-2' }).expect(200);
+  });
+
+  it('changing the password revokes every session; changing only the name does not', async () => {
+    const other = await createTestUser();
+    try {
+      const login = () =>
+        request(server()).post('/api/auth/login').send({ email: other.email, password: TEST_PASSWORD });
+      const first = await login().expect(200);
+      const second = await login().expect(200);
+      const bearer = { Authorization: `Bearer ${first.body.accessToken}` };
+
+      await request(server()).patch('/api/users/me').set(bearer).send({ fullName: 'Renamed' }).expect(200);
+      const stillValid = await request(server()).post('/api/auth/refresh').set('Cookie', refreshCookie(second)).expect(200);
+
+      await request(server())
+        .patch('/api/users/me')
+        .set(bearer)
+        .send({ currentPassword: TEST_PASSWORD, newPassword: 'Brand-new-pass-3' })
+        .expect(200);
+
+      await request(server()).post('/api/auth/refresh').set('Cookie', refreshCookie(first)).expect(401);
+      await request(server()).post('/api/auth/refresh').set('Cookie', refreshCookie(stillValid)).expect(401);
+      const active = await db.orm.public.RefreshToken.where({ userId: other.id })
+        .where((token) => token.revokedAt.isNull())
+        .all();
+      expect(active).toHaveLength(0);
+      await request(server())
+        .post('/api/auth/login')
+        .send({ email: other.email, password: 'Brand-new-pass-3' })
+        .expect(200);
+    } finally {
+      await deleteTestUser(other.id);
+    }
+  });
+
+  it('the database stores emails in lowercase only (CHECK), so the case-sensitive lookup is always safe', async () => {
+    const error = await db.orm.public.User.create({
+      email: `Mixed-${Date.now()}@Test.Local`,
+      passwordHash: 'x',
+      fullName: 'Mixed Case',
+      role: 'admin',
+    }).then(
+      () => undefined,
+      (caught: unknown) => caught,
+    );
+    expect(sqlState(error)).toBe('23514');
+  });
+
+  it('a user can sign in with their email in any letter case', async () => {
+    const res = await request(server())
+      .post('/api/auth/login')
+      .send({ email: user.email.toUpperCase(), password: 'Another-pass-2' });
+    expect(res.status).toBe(200);
+    expect(res.body.user.email).toBe(user.email);
   });
 });

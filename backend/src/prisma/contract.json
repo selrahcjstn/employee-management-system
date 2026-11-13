@@ -355,6 +355,37 @@
               }
             },
             "relations": {
+              "replacedBy": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "replacedById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "RefreshToken",
+                  "namespace": "public"
+                }
+              },
+              "replaces": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "replacedById"
+                  ]
+                },
+                "to": {
+                  "model": "RefreshToken",
+                  "namespace": "public"
+                }
+              },
               "user": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -1023,6 +1054,26 @@
                     "namespaceId": "public",
                     "tableName": "users"
                   }
+                },
+                {
+                  "index": {
+                    "name": "refresh_tokens_replaced_by_id_idx_325c901b"
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "replaced_by_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "refresh_tokens"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "refresh_tokens"
+                  }
                 }
               ],
               "indexes": [
@@ -1040,6 +1091,14 @@
                   ],
                   "name": "refresh_tokens_family_id_idx_027b534e",
                   "prefix": "refresh_tokens_family_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "replaced_by_id"
+                  ],
+                  "name": "refresh_tokens_replaced_by_id_idx_325c901b",
+                  "prefix": "refresh_tokens_replaced_by_id_idx",
                   "unique": false
                 },
                 {
@@ -1230,6 +1289,13 @@
               "uniques": []
             },
             "users": {
+              "checks": [
+                {
+                  "expression": "email = lower(email)",
+                  "name": "chk_users_email_lowercase_9b410a78",
+                  "prefix": "chk_users_email_lowercase"
+                }
+              ],
               "columns": {
                 "created_at": {
                   "codecId": "pg/timestamptz-date@1",
@@ -1324,7 +1390,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "f29d57c5e3e126d959a9686a8dc090bec52996fa68df0c4cc9c646583a50bd32"
+    "storageHash": "305bc4d637a7cd6b07c6c65157717ca2c01bd596e0d9c8b21cfc0f5a9a7fb78a"
   },
   "execution": {
     "executionHash": "73f308d6e91eed7b2b95ef5f15af1d19ed836b16cf4cc889ddf7cf3b64a64b19",

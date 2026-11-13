@@ -11,6 +11,7 @@ model User {
   refreshTokens RefreshToken[]
 
   @@index(expression: sql`lower(email)`, unique: true, name: "uq_users_email_lower")
+  @@check(expression: sql`email = lower(email)`, name: "chk_users_email_lowercase")
   @@map("users")
 }
 
@@ -26,6 +27,8 @@ model RefreshToken {
   ipAddress    String?                           @map("ip_address")
   createdAt    DateTime                          @default(now()) @map("created_at")
   user         User                              @relation(fields: [userId], references: [id])
+  replacedBy   RefreshToken?                     @relation("RotationChain", fields: [replacedById], references: [id], onDelete: SetNull)
+  replaces     RefreshToken[]                    @relation("RotationChain")
 
   @@index([userId])
   @@index([familyId])

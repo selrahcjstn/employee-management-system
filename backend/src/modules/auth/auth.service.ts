@@ -108,7 +108,7 @@ export class AuthService {
     const tokenId = randomUUID();
     const refreshToken = await this.jwt.signAsync(
       { sub: user.id, jti: tokenId, family: familyId },
-      { secret: env.jwtRefreshSecret, algorithm: 'HS256', expiresIn: env.jwtRefreshTtl as never },
+      { secret: env.jwtRefreshSecret, algorithm: 'HS256', expiresIn: env.jwtRefreshTtl },
     );
     const { exp } = this.jwt.decode<{ exp: number }>(refreshToken);
     const refreshExpiresAt = new Date(exp * 1000);
@@ -123,7 +123,7 @@ export class AuthService {
     });
     const accessToken = await this.jwt.signAsync(
       { sub: user.id, email: user.email },
-      { secret: env.jwtAccessSecret, algorithm: 'HS256', expiresIn: env.jwtAccessTtl as never },
+      { secret: env.jwtAccessSecret, algorithm: 'HS256', expiresIn: env.jwtAccessTtl },
     );
     return {
       accessToken,

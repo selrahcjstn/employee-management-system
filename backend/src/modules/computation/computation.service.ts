@@ -3,6 +3,7 @@ import { Decimal, toMoneyString } from '../../common/money.js';
 import { EmployeesService } from '../employees/employees.service.js';
 import { EmployeeComponentsService } from '../salary-components/employee-components.service.js';
 import { SalaryService } from '../salary/salary.service.js';
+import { formatEmployeeName } from './employee-name.js';
 import { ComputationEntity } from './entities/computation.entity.js';
 import { WORKING_DAYS_DIVISOR, computeRates } from './rates.js';
 
@@ -38,15 +39,11 @@ export class ComputationService {
       employee: {
         id: employee.id,
         employeeNo: employee.employeeNo,
-        name: [
+        name: formatEmployeeName(
           employee.firstName,
-          employee.middleName
-            ? `${employee.middleName[0]!.toUpperCase()}.`
-            : null,
+          employee.middleName,
           employee.lastName,
-        ]
-          .filter(Boolean)
-          .join(' '),
+        ),
       },
       basicSalary: salary ? toMoneyString(salary.monthlyBasicSalary) : null,
       components: components.map(({ name, amount }) => ({ name, amount })),
