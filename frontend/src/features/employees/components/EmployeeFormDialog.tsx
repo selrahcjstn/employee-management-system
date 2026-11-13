@@ -1,18 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { parseApiError } from '../../../shared/api/errors';
 import { todayInManila } from '../../../shared/lib/today';
 import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
 import { Dialog } from '../../../shared/ui/Dialog';
 import { TextField } from '../../../shared/ui/TextField';
-import { useSaveEmployee } from '../api/queries';
+import { useEmployeeNoTaken } from '../api/use-employee-no-taken';
+import { useEmployees, useSaveEmployee } from '../api/queries';
 import {
   editEmployeeSchema,
   employeeSchema,
   type EmployeeFormValues,
 } from '../schemas';
+import { suggestEmployeeNo } from '../suggest-employee-no';
 import type { Employee } from '../types';
 
 export type SaveResult = 'created' | 'updated';
@@ -25,15 +27,24 @@ const FIELDS = [
   'dateHired',
 ] as const;
 
+const DUPLICATE_MESSAGE = 'Employee ID already exists';
+
 interface EmployeeFormProps {
   /** The employee being edited, or null to add a new one. */
   employee: Employee | null;
+  /** The Employee ID to start a new employee with (empty for none). Ignored when editing. */
+  suggestedNo: string;
   onClose: () => void;
   onSaved: (result: SaveResult) => void;
 }
 
 /** Mounted only while the dialog is open, so every opening starts from a clean form. */
-function EmployeeForm({ employee, onClose, onSaved }: EmployeeFormProps) {
+function EmployeeForm({
+  employee,
+  suggestedNo,
+  onClose,
+  onSaved,
+}: EmployeeFormProps) {
   const editing = employee !== null;
   const save = useSaveEmployee(employee);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -41,17 +52,24 @@ function EmployeeForm({ employee, onClose, onSaved }: EmployeeFormProps) {
     register,
     handleSubmit,
     setError,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<EmployeeFormValues>({
     resolver: zodResolver(editing ? editEmployeeSchema : employeeSchema),
     defaultValues: {
-      employeeNo: employee?.employeeNo ?? '',
+      employeeNo: employee?.employeeNo ?? suggestedNo,
       firstName: employee?.firstName ?? '',
       middleName: employee?.middleName ?? '',
       lastName: employee?.lastName ?? '',
       dateHired: employee?.dateHired ?? '',
     },
   });
+
+  // A hint while typing. The unique index and the 409 below stay the source of truth.
+  const taken = useEmployeeNoTaken(
+    useWatch({ control, name: 'employeeNo' }) ?? '',
+    !editing,
+  );
 
   const onSubmit = handleSubmit(async (values) => {
     setServerError(null);
@@ -86,9 +104,13 @@ function EmployeeForm({ employee, onClose, onSaved }: EmployeeFormProps) {
         required
         readOnly={editing}
         autoFocus={!editing}
-        hint={editing ? "The Employee ID can't be changed." : 'Format: EMP-001'}
-        error={errors.employeeNo?.message}
-        {...register('employeeNo')}
+        placeholder={editing ? undefined : 'e.g. EMP-001'}
+        hint={editing ? "The Employee ID can't be changed." : undefined}
+        error={
+          errors.employeeNo?.message ??
+          (taken.taken ? DUPLICATE_MESSAGE : undefined)
+        }
+        {...register('employeeNo', { onBlur: taken.onBlur })}
       />
       <TextField
         label="First name"
@@ -131,7 +153,10 @@ function EmployeeForm({ employee, onClose, onSaved }: EmployeeFormProps) {
   );
 }
 
-interface EmployeeFormDialogProps extends EmployeeFormProps {
+interface EmployeeFormDialogProps extends Omit<
+  EmployeeFormProps,
+  'suggestedNo'
+> {
   open: boolean;
 }
 
@@ -142,6 +167,8 @@ export function EmployeeFormDialog({
   onSaved,
 }: EmployeeFormDialogProps) {
   const editing = employee !== null;
+  // The same list the page shows, so the suggestion costs no extra request.
+  const everyone = useEmployees('');
   return (
     <Dialog
       open={open}
@@ -153,7 +180,12 @@ export function EmployeeFormDialog({
           : 'Enter the details of the person you are onboarding. Their salary is set separately.'
       }
     >
-      <EmployeeForm employee={employee} onClose={onClose} onSaved={onSaved} />
+      <EmployeeForm
+        employee={employee}
+        suggestedNo={suggestEmployeeNo(everyone.data ?? [])}
+        onClose={onClose}
+        onSaved={onSaved}
+      />
     </Dialog>
   );
 }

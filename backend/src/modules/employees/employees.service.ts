@@ -31,7 +31,7 @@ export class EmployeesService {
   async create(dto: CreateEmployeeDto): Promise<EmployeeEntity> {
     try {
       const row = await this.employees.create({
-        employeeNo: dto.employeeNo,
+        employeeNo: dto.employeeNo.toUpperCase(),
         firstName: dto.firstName,
         middleName: dto.middleName || null,
         lastName: dto.lastName,
@@ -60,6 +60,18 @@ export class EmployeesService {
     return rows.map((row) =>
       EmployeeListItemEntity.withPay(row, pay.get(row.id) ?? NO_PAY),
     );
+  }
+
+  /**
+   * Whether the Employee ID is taken, ignoring case. A quick check for the form while someone types;
+   * the unique index (and the 409 on create) stays the source of truth.
+   */
+  async exists(employeeNo: string): Promise<boolean> {
+    const pattern = escapeLike(employeeNo);
+    const row = await this.employees
+      .where((e) => e.employeeNo.ilike(pattern))
+      .first();
+    return row !== null;
   }
 
   async findOne(id: string): Promise<EmployeeEntity> {

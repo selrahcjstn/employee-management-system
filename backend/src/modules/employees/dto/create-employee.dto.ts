@@ -6,29 +6,35 @@ import {
   IsString,
   Matches,
   MaxLength,
+  MinLength,
 } from 'class-validator';
-import {
-  IsPastOrTodayDate,
-  trim,
-  trimUpperCase,
-} from '../../../common/validators.js';
+import { IsPastOrTodayDate, trim } from '../../../common/validators.js';
 
-/** The business Employee ID: EMP- and at least three digits (EMP-001, EMP-1042). */
-export const EMPLOYEE_NO_PATTERN = /^EMP-\d{3,}$/;
+/**
+ * What an Employee ID may contain: letters, digits and hyphens (ASCII only). There is no fixed
+ * shape such as EMP-001: the ID is typed by a person, and the only rule beyond this is that it is
+ * unique ignoring case. It is saved in upper case.
+ */
+export const EMPLOYEE_NO_PATTERN = /^[A-Za-z0-9-]+$/;
+export const EMPLOYEE_NO_MIN = 3;
+export const EMPLOYEE_NO_MAX = 50;
 
 export class CreateEmployeeDto {
   @ApiProperty({
     example: 'EMP-001',
     maxLength: 50,
     description:
-      'Business Employee ID: EMP- and at least 3 digits. Saved in upper case. Unique and immutable.',
+      'Business Employee ID, typed by the user: 3 to 50 letters, digits or hyphens. Saved in upper case. Unique (ignoring case) and immutable.',
   })
-  @Transform(trimUpperCase)
+  @Transform(trim)
   @IsString()
   @IsNotEmpty()
-  @MaxLength(50)
+  @MinLength(EMPLOYEE_NO_MIN, {
+    message: 'Employee ID must be at least 3 characters',
+  })
+  @MaxLength(EMPLOYEE_NO_MAX)
   @Matches(EMPLOYEE_NO_PATTERN, {
-    message: 'Employee ID must look like EMP-001',
+    message: 'Employee ID can only use letters, numbers and hyphens',
   })
   employeeNo: string;
 

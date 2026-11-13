@@ -72,7 +72,7 @@ HR staff / admin (single role).
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
-| Employee ID (`employee_no`) | string | Yes | Unique, trimmed, case-insensitive uniqueness; immutable after creation |
+| Employee ID (`employee_no`) | string | Yes | Typed by the user (never generated). Trimmed, 3 to 50 characters, letters, digits and hyphens only, saved in upper case. Unique, ignoring case; immutable after creation |
 | First Name | string | Yes | 1–100 chars |
 | Middle Name | string | No | 0–100 chars |
 | Last Name | string | Yes | 1–100 chars |
@@ -82,14 +82,17 @@ HR staff / admin (single role).
 - FR-1.1 Add a new employee.
 - FR-1.2 Update employee information (Employee ID locked on edit).
 - FR-1.3 Validate required fields on client and server.
-- FR-1.4 Reject duplicate Employee IDs (DB unique constraint plus friendly `409` error shown inline).
+- FR-1.4 Reject duplicate Employee IDs (DB unique constraint plus friendly `409` error shown inline). The form also asks `GET /employees/exists` 400ms after typing stops, and when the field loses focus, and shows the same inline error early; that check is a hint, the constraint and the `409` stay the source of truth.
+- FR-1.6 The Employee ID stays a manual input (the spec asks to prevent duplicates, so a person enters it). The add form starts with a suggestion: the highest existing `EMP-<number>` plus one, padded to at least 3 digits (`EMP-004` gives `EMP-005`; none gives an empty field). The suggestion is fully editable.
 - FR-1.5 List employees (table, searchable) so the other modules can reuse it.
 
 **Acceptance criteria**
 - Submitting with empty First/Last Name or Date Hired shows field-level errors and does not call the API (and the API rejects it anyway with `400`).
 - Creating `EMP-001` twice returns `409 Conflict`; UI shows "Employee ID already exists".
 - Editing an employee never changes its Employee ID.
-- The Employee ID must be `EMP-` followed by at least three digits (`^EMP-\d{3,}$`, for example `EMP-001` or `EMP-1042`). It is trimmed and saved in upper case, so `emp-001` is stored as `EMP-001`. Anything else is a `400` with "Employee ID must look like EMP-001" (and the form shows it before calling the API). The rule applies when an employee is created; rows that already exist are not rewritten.
+- The Employee ID is trimmed and must be 3 to 50 characters: letters, digits and hyphens only (so `EMP 001`, `EMP_001` and `EMPÉ01` are a `400`; there is no required shape such as `EMP-001`). It is saved in upper case, so `emp-001` is stored as `EMP-001`. Rows that already exist are not changed or rejected (for example `EMP001`).
+- `emp-001`, ` EMP-001 ` and `EMP-001` are the same Employee ID: creating a second one is a `409`, and `GET /employees/exists?employeeNo=` reports it taken.
+- The Date Hired input cannot be set after today (Manila) and the form and the API both reject a future date.
 - The employee list also shows each employee's `componentsCount`, `componentsTotal`, `monthlyTotal` (basic salary plus components, `null` with no basic salary) and `basicSalarySince` (when the active salary was assigned), worked out from active rows only, so overview pages need no extra requests per employee.
 
 ---
@@ -456,6 +459,7 @@ All endpoints below require `Authorization: Bearer <access token>`.
 | Method | Endpoint | Purpose |
 |---|---|---|
 | GET | `/employees` | List employees with current basic salary, `basicSalarySince`, `componentsCount`, `componentsTotal` and `monthlyTotal`; optional `?search=` matches Employee ID or any name part, case-insensitive |
+| GET | `/employees/exists` | `?employeeNo=` returns `{ "exists": boolean }`, trimmed and case-insensitive, for the form's live duplicate check |
 | POST | `/employees` | Create employee (`409` on duplicate ID) |
 | GET | `/employees/:id` | Get one employee |
 | PATCH | `/employees/:id` | Update employee (ID immutable) |

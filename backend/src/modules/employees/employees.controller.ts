@@ -18,10 +18,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CreateEmployeeDto } from './dto/create-employee.dto.js';
+import { EmployeeExistsDto } from './dto/employee-exists.dto.js';
 import { ListEmployeesDto } from './dto/list-employees.dto.js';
 import { UpdateEmployeeDto } from './dto/update-employee.dto.js';
 import {
   EmployeeEntity,
+  EmployeeExistsEntity,
   EmployeeListItemEntity,
 } from './entities/employee.entity.js';
 import { EmployeesService } from './employees.service.js';
@@ -45,6 +47,18 @@ export class EmployeesController {
   @ApiOkResponse({ type: [EmployeeListItemEntity] })
   list(@Query() query: ListEmployeesDto) {
     return this.employeesService.list(query.search);
+  }
+
+  // Declared before `:id`, which would otherwise take "exists" for an id.
+  @Get('exists')
+  @ApiOperation({
+    summary: 'Is this Employee ID already taken? (case-insensitive)',
+  })
+  @ApiOkResponse({ type: EmployeeExistsEntity })
+  async exists(
+    @Query() query: EmployeeExistsDto,
+  ): Promise<EmployeeExistsEntity> {
+    return { exists: await this.employeesService.exists(query.employeeNo) };
   }
 
   @Get(':id')

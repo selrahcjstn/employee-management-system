@@ -120,6 +120,7 @@ export function workspaceServer(
   const fail = {
     list: false,
     save: null as FakeReply | null,
+    exists: false,
     salarySave: null as FakeReply | null,
     salaryCurrent: false,
     componentsWrite: null as FakeReply | null,

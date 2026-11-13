@@ -18,6 +18,14 @@ export async function getEmployee(id: string): Promise<SavedEmployee> {
   return data;
 }
 
+/** Whether an employee already has this Employee ID (ignoring case). The 409 on create stays the source of truth. */
+export async function employeeNoExists(employeeNo: string): Promise<boolean> {
+  const { data } = await api.get<{ exists: boolean }>('/employees/exists', {
+    params: { employeeNo },
+  });
+  return data.exists;
+}
+
 export async function createEmployee(
   input: EmployeeInput,
 ): Promise<SavedEmployee> {

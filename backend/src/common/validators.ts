@@ -70,7 +70,3 @@ export function IsMoneyString(
 /** Trims strings before validation; other values pass through for the validators to reject. */
 export const trim = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
-
-/** Trims and upper-cases strings, for codes like an Employee ID that are saved one way. */
-export const trimUpperCase = ({ value }: { value: unknown }) =>
-  typeof value === 'string' ? value.trim().toUpperCase() : value;

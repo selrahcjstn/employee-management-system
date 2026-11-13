@@ -35,10 +35,12 @@ interface Options {
   /** How long the list takes to answer, to see the loading state. */
   listDelayMs?: number;
   saveDelayMs?: number;
+  /** How long the duplicate check takes to answer, to test a late answer. */
+  existsDelayMs?: number;
   /** Fills in what other endpoints own (salary and components) on each employee the list returns. */
   decorate?: (employee: Employee) => Employee;
   /** Failure switches shared with the caller, so a wrapper can add its own next to `list` and `save`. */
-  fail?: { list: boolean; save: FakeReply | null };
+  fail?: { list: boolean; save: FakeReply | null; exists: boolean };
   /** Answers other endpoints (the salary ones) before the employee endpoints do. */
   extend?: (
     call: RecordedCall,
@@ -56,13 +58,28 @@ export function employeesServer(
   options: Options = {},
 ) {
   const employees = [...initial];
-  const fail = options.fail ?? { list: false, save: null };
+  const fail = options.fail ?? { list: false, save: null, exists: false };
 
   const server = authServer({
     signedIn: true,
     handle: async (call) => {
       const extended = await options.extend?.(call, employees);
       if (extended) return extended;
+      // The live duplicate check: the same case-insensitive, trimmed comparison as the real API.
+      if (call.url === '/employees/exists' && call.method === 'GET') {
+        await delay(options.existsDelayMs ?? 0);
+        if (fail.exists) return apiError(500, 'select * from employees');
+        const wanted = (call.params?.['employeeNo'] ?? '').trim().toLowerCase();
+        return {
+          status: 200,
+          data: {
+            exists: employees.some(
+              (employee) => employee.employeeNo.toLowerCase() === wanted,
+            ),
+          },
+        };
+      }
+
       if (call.url === '/employees' && call.method === 'GET') {
         await delay(options.listDelayMs ?? 0);
         if (fail.list)

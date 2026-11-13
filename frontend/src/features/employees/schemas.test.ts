@@ -70,29 +70,44 @@ describe('employeeSchema', () => {
     ]);
   });
 
-  describe('Employee ID format', () => {
-    it.each(['EMP-001', 'EMP-1042', 'EMP-0000001'])(
-      'accepts %s',
-      (employeeNo) => {
-        expect(messages({ employeeNo })).toEqual([]);
-      },
-    );
+  describe('Employee ID rules: letters, digits and hyphens, 3 to 50, trimmed, saved in upper case', () => {
+    it.each([
+      'EMP-001',
+      'EMP001',
+      'emp-001',
+      'ABC',
+      'a1-b2',
+      'STAFF-42',
+      'X'.repeat(50),
+    ])('accepts %s', (employeeNo) => {
+      expect(messages({ employeeNo })).toEqual([]);
+    });
 
     it.each([
-      'EMP001',
-      'E-001',
-      'EMP-12',
-      'EMP-12a',
-      'EMP-',
-      'EMP 001',
-      'ABC-001',
-    ])('rejects %s', (employeeNo) => {
-      expect(messages({ employeeNo })).toEqual([
-        'Employee ID must look like EMP-001',
+      ['EMP 001', 'Employee ID can only use letters, numbers and hyphens'],
+      ['EMP_001', 'Employee ID can only use letters, numbers and hyphens'],
+      ['EMP.001', 'Employee ID can only use letters, numbers and hyphens'],
+      ['EMP/001', 'Employee ID can only use letters, numbers and hyphens'],
+      ['EMPÉ01', 'Employee ID can only use letters, numbers and hyphens'],
+      ['EMP#01', 'Employee ID can only use letters, numbers and hyphens'],
+      ['AB', 'Employee ID must be at least 3 characters'],
+      ['  AB  ', 'Employee ID must be at least 3 characters'],
+    ])('rejects "%s"', (employeeNo, message) => {
+      expect(messages({ employeeNo })).toEqual([message]);
+    });
+
+    it('rejects 51 characters', () => {
+      expect(messages({ employeeNo: 'X'.repeat(51) })).toEqual([
+        'Employee ID must be 50 characters or fewer',
       ]);
     });
 
-    it('saves it in upper case, so emp-001 becomes EMP-001', () => {
+    it('no longer insists on the EMP-001 shape', () => {
+      expect(messages({ employeeNo: 'EMP001' })).toEqual([]);
+      expect(messages({ employeeNo: 'STAFF-7' })).toEqual([]);
+    });
+
+    it('trims and upper-cases what it returns, so emp-007 is saved as EMP-007', () => {
       expect(
         employeeSchema.parse({ ...valid, employeeNo: ' emp-007 ' }).employeeNo,
       ).toBe('EMP-007');
@@ -100,7 +115,7 @@ describe('employeeSchema', () => {
   });
 
   describe('editEmployeeSchema', () => {
-    it('does not check the format, so a row created before the rule (EMP001) can still be edited', () => {
+    it('does not check the ID at all, so a row with any older kind of ID can still be edited', () => {
       expect(
         editEmployeeSchema.safeParse({ ...valid, employeeNo: 'EMP001' })
           .success,

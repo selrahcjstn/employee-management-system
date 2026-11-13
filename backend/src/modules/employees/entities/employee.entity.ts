@@ -81,3 +81,11 @@ export class EmployeeListItemEntity extends EmployeeEntity {
     );
   }
 }
+
+export class EmployeeExistsEntity {
+  @ApiProperty({
+    description:
+      'Whether an employee already has this Employee ID (ignoring case)',
+  })
+  exists: boolean;
+}
