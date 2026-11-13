@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import {
   CalculatorIcon,
+  DashboardIcon,
   ListIcon,
   UsersIcon,
   WalletIcon,
@@ -22,6 +23,17 @@ export interface NavGroup {
 
 /** The four modules, grouped by what they are about. The breadcrumb in the header repeats the group. */
 export const NAV_GROUPS: NavGroup[] = [
+  {
+    label: 'Overview',
+    items: [
+      {
+        to: '/dashboard',
+        label: 'Dashboard',
+        icon: DashboardIcon,
+        enabled: true,
+      },
+    ],
+  },
   {
     label: 'People',
     items: [

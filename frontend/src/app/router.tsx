@@ -2,6 +2,7 @@ import type { RouteObject } from 'react-router';
 import { LoginPage } from '../features/auth/pages/LoginPage';
 import { ProtectedRoute } from '../features/auth/routes/ProtectedRoute';
 import { PublicOnlyRoute } from '../features/auth/routes/PublicOnlyRoute';
+import { DashboardPage } from '../features/dashboard/pages/DashboardPage';
 import { EmployeesPage } from '../features/employees/pages/EmployeesPage';
 import { SalaryPage } from '../features/salary/pages/SalaryPage';
 import { NotFoundPage } from '../shared/pages/NotFoundPage';
@@ -21,6 +22,7 @@ export const routes: RouteObject[] = [
       {
         element: <AppLayout />,
         children: [
+          { path: '/dashboard', element: <DashboardPage /> },
           { path: '/employees', element: <EmployeesPage /> },
           { path: '/salary', element: <SalaryPage /> },
         ],

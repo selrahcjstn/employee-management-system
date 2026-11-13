@@ -105,6 +105,28 @@
   /* A menu opening (DESIGN.md 5): 150ms. It answers a click, so it is not decorative. */
   --animate-menu-in: menu-in 150ms ease-out both;
 
+  /* The dashboard's bars grow from their base once, when the numbers arrive. */
+  --animate-bar-grow: bar-grow 600ms ease-out both;
+  --animate-bar-fill: bar-fill 800ms ease-out both;
+
+  @keyframes bar-grow {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  @keyframes bar-fill {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: none;
+    }
+  }
+
   @keyframes dialog-in {
     from {
       opacity: 0;

@@ -26,7 +26,7 @@ describe('AppLayout', () => {
   });
 
   describe('sidebar', () => {
-    it('groups the pages under People and Pay, with the current page marked', async () => {
+    it('groups the pages under Overview, People and Pay, with the current page marked', async () => {
       await openApp();
       const nav = screen.getByRole('navigation', { name: 'Main' });
 
@@ -40,7 +40,7 @@ describe('AppLayout', () => {
       expect(
         within(pay).getByRole('link', { name: 'Salary' }),
       ).not.toHaveAttribute('aria-current');
-      expect(within(nav).getAllByRole('link')).toHaveLength(2);
+      expect(within(nav).getAllByRole('link')).toHaveLength(3);
     });
 
     it('shows pages that are not built yet as disabled, each with a "Soon" label', async () => {

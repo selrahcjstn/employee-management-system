@@ -5,6 +5,7 @@ import chevronDown from '../../assets/icons/chevron-down.svg?raw';
 import chevronRight from '../../assets/icons/chevron-right.svg?raw';
 import eyeOff from '../../assets/icons/eye-off.svg?raw';
 import eye from '../../assets/icons/eye.svg?raw';
+import layoutDashboard from '../../assets/icons/layout-dashboard.svg?raw';
 import list from '../../assets/icons/list.svg?raw';
 import logOut from '../../assets/icons/log-out.svg?raw';
 import menu from '../../assets/icons/menu.svg?raw';
@@ -62,6 +63,9 @@ export const ChevronRightIcon = (props: IconProps) => (
 );
 export const CloseIcon = (props: IconProps) => (
   <SvgIcon source={x} {...props} />
+);
+export const DashboardIcon = (props: IconProps) => (
+  <SvgIcon source={layoutDashboard} {...props} />
 );
 export const EyeIcon = (props: IconProps) => (
   <SvgIcon source={eye} {...props} />

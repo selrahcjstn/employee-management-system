@@ -22,6 +22,7 @@ describe('SVG assets (inlined into the page, so they must be safe and consistent
       'icons/chevron-right.svg',
       'icons/eye-off.svg',
       'icons/eye.svg',
+      'icons/layout-dashboard.svg',
       'icons/list.svg',
       'icons/log-out.svg',
       'icons/menu.svg',
